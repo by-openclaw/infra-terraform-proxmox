@@ -1,0 +1,48 @@
+name: Terraform CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform-validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # Validate all environments
+        environment: [poc]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.5"
+
+      - name: Terraform Format Check
+        # Check that all .tf files are formatted correctly
+        run: terraform fmt -check -recursive
+        working-directory: .
+
+      - name: Terraform Init (environment)
+        # Initialize with local backend — no real state needed for validation
+        run: terraform init -backend=false
+        working-directory: environments/${{ matrix.environment }}
+
+      - name: Terraform Validate (environment)
+        # Validate configuration syntax and module references
+        run: terraform validate
+        working-directory: environments/${{ matrix.environment }}
+        env:
+          # Stub variables to allow validate to pass without real credentials
+          TF_VAR_proxmox_api_url: "https://placeholder:8006/api2/json"
+          TF_VAR_proxmox_api_token_id: "root@pam!placeholder"
+          TF_VAR_proxmox_api_token_secret: "00000000-0000-0000-0000-000000000000"
