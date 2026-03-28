@@ -58,6 +58,12 @@ variable "dns" {
   default     = "10.6.224.1"
 }
 
+variable "domain" {
+  description = "DNS domain for FQDN (e.g. by-systems.arpa)"
+  type        = string
+  default     = "by-systems.arpa"
+}
+
 variable "keyboard_layout" {
   description = "Keyboard layout for the VM console (e.g., fr-be for Belgian)"
   type        = string
