@@ -95,6 +95,29 @@ API token: `svc-terraform@pve!ci` — do not rotate without updating this file.
 
 ---
 
+## Diagram Standard (mandatory)
+
+When asked to generate or update a diagram, always follow this pipeline:
+
+1. **Write/update source** → `assets/diagrams/<type>-<subject>-v<N>.puml` (PlantUML)
+2. **Render to PNG** → `assets/exports/<type>-<subject>-v<N>.png` via Kroki:
+   ```python
+   import zlib, base64, urllib.request
+   compressed = zlib.compress(puml_content.encode('utf-8'), 9)
+   encoded = base64.urlsafe_b64encode(compressed).decode('ascii').rstrip('=')
+   url = f"https://kroki.io/plantuml/png/{encoded}"
+   urllib.request.urlretrieve(url, 'assets/exports/<name>.png')
+   ```
+3. **Write ASCII version** → `assets/diagrams/<type>-<subject>-v<N>-ascii.txt`
+4. **Commit all three** + post PNG to Discord channel `1486559640945819828`
+5. **Reference in docs** always via `assets/exports/` — never link to `assets/diagrams/` directly
+
+**Two diagram modes:**
+- `technical` (default): PlantUML dark theme, Kroki render, commit to repo
+- `marketing` (when requested): descriptive prompt for Gemini Imagen (requires API key configured)
+
+---
+
 ## Related
 
 - Platform docs: [`by-openclaw/doc-platform-core`](https://github.com/by-openclaw/doc-platform-core)
