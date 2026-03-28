@@ -1,3 +1,4 @@
+# Root-level reference only. Run terraform from environments/poc/
 terraform {
   # Minimum Terraform version — use 1.5+ for best HCL features and stability
   required_version = ">= 1.5.0"

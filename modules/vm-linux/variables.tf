@@ -26,7 +26,7 @@ variable "memory" {
 }
 
 variable "disk_size" {
-  description = "Disk size for the primary VirtIO disk (e.g., '20G')"
+  description = "Disk size for the primary disk (e.g., '20G')"
   type        = string
   default     = "20G"
 }
@@ -55,7 +55,7 @@ variable "gateway" {
 variable "ci_user" {
   description = "Cloud-init default user (created by cloud-init on first boot)"
   type        = string
-  default     = "sysadmin"
+  default     = "debian"
 }
 
 variable "ssh_keys" {

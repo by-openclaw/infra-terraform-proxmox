@@ -1,63 +1,80 @@
-resource "proxmox_vm_qemu" "this" {
-  # VM identity
-  name        = var.name
-  desc        = "Managed by Terraform — BY-SYSTEMS infra-terraform-proxmox"
-  target_node = var.target_node
+# Fetch template VM ID by name
+data "proxmox_virtual_environment_vms" "template" {
+  node_name = var.target_node
+  filter {
+    name   = "name"
+    values = [var.clone]
+  }
+}
+
+resource "proxmox_virtual_environment_vm" "this" {
+  name      = var.name
+  node_name = var.target_node
 
   # Clone from template
-  clone = var.clone
-
-  # Hardware
-  cores   = var.cores
-  sockets = 1
-  memory  = var.memory
-  cpu     = "host"
-
-  # Disk — always VirtIO
-  disk {
-    slot    = "virtio0"
-    size    = var.disk_size
-    storage = var.storage
-    type    = "virtio"
-    discard = "on"
-    iothread = 1
+  clone {
+    vm_id = data.proxmox_virtual_environment_vms.template.vms[0].vm_id
+    full  = true
   }
 
-  # Cloud-init drive — always attached
-  disk {
-    slot    = "ide2"
-    type    = "cloudinit"
-    storage = var.storage
+  # CPU
+  cpu {
+    cores = var.cores
+    type  = "host"
   }
 
-  # Network — always VirtIO
-  network {
+  # Memory
+  memory {
+    dedicated = var.memory
+  }
+
+  # Boot disk (resized after clone)
+  disk {
+    datastore_id = var.storage
+    interface    = "scsi0"
+    size         = tonumber(replace(var.disk_size, "G", ""))
+    discard      = "on"
+    iothread     = true
+    file_format  = "qcow2"
+  }
+
+  # Network
+  network_device {
     model  = "virtio"
     bridge = var.network_bridge
   }
 
-  # QEMU guest agent — always enabled
-  agent = 1
-
-  # Cloud-init configuration
-  os_type    = "cloud-init"
-  ipconfig0  = "ip=${var.ip},gw=${var.gateway}"
-  ciuser     = var.ci_user
-  sshkeys    = join("\n", var.ssh_keys)
-
-  # Boot settings
-  boot    = "order=virtio0"
-  onboot  = true
-
-  # VGA for noVNC console
-  vga {
-    type   = "std"
-    memory = 16
+  # QEMU guest agent
+  agent {
+    enabled = true
   }
 
+  # Cloud-init
+  initialization {
+    ip_config {
+      ipv4 {
+        address = var.ip
+        gateway = var.gateway
+      }
+    }
+    user_account {
+      username = var.ci_user
+      keys     = var.ssh_keys
+    }
+  }
+
+  # Serial console
+  serial_device {}
+
+  # VGA
+  vga {
+    type = "serial0"
+  }
+
+  on_boot = true
+
   lifecycle {
-    # Prevent accidental destruction of VMs
     prevent_destroy = false
-    ignore_changes  = [network, disk]
+    ignore_changes  = [clone]
   }
 }

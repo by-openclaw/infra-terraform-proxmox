@@ -1,19 +1,12 @@
 output "vm_id" {
-  description = "Proxmox VM ID assigned to this VM"
-  value       = proxmox_vm_qemu.this.vmid
+  value = proxmox_virtual_environment_vm.this.id
 }
 
 output "vm_name" {
-  description = "Name of the created VM"
-  value       = proxmox_vm_qemu.this.name
+  value = proxmox_virtual_environment_vm.this.name
 }
 
-output "vm_ip" {
-  description = "IP address assigned to the VM via cloud-init"
+output "ip_address" {
+  description = "VM IP address (from cloud-init config)"
   value       = var.ip
-}
-
-output "target_node" {
-  description = "Proxmox node on which the VM is deployed"
-  value       = proxmox_vm_qemu.this.target_node
 }

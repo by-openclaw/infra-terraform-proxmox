@@ -1,3 +1,4 @@
+# Root-level reference only. Run terraform from environments/poc/
 terraform {
   required_providers {
     proxmox = {

@@ -1,16 +1,15 @@
-variable "proxmox_api_url" {
-  description = "Full Proxmox API URL (e.g., https://10.6.224.105:8006/api2/json)"
+variable "proxmox_endpoint" {
+  description = "Proxmox API endpoint (e.g. https://10.6.224.105:8006)"
   type        = string
 }
 
-variable "proxmox_api_token_id" {
-  description = "Proxmox API token ID in format user@realm!token-name (e.g., root@pam!terraform)"
+variable "proxmox_username" {
+  description = "Proxmox user (e.g. root@pam)"
   type        = string
-  sensitive   = true
 }
 
-variable "proxmox_api_token_secret" {
-  description = "Proxmox API token secret (UUID)"
+variable "proxmox_password" {
+  description = "Proxmox password"
   type        = string
   sensitive   = true
 }

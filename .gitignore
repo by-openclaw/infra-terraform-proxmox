@@ -9,7 +9,6 @@
 
 # Terraform working directory
 .terraform/
-.terraform.lock.hcl
 
 # Plan files (may contain secrets)
 *.tfplan
