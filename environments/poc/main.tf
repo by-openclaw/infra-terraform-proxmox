@@ -39,6 +39,7 @@ module "bootstrap_test" {
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
 
+  ci_user  = "by-systems"
   ssh_keys = local.standard_ssh_keys
 }
 

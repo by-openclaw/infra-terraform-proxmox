@@ -7,37 +7,22 @@ data "proxmox_virtual_environment_vms" "template" {
   }
 }
 
-# Cloud-init user-data file — uploaded to Proxmox snippets storage
-# Handles: by-systems user, sudo, SSH keys, disable default ci user login
-resource "proxmox_virtual_environment_file" "user_data" {
+# Cloud-init vendor-data — grants sudo to by-systems
+# Keys and user are set via native Proxmox CI fields (visible in UI)
+resource "proxmox_virtual_environment_file" "vendor_data" {
   content_type = "snippets"
   datastore_id = "local"
   node_name    = var.target_node
 
   source_raw {
-    file_name = "${var.name}-user-data.yaml"
+    file_name = "${var.name}-vendor-data.yaml"
     data      = <<-EOT
       #cloud-config
-      # BY-SYSTEMS VM baseline — standard OOB admin user
-      users:
-        - name: by-systems
-          gecos: BY-SYSTEMS Admin
-          groups: [sudo]
-          shell: /bin/bash
-          sudo: ALL=(ALL) NOPASSWD:ALL
-          ssh_authorized_keys:
-${join("\n", formatlist("          - %s", var.ssh_keys))}
-      # Disable password auth
-      ssh_pwauth: false
-      # Install essential packages
-      packages:
-        - qemu-guest-agent
-        - sudo
-        - curl
-      # Start guest agent
+      # BY-SYSTEMS VM baseline — grant sudo to admin user
       runcmd:
-        - systemctl enable qemu-guest-agent
-        - systemctl start qemu-guest-agent
+        - echo '${var.ci_user} ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/${var.ci_user}
+        - chmod 440 /etc/sudoers.d/${var.ci_user}
+        - systemctl enable qemu-guest-agent --now || true
     EOT
   }
 }
@@ -82,12 +67,12 @@ resource "proxmox_virtual_environment_vm" "this" {
     bridge = var.network_bridge
   }
 
-  # VGA — std, no serial override
+  # VGA — std display, no serial
   vga {
     type = "std"
   }
 
-  # Keyboard layout
+  # Keyboard layout (noVNC console)
   keyboard_layout = var.keyboard_layout
 
   # QEMU guest agent
@@ -96,10 +81,10 @@ resource "proxmox_virtual_environment_vm" "this" {
     timeout = "15m"
   }
 
-  # Cloud-init
+  # Cloud-init — native Proxmox fields (visible in UI)
   initialization {
-    datastore_id      = var.storage
-    user_data_file_id = proxmox_virtual_environment_file.user_data.id
+    datastore_id       = var.storage
+    vendor_data_file_id = proxmox_virtual_environment_file.vendor_data.id
 
     dns {
       servers = [var.dns]
@@ -110,6 +95,12 @@ resource "proxmox_virtual_environment_vm" "this" {
         address = var.ip
         gateway = var.gateway
       }
+    }
+
+    # Native CI user — shows in Proxmox UI, keys visible in Cloud-Init tab
+    user_account {
+      username = var.ci_user
+      keys     = var.ssh_keys
     }
   }
 
