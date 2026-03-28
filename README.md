@@ -98,3 +98,4 @@ This repo includes onboarding files for AI agents (Claude Code, Codex, etc.):
 |---|---|---|---|
 | vm-debian-bootstrap-test-01 | 100 | 10.6.225.11 | ✅ VALIDATED |
 | vm-netbox-poc-01 | TBD | TBD | ⏸ PLANNED |
+<!-- webhook test 2026-03-28T16:02:52Z -->
