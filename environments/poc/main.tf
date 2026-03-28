@@ -3,34 +3,52 @@
 # Node: srv-proxmox-poc-01 (10.6.224.105)
 # Provider: bpg/proxmox ~> 0.66 (PVE 9.x compatible)
 # State: local backend (migrate to GitLab managed state when GitLab CE deployed)
+#
+# IP strategy:
+#   10.6.224.x — infrastructure (fw, switches, Proxmox nodes, NAS)
+#   10.6.225.x — VMs/LXCs (PoC/dev)
+#   10.6.239.101-199 — DHCP pool (avoid for static)
 ################################################################################
 
-module "netbox" {
-  source = "../../modules/vm-linux"
-
-  name        = "vm-netbox-poc-01"
-  target_node = "srv-proxmox-poc-01"
-  clone       = "debian-12-cloud"
-
-  cores     = 2
-  memory    = 4096
-  disk_size = "20G"
-  storage   = "poc-data"
-
-  network_bridge = "vmbrMGMT"
-  ip             = "10.6.240.10/20"
-  gateway        = "10.6.255.254"
-
-  ci_user = "debian"
-  ssh_keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGhb4mI3rUIOrwn5vCsUfMk0Si68V9VI0fGFeRHWnH4F yboujraf@by-systems.be"
+# Standard SSH keys injected into all VMs
+locals {
+  standard_ssh_keys = [
+    # My Lord personal Win11 key
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAoUn/DYxSFLu+TDqKlQwsllWfr5G0NEVI3Jh0sn0yvm yboujraf@personal-2026-03-27",
+    # Rune automation key
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu rune@by-systems-rune-vm",
   ]
 }
 
-output "netbox_vm_id" {
-  value = module.netbox.vm_id
+# Bootstrap test VM — validating VM baseline standard before deploying apps
+# Once validated, this will be destroyed and the pattern used for real VMs
+module "bootstrap_test" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-debian-bootstrap-test-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 1
+  memory    = 1024
+  disk_size = "10G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.11/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ssh_keys = local.standard_ssh_keys
 }
 
-output "netbox_ip" {
-  value = module.netbox.ip_address
+output "bootstrap_test_vm_id" {
+  value = module.bootstrap_test.vm_id
 }
+
+output "bootstrap_test_ip" {
+  value = module.bootstrap_test.ip_address
+}
+
+# NOTE: vm-netbox-poc-01 (ID 100) still exists with old config
+# Will be destroyed manually after bootstrap test is validated

@@ -10,7 +10,8 @@ variable "proxmox_api_token" {
 }
 
 variable "proxmox_ssh_password" {
-  description = "SSH password for root — required by bpg/proxmox for disk operations"
+  description = "SSH password for root — kept for reference, SSH via agent in practice"
   type        = string
   sensitive   = true
+  default     = ""
 }

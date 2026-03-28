@@ -37,9 +37,9 @@ variable "storage" {
 }
 
 variable "network_bridge" {
-  description = "Proxmox network bridge to attach the VM NIC to (e.g., vmbrMGMT)"
+  description = "Proxmox network bridge to attach the VM NIC to (e.g., vmbrOOB)"
   type        = string
-  default     = "vmbrMGMT"
+  default     = "vmbrOOB"
 }
 
 variable "ip" {
@@ -50,6 +50,18 @@ variable "ip" {
 variable "gateway" {
   description = "Default gateway IP for cloud-init network config"
   type        = string
+}
+
+variable "dns" {
+  description = "DNS server IP (usually same as gateway)"
+  type        = string
+  default     = "10.6.224.1"
+}
+
+variable "keyboard_layout" {
+  description = "Keyboard layout for the VM console (e.g., fr-be for Belgian)"
+  type        = string
+  default     = "fr-be"
 }
 
 variable "ci_user" {
