@@ -82,3 +82,19 @@ Required permissions for the token user:
 
 - GitHub Issues: [by-openclaw/platform-setup #44](https://github.com/by-openclaw/platform-setup/issues/44)
 - Platform board: [BY-SYSTEMS Platform](https://github.com/orgs/by-openclaw/projects/1)
+
+## AI Agent Context
+
+This repo includes onboarding files for AI agents (Claude Code, Codex, etc.):
+
+- [`AGENTS.md`](AGENTS.md) — generic agent onboarding: what this repo is, commit standards, what NOT to do
+- [`CLAUDE.md`](CLAUDE.md) — Claude Code specific: current state, blockers, key files, constraints
+
+**Agent:** Rune | **Owner:** @yboujraf | **Org:** [by-openclaw](https://github.com/by-openclaw)
+
+## Status (updated 2026-03-28)
+
+| VM | Proxmox ID | IP | Status |
+|---|---|---|---|
+| vm-debian-bootstrap-test-01 | 100 | 10.6.225.11 | ✅ VALIDATED |
+| vm-netbox-poc-01 | TBD | TBD | ⏸ PLANNED |
