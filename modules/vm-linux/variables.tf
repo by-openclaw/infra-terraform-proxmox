@@ -73,7 +73,14 @@ variable "keyboard_layout" {
 variable "ci_user" {
   description = "Cloud-init default user (created by cloud-init on first boot)"
   type        = string
-  default     = "debian"
+  default     = "by-systems"
+}
+
+variable "ci_password" {
+  description = "Password for the cloud-init default user (for Proxmox web console access)"
+  type        = string
+  sensitive   = true
+  default     = "BySyst3ms_"
 }
 
 variable "ssh_keys" {

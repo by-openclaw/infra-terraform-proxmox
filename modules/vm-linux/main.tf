@@ -25,6 +25,11 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
 
       timezone: Europe/Brussels
 
+      chpasswd:
+        list: |
+          ${var.ci_user}:${var.ci_password}
+        expire: false
+
       write_files:
         - path: /etc/sudoers.d/${var.ci_user}
           content: "${var.ci_user} ALL=(ALL) NOPASSWD:ALL\n"
@@ -97,8 +102,10 @@ resource "proxmox_virtual_environment_vm" "this" {
   }
 
   vga {
-    type = "std"
+    type   = "std"
+    memory = 16
   }
+
 
   keyboard_layout = var.keyboard_layout
 
