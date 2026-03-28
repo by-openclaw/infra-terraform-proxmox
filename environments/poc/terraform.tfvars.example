@@ -1,3 +1,3 @@
-proxmox_endpoint = "https://YOUR_PROXMOX_HOST:8006"
-proxmox_username = "root@pam"
-proxmox_password = "CHANGE_ME"
+proxmox_endpoint     = "https://YOUR_PROXMOX_HOST:8006"
+proxmox_api_token    = "root@pam!terraform=YOUR_TOKEN_UUID"
+proxmox_ssh_password = "CHANGE_ME"

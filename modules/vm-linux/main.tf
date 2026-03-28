@@ -51,6 +51,7 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   # Cloud-init
   initialization {
+    datastore_id = var.storage  # store cloud-init drive on same storage as VM disk
     ip_config {
       ipv4 {
         address = var.ip
