@@ -1,0 +1,97 @@
+@startuml poc-infra
+!theme cerulean-outline
+
+skinparam backgroundColor #0D1117
+skinparam defaultFontColor #C9D1D9
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 13
+skinparam ArrowColor #58A6FF
+skinparam ArrowThickness 2
+
+skinparam rectangle {
+  BackgroundColor #161B22
+  BorderColor #30363D
+  FontColor #C9D1D9
+  RoundCorner 12
+}
+
+skinparam node {
+  BackgroundColor #1F2937
+  BorderColor #374151
+  FontColor #F9FAFB
+}
+
+skinparam cloud {
+  BackgroundColor #1C2A3A
+  BorderColor #2563EB
+  FontColor #93C5FD
+}
+
+skinparam database {
+  BackgroundColor #1A2535
+  BorderColor #6366F1
+  FontColor #A5B4FC
+}
+
+skinparam card {
+  BackgroundColor #1E2D40
+  BorderColor #0EA5E9
+  FontColor #BAE6FD
+}
+
+title <color:#58A6FF><size:16><b>BY-SYSTEMS — PoC Infrastructure</b></size></color>\n<color:#8B949E><size:11>Phase 1 · 2026-03-28 · by-openclaw/infra-terraform-proxmox</size></color>
+
+' ─── ISP / WAN ───
+cloud "Internet / ISP" as ISP #1C2A3A {
+}
+
+' ─── PROD NETWORK ───
+rectangle "  <b>Production Network</b>  — 10.6.224.x / 10.6.0.0/20  " as PROD #1A2535 {
+
+  node "🔥 pfSense\n<size:10>prod gateway · 10.6.255.254</size>" as PF #1F2937
+
+  rectangle "  <b>Arista Fabric</b>  " as FABRIC #1A2535 {
+    node "⚡ FABRIC-1\n<size:10>EOS 4.34.3.1M</size>" as F1 #1F2937
+    node "⚡ FABRIC-2\n<size:10>EOS 4.33.5M</size>" as F2 #1F2937
+  }
+
+  node "💾 Synology DS1513+\n<size:10>NAS · 10.6.224.6</size>" as NAS #1F2937
+  node "🖥 Proxmox PoC\n<size:10>srv-proxmox-poc-01 · 10.6.224.105</size>" as PVE #1F2937
+}
+
+' ─── POC VM NETWORK ───
+rectangle "  <b>PoC VM Network</b>  — vmbrOOB + vmbrPOC (planned)  " as POCNET #162032 {
+
+  node "🛡 OPNsense VM\n<size:10>vm-opnsense-poc-01 · planned</size>\n<size:10>WAN: vmbrOOB · LAN: vmbrPOC</size>" as OPN #1F2937
+
+  rectangle "  <b>vmbrPOC</b>  — 10.6.226.x (virtual, isolated)  " as VMBR #0F1E2E {
+    node "📦 vm-debian-bootstrap-test-01\n<size:10>ID 100 · 10.6.225.11 · ✅ VALIDATED</size>" as VM1 #1F2937
+    node "📡 vm-netbox-poc-01\n<size:10>10.6.226.10 · 🔲 PLANNED</size>" as NETBOX #1F2937
+  }
+}
+
+' ─── RUNE / AUTOMATION ───
+rectangle "  <b>Rune VM</b>  — Automation  " as RUNE_BOX #16201A {
+  node "⚙️  Rune VM\n<size:10>by-systems Ubuntu 24.04</size>\n<size:10>Terraform · OpenClaw</size>" as RUNE #1F2937
+}
+
+' ─── EXTERNAL ───
+cloud "☁️  GitHub\n<size:10>by-openclaw org</size>" as GH #1C2A3A
+cloud "💬 Discord\n<size:10>#bot-openclaw</size>" as DISCORD #1C2A3A
+
+' ─── CONNECTIONS ───
+ISP --> PF : WAN uplink
+PF --> F1 : OOB / routed
+PF --> F2 : OOB / routed
+F1 <--> F2 : <color:#F59E0B>trunk Et33/Et49</color>
+F1 --> NAS : 10G
+F1 --> PVE : vmbrOOB
+PVE --> VM1 : <color:#10B981>cloud-init</color>
+PVE --> OPN : <color:#6366F1>planned</color>
+OPN --> VMBR : LAN
+VMBR --> NETBOX : <color:#6366F1>planned</color>
+RUNE --> PVE : <color:#10B981>Terraform / SSH</color>
+RUNE --> GH : git push / gh CLI
+GH --> DISCORD : <color:#5865F2>webhook (push events)</color>
+
+@enduml
