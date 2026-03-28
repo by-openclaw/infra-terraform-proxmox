@@ -1,12 +1,12 @@
 provider "proxmox" {
   endpoint  = var.proxmox_endpoint
-  api_token = var.proxmox_api_token  # format: "user@realm!tokenname=uuid"
-  insecure  = true                   # allow self-signed cert on PoC
+  api_token = var.proxmox_api_token  # svc-terraform@pve!ci
+  insecure  = true
 
-  # SSH required by bpg/proxmox for some operations (disk upload, etc.)
   ssh {
-    agent    = false
-    username = "root"
-    password = var.proxmox_ssh_password
+    agent       = false
+    username    = "root"
+    private_key = file("~/.ssh/id_ed25519_rune")
+    password    = var.proxmox_ssh_password  # passphrase for key
   }
 }
