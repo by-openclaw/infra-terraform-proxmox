@@ -47,6 +47,9 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
         - qemu-guest-agent
         - net-tools
         - sudo
+        - locales
+        - console-setup
+        - keyboard-configuration
 
       runcmd:
         - systemctl enable qemu-guest-agent --now
