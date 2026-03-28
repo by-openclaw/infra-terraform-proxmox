@@ -23,12 +23,7 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
       fqdn: ${var.name}.${var.domain}
       manage_etc_hosts: true
 
-      locale: fr_BE.UTF-8
       timezone: Europe/Brussels
-
-      keyboard:
-        layout: be
-        variant: ""
 
       write_files:
         - path: /etc/sudoers.d/${var.ci_user}
@@ -55,6 +50,11 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
         - systemctl enable qemu-guest-agent --now
         - echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
         - sysctl -p
+        - locale-gen fr_BE.UTF-8
+        - update-locale LANG=fr_BE.UTF-8
+        - dpkg-reconfigure -f noninteractive locales
+        - sed -i 's/^XKBLAYOUT=.*/XKBLAYOUT="be"/' /etc/default/keyboard || echo 'XKBLAYOUT="be"' >> /etc/default/keyboard
+        - dpkg-reconfigure -f noninteractive keyboard-configuration 2>/dev/null || true
 
       final_message: |
         Cloud-init complete on ${var.name}.
