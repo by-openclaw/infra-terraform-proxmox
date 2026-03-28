@@ -50,11 +50,10 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
         - systemctl enable qemu-guest-agent --now
         - echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
         - sysctl -p
-        - locale-gen fr_BE.UTF-8
-        - update-locale LANG=fr_BE.UTF-8
-        - dpkg-reconfigure -f noninteractive locales
-        - sed -i 's/^XKBLAYOUT=.*/XKBLAYOUT="be"/' /etc/default/keyboard || echo 'XKBLAYOUT="be"' >> /etc/default/keyboard
-        - dpkg-reconfigure -f noninteractive keyboard-configuration 2>/dev/null || true
+        - echo "fr_BE.UTF-8 UTF-8" >> /etc/locale.gen
+        - locale-gen
+        - echo "LANG=fr_BE.UTF-8" > /etc/default/locale
+        - printf 'XKBMODEL="pc105"\nXKBLAYOUT="be"\nXKBVARIANT=""\nXKBOPTIONS=""\nBACKSPACE="guess"\n' > /etc/default/keyboard
 
       final_message: |
         Cloud-init complete on ${var.name}.
