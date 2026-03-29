@@ -37,12 +37,12 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 
 ---
 
-## Current Infrastructure State (2026-03-28)
+## Current Infrastructure State (2026-03-29)
 
 | VM | Proxmox ID | IP | Status |
 |---|---|---|---|
-| vm-debian-bootstrap-test-01 | 100 | 10.6.225.11 | ✅ VALIDATED |
-| vm-netbox-poc-01 | TBD | TBD | ⏸ PLANNED — not yet deployed |
+| vm-debian-bootstrap-test-01 | 100 | 10.6.225.11 | ✅ VALIDATED — decommission when netbox is up |
+| vm-netbox-poc-01 | TBD | 10.6.225.12 | ⏸ PLANNED — next deploy |
 
 ### Proxmox Template Status
 
@@ -57,12 +57,23 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 - `poc-iso` (NFS): iso/vztmpl only — **never use for qcow2 disk import**
 - `local`: staging only for disk imports (temporary)
 
+### Network
+
+- OOB subnet: `10.6.224.0/20` — bridge `vmbrOOB`
+- VM subnet: `10.6.225.x` — static IPs only (avoid DHCP pool 10.6.239.101–199)
+- **OOB gateway: `10.6.224.1`** (pfSense) ← correct value, do not use 10.6.255.254
+
 ---
 
 ## State Backend
 
-Currently: **local backend** (not committed).
-Planned migration: GitLab CE when ready — do NOT migrate until instructed.
+- **Current:** local file (`environments/poc/terraform.tfstate`)
+- **Backup:** Synology NAS `/by-terraform-state/poc/terraform.tfstate` — synced after every apply
+- **Restore:** `python3 scripts/backup-state.py --env poc` (downloads from NAS if local is lost)
+- **Wrapper:** use `scripts/tf.sh` instead of bare `terraform` — auto-backs up on apply/destroy
+- **Migration:** GitLab managed state (Phase 5, ADR-0005) — do NOT migrate until instructed
+
+See ADR-0008 for full state management decision.
 
 ---
 
@@ -70,7 +81,7 @@ Planned migration: GitLab CE when ready — do NOT migrate until instructed.
 
 | Blocker | Status |
 |---|---|
-| vm-netbox-poc-01 not yet deployed | Unblocked — template ready, Terraform needs to be run |
+| vm-netbox-poc-01 not yet deployed | Unblocked — template ready, 10.6.225.12, 2CPU/4GB/50GB |
 | SSH key for Rune VM → PoC node | Add `id_ed25519_rune` pubkey to `/root/.ssh/authorized_keys` on PoC node |
 
 ---
