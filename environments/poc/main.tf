@@ -11,12 +11,13 @@
 ################################################################################
 
 # Standard SSH keys injected into all VMs
+# Updated 2026-03-29: new by-systems keys (no personal email in comments)
 locals {
   standard_ssh_keys = [
-    # My Lord personal Win11 key
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAoUn/DYxSFLu+TDqKlQwsllWfr5G0NEVI3Jh0sn0yvm yboujraf@personal-2026-03-27",
-    # Rune automation key
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu rune@by-systems-rune-vm",
+    # Win11 reference station — human OOB access
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFJ8rXlV8+/e20imHW/hTry2DbqQ9bIpwslC4MIINlJW by-systems@ws-win11-ref",
+    # Rune VM — automation / ansible
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJuUNkyvMaETbPeBGsBPEfzeYsL1SuVbvPUOMIb/2VU8 by-systems@rune-vm",
   ]
 }
 
