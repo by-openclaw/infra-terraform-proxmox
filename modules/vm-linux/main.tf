@@ -23,7 +23,7 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
       fqdn: ${var.name}.${var.domain}
       manage_etc_hosts: true
 
-      timezone: Europe/Brussels
+      timezone: Etc/UTC
 
       chpasswd:
         list: |
@@ -55,14 +55,14 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
         - systemctl enable qemu-guest-agent --now
         - echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
         - sysctl -p
-        - echo "fr_BE.UTF-8 UTF-8" >> /etc/locale.gen
-        - locale-gen
-        - echo "LANG=fr_BE.UTF-8" > /etc/default/locale
+        - sed -i 's/^# en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
+        - locale-gen en_US.UTF-8
+        - update-locale LANG=en_US.UTF-8
         - printf 'XKBMODEL="pc105"\nXKBLAYOUT="be"\nXKBVARIANT=""\nXKBOPTIONS=""\nBACKSPACE="guess"\n' > /etc/default/keyboard
 
       final_message: |
         Cloud-init complete on ${var.name}.
-        User: ${var.ci_user} | Locale: fr_BE | TZ: Europe/Brussels
+        User: ${var.ci_user} | Locale: en_US.UTF-8 | TZ: UTC | Keyboard: be
     EOT
   }
 }
