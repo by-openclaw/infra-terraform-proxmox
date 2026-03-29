@@ -23,7 +23,7 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
       fqdn: ${var.name}.${var.domain}
       manage_etc_hosts: true
 
-      timezone: Etc/UTC
+      timezone: Europe/Brussels
 
       chpasswd:
         list: |
@@ -62,7 +62,7 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
 
       final_message: |
         Cloud-init complete on ${var.name}.
-        User: ${var.ci_user} | Locale: en_US.UTF-8 | TZ: UTC | Keyboard: be
+        User: ${var.ci_user} | Locale: en_US.UTF-8 | TZ: Europe/Brussels | Keyboard: be
     EOT
   }
 }
