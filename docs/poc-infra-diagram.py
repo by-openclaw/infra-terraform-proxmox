@@ -65,7 +65,7 @@ arrow(7, 16.1, 7, 15.5, col='#61dafb')
 # ══════════════════════════════════════════════════════════════════════════
 box(3.5, 14.6, 7, 0.8, '#2d1515')
 label(7, 15.05, 'pfSense  (PROD — DO NOT TOUCH)', 9.5, '#ff6b6b', bold=True)
-label(7, 14.75, '10.6.255.254  |  LAN: vmbrOOB  10.6.224.0/20', 8, '#ffaaaa')
+label(7, 14.75, '10.6.224.1  |  LAN: vmbrOOB  10.6.224.0/20', 8, '#ffaaaa')
 
 # OOB bus
 bus(1.5, 12.5, 14.2, 'vmbrOOB  10.6.224.0/20  (OOB bridge — physical NIC)', '#e8a838')
@@ -84,7 +84,7 @@ label(3.8, 12.7, 'vm-opnsense-poc-01', 9, '#4fc3f7', bold=True)
 label(3.8, 12.38,'OPNsense  |  2 vCPU  2GB', 8, '#90caf9')
 label(3.8, 12.05,'WAN: vmbrOOB  10.6.225.2/20', 7.5, '#ffcc80')
 label(3.8, 11.72,'LAN: vmbrPOC  10.6.226.1/24', 7.5, '#a5d6a7')
-label(3.8, 11.28,'GW → 10.6.255.254 (pfSense)', 7.5, '#888888')
+label(3.8, 11.28,'GW → 10.6.224.1 (pfSense)', 7.5, '#888888')
 
 # OPNsense WAN tap to OOB bus
 vline(3.8, 14.2, 13.0, col='#e8a838', lw=2)

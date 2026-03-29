@@ -121,4 +121,4 @@ LXC: lxc-{service}-{env}-{seq:02d}  e.g. lxc-redis-poc-01
 | `10.6.224.x` | Infrastructure (Proxmox, switches, NAS, pfSense) |
 | `10.6.225.x` | VMs / LXCs (PoC / dev) |
 | `10.6.239.101–199` | DHCP pool — avoid for static |
-| `10.6.255.254` | pfSense OOB gateway |
+| `10.6.224.1` | pfSense OOB gateway |

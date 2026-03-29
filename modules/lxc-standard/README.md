@@ -29,7 +29,7 @@ module "my_lxc" {
   disk           = "8G"
   storage        = "poc-data"
   ip             = "10.6.241.10/20"
-  gateway        = "10.6.255.254"
+  gateway        = "10.6.224.1"
   ssh_keys       = ["ssh-ed25519 AAAA... user@host"]
 }
 ```

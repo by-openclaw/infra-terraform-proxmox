@@ -48,7 +48,7 @@ cloud "Internet / ISP" as ISP #1C2A3A {
 ' ─── PROD NETWORK ───
 rectangle "  <b>Production Network</b>  — 10.6.224.x / 10.6.0.0/20  " as PROD #1A2535 {
 
-  node "🔥 pfSense\n<size:10>prod gateway · 10.6.255.254</size>" as PF #1F2937
+  node "🔥 pfSense\n<size:10>prod gateway · 10.6.224.1</size>" as PF #1F2937
 
   rectangle "  <b>Arista Fabric</b>  " as FABRIC #1A2535 {
     node "⚡ FABRIC-1\n<size:10>EOS 4.34.3.1M</size>" as F1 #1F2937
