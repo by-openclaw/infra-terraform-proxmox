@@ -30,3 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Validated
 - `vm-debian-bootstrap-test-01` (ID 100, IP 10.6.225.11): SSH (Win11 + Rune VM keys), cloud-init, QEMU agent, locale, timezone all confirmed working
 - `debian-12-cloud` template (VM 9000): serial port removed, clean baseline
+
+[Unreleased]: https://github.com/by-openclaw/infra-terraform-proxmox/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/by-openclaw/infra-terraform-proxmox/releases/tag/v0.2.0
