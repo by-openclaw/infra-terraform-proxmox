@@ -1,6 +1,6 @@
 provider "proxmox" {
   endpoint  = var.proxmox_endpoint
-  api_token = var.proxmox_api_token  # svc-terraform@pve!ci
+  api_token = var.proxmox_api_token # svc-terraform@pve!ci
   insecure  = true
 
   # SSH used by bpg/proxmox for file uploads (snippets)
