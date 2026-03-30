@@ -50,7 +50,7 @@ def backup(env: str = "poc") -> None:
         overwrite=True,
     )
 
-    if result.get("success"):
+    if result.get("action") in ("uploaded", "skipped"):
         print(f"✅ State backed up → /{NAS_SHARE}/{env}/terraform.tfstate")
     else:
         print(f"❌ Backup failed: {result}")
