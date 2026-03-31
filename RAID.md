@@ -14,6 +14,9 @@
 | R-002 | No state locking — concurrent apply could corrupt state | HIGH | LOW | Single operator (Rune). Phase 2: GitLab managed state with locking. | OPEN |
 | R-003 | State file contains secrets (IPs, tokens in outputs) | MEDIUM | LOW | State gitignored. Backed up to NAS (private share). | OPEN |
 
+| R-004 | Proxmox API token `svc-terraform@pve!ci` missing env label per ADR-0010 (`svc-{function}-{env}`) | MEDIUM | HIGH | Rename to `svc-terraform-poc@pve!ci` when next maintenance window. Update all references. | OPEN |
+| R-005 | CLAUDE.md/AGENTS.md did not reference ADR-0010/ADR-0012 | LOW | HIGH | Fixed in sprint Block 3 | IN PROGRESS |
+
 ## Issues
 
 | ID | Issue | Priority | Status | GitHub |

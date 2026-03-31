@@ -128,6 +128,13 @@ When asked to generate or update a diagram, always follow this pipeline:
 
 ---
 
+## Cross-repo References
+
+- Naming convention: see `doc-platform-core/docs/adr/0010-naming-and-identity-convention.md`
+- Environment tiers: poc/dev/test/staging/acc/prod — always explicit. See `doc-platform-core/docs/adr/0012-environment-tier-standard.md`
+
+---
+
 ## Related
 
 - Platform docs: [`by-openclaw/doc-platform-core`](https://github.com/by-openclaw/doc-platform-core)
