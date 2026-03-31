@@ -102,6 +102,7 @@ See ADR-0008 for full state management decision.
 ```
 
 API token: `svc-terraform@pve!ci` — do not rotate without updating this file.
+**Note:** ADR-0010 requires `svc-terraform-poc@pve!ci` (env tier label). Rename pending — see `docs/pending-manual-ops.md`.
 
 ---
 
