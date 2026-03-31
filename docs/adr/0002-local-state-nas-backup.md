@@ -26,3 +26,11 @@ No remote backend is available during the PoC phase. There is a single operator,
 - No state locking (acceptable for single operator; becomes a risk if a second operator is added).
 - State recovery requires manual retrieval from NAS if the Rune VM is lost.
 - Phase 2 migration to GitLab managed state will require a `terraform state push`.
+
+## Compliance
+
+| Framework | Control | Relevance |
+|---|---|---|
+| ISO 27001 | A.12.3.1 | Information backup — state file backed up to NAS on every apply |
+| ISO 27001 | A.12.1.2 | Change management — local state with NAS backup provides recoverable audit trail |
+| NIS2 | Art.21(2)(b) | Business continuity / backup — state recovery possible from NAS if Rune VM is lost |
