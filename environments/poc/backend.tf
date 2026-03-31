@@ -1,3 +1,7 @@
+# State: local backend — migrate to GitLab managed state at Phase 5 per ADR-0011
+# Backup: scripts/backup-state.py --env poc syncs to Synology NAS
+# Wrapper: scripts/tf.sh auto-backs up on apply/destroy
+
 terraform {
   # State backend — local for PoC phase
   # TODO: migrate to S3-compatible backend (MinIO/GitLab) when GitLab CE is deployed
