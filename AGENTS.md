@@ -33,6 +33,8 @@ Before touching anything in this repo:
 
 ## What NOT To Do
 
+> Also read [`CLAUDE.md`](CLAUDE.md) for architecture constraints, known blockers, and state backend rules.
+
 - ❌ Do NOT change provider or Terraform version pins without explicit instruction
 - ❌ Do NOT commit `terraform.tfvars` (contains secrets) — it is gitignored
 - ❌ Do NOT commit `.terraform/` lock files unless pinning is intentional

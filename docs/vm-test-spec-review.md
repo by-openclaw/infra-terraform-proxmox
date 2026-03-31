@@ -78,7 +78,7 @@ Once generated, paste the new public keys here for confirmation before embedding
 | # | Parameter | Value | Notes |
 |---|---|---|---|
 | 14 | **OS user** | `by-systems` | |
-| 15 | **Console password** | `BySyst3ms_` | Proxmox noVNC only |
+| 15 | **Console password** | `<REDACTED:password>` | Proxmox noVNC only |
 | 16 | **SSH key 1** | `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFJ8rXlV8+/e20imHW/hTry2DbqQ9bIpwslC4MIINlJW by-systems@ws-win11-ref` | ✅ Confirmed |
 | 17 | **SSH key 2** | `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJuUNkyvMaETbPeBGsBPEfzeYsL1SuVbvPUOMIb/2VU8 by-systems@rune-vm` | ✅ Confirmed |
 | 18 | **Timezone** | `Europe/Brussels` | |
@@ -130,7 +130,7 @@ PostgreSQL separated from NetBox — consistent with long-term architecture. One
 | # | Parameter | Value | Notes |
 |---|---|---|---|
 | 35 | **OS user** | `by-systems` | |
-| 36 | **Console password** | `BySyst3ms_` | |
+| 36 | **Console password** | `<REDACTED:password>` | |
 | 37 | **SSH key 1** | `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFJ8rXlV8+/e20imHW/hTry2DbqQ9bIpwslC4MIINlJW by-systems@ws-win11-ref` | ✅ Confirmed |
 | 38 | **SSH key 2** | `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJuUNkyvMaETbPeBGsBPEfzeYsL1SuVbvPUOMIb/2VU8 by-systems@rune-vm` | ✅ Confirmed |
 | 39 | **Timezone** | `Europe/Brussels` | |

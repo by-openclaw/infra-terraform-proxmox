@@ -80,7 +80,7 @@ variable "ci_password" {
   description = "Password for the cloud-init default user (for Proxmox web console access)"
   type        = string
   sensitive   = true
-  default     = "BySyst3ms_"
+  default     = "<REDACTED:password>"
 }
 
 variable "ssh_keys" {

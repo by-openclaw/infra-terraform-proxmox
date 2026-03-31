@@ -21,4 +21,8 @@ NNNN-short-title.md
 ```
 
 ## Records
-_None yet — add as decisions are made._
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [0001](0001-bpg-proxmox-provider.md) | Use bpg/proxmox Provider | Accepted |
+| [0002](0002-local-state-nas-backup.md) | Local State with NAS Backup | Accepted |

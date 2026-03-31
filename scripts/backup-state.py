@@ -26,7 +26,7 @@ except ImportError:
 NAS_HOST = "10.6.224.6"
 NAS_PORT = 5001
 NAS_USER = "rune-api"
-NAS_PASS = "BySyst3ms_"
+NAS_PASS = "<REDACTED:password>"
 NAS_SHARE = "by-terraform-state"
 
 

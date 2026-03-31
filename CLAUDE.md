@@ -88,11 +88,10 @@ See ADR-0008 for full state management decision.
 
 ## Constraints
 
-- `terraform fmt` before every commit
-- Never commit `terraform.tfvars` (secrets — gitignored)
-- Never commit `.terraform/` directory
-- State backend migration requires explicit approval
-- All new resources follow naming convention: `vm-{service}-{env}-{seq:02d}`
+> Coding standards, commit conventions, naming patterns, and operational guardrails → see [`AGENTS.md`](AGENTS.md).
+
+- State backend migration requires explicit approval (ADR-0008)
+- Provider/Terraform version pins: do NOT change without instruction
 
 ---
 
@@ -134,3 +133,8 @@ When asked to generate or update a diagram, always follow this pipeline:
 - Platform docs: [`by-openclaw/doc-platform-core`](https://github.com/by-openclaw/doc-platform-core)
 - Platform board: [`by-openclaw/platform-setup`](https://github.com/by-openclaw/platform-setup)
 - GitHub Issues: [by-openclaw/platform-setup #44](https://github.com/by-openclaw/platform-setup/issues/44)
+
+## GitHub → Discord Release Webhook
+This repo has a GitHub webhook configured for `release` events → Discord `#releases` channel (by-openclaw standard).
+No discord-notify.yml workflow. No DISCORD_WEBHOOK secret. Discord-native parsing.
+See `workspace/docs/stack.md` for the full standard and command to replicate on new repos.
