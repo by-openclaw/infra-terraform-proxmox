@@ -109,53 +109,26 @@ output "pihole_ip" {
   value = module.pihole.ip_address
 }
 
-# step-ca — Internal CA for *.poc.by-systems.arpa
-# Ports: 443 (ACME/HTTPS), 9000 (step-ca API)
-module "step_ca" {
+################################################################################
+# Layer 0 — Network Foundation
+################################################################################
+
+# OPNsense — Virtual router, firewall, WireGuard, dual-WAN
+# Ports: all network (router/firewall)
+module "opnsense" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-step-ca-poc-01"
-  target_node = "srv-proxmox-poc-01"
-  clone       = "debian-12-cloud"
-
-  cores     = 1
-  memory    = 1024
-  disk_size = "10G"
-  storage   = "poc-data"
-
-  network_bridge = "vmbrOOB"
-  ip             = "10.6.225.12/20"
-  gateway        = "10.6.224.1"
-  dns            = "10.6.224.1"
-
-  ci_user  = "by-systems"
-  ssh_keys = local.standard_ssh_keys
-}
-
-output "step_ca_vm_id" {
-  value = module.step_ca.vm_id
-}
-
-output "step_ca_ip" {
-  value = module.step_ca.ip_address
-}
-
-# Vault — Machine secrets (CI/CD, Ansible, services)
-# Port: 8200
-module "vault" {
-  source = "../../modules/vm-linux"
-
-  name        = "vm-vault-poc-01"
+  name        = "vm-opnsense-poc-01"
   target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
-  memory    = 4096
+  memory    = 2048
   disk_size = "20G"
   storage   = "poc-data"
 
   network_bridge = "vmbrOOB"
-  ip             = "10.6.225.13/20"
+  ip             = "10.6.225.1/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
 
@@ -163,46 +136,15 @@ module "vault" {
   ssh_keys = local.standard_ssh_keys
 }
 
-output "vault_vm_id" {
-  value = module.vault.vm_id
+output "opnsense_vm_id" {
+  value = module.opnsense.vm_id
 }
 
-output "vault_ip" {
-  value = module.vault.ip_address
+output "opnsense_ip" {
+  value = module.opnsense.ip_address
 }
 
-# Vaultwarden — Human password manager (Bitwarden-compatible)
-# Port: 8080
-module "vaultwarden" {
-  source = "../../modules/vm-linux"
-
-  name        = "vm-vaultwarden-poc-01"
-  target_node = "srv-proxmox-poc-01"
-  clone       = "debian-12-cloud"
-
-  cores     = 1
-  memory    = 1024
-  disk_size = "10G"
-  storage   = "poc-data"
-
-  network_bridge = "vmbrOOB"
-  ip             = "10.6.225.14/20"
-  gateway        = "10.6.224.1"
-  dns            = "10.6.224.1"
-
-  ci_user  = "by-systems"
-  ssh_keys = local.standard_ssh_keys
-}
-
-output "vaultwarden_vm_id" {
-  value = module.vaultwarden.vm_id
-}
-
-output "vaultwarden_ip" {
-  value = module.vaultwarden.ip_address
-}
-
-# Traefik — Reverse proxy + TLS termination for *.poc.by-systems.arpa
+# Traefik — Reverse proxy + TLS termination
 # Ports: 80 (redirect), 443 (HTTPS)
 module "traefik" {
   source = "../../modules/vm-linux"
@@ -233,9 +175,84 @@ output "traefik_ip" {
   value = module.traefik.ip_address
 }
 
+################################################################################
+# Layer 1 — DNS
+################################################################################
+
+# NOTE: Pi-hole module definition is above (Layer 1 DNS section)
+
+################################################################################
+# Layer 2 — Identity & Secrets
+################################################################################
+
+# Vault — Machine secrets (CI/CD, Ansible, services)
+# Port: 8200
+# Spec: 2 GB PoC (1 GB Vault JVM + Docker/OS overhead). Raft backend on 20 GB disk.
+module "vault" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-vault-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 1
+  memory    = 2048
+  disk_size = "20G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.13/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "vault_vm_id" {
+  value = module.vault.vm_id
+}
+
+output "vault_ip" {
+  value = module.vault.ip_address
+}
+
+# Vaultwarden — Human password manager (Bitwarden-compatible)
+# Port: 8080
+# Spec: 512 MB PoC (Rust binary ~50-100 MB + Docker/OS overhead; 256 MB is OOM risk)
+module "vaultwarden" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-vaultwarden-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 1
+  memory    = 512
+  disk_size = "10G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.14/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "vaultwarden_vm_id" {
+  value = module.vaultwarden.vm_id
+}
+
+output "vaultwarden_ip" {
+  value = module.vaultwarden.ip_address
+}
+
 # Authentik — SSO (OIDC/SAML)
 # Depends on: vm-postgres-poc-01, vm-redis-poc-01, vm-vault-poc-01, vm-traefik-poc-01
 # Ports: 9000 (HTTP), 9443 (HTTPS)
+# Spec: 2 GB minimum — OOMs below 2 GB. Vendor confirmed.
 module "authentik" {
   source = "../../modules/vm-linux"
 
@@ -244,7 +261,7 @@ module "authentik" {
   clone       = "debian-12-cloud"
 
   cores     = 2
-  memory    = 4096
+  memory    = 2048
   disk_size = "20G"
   storage   = "poc-data"
 
@@ -265,9 +282,118 @@ output "authentik_ip" {
   value = module.authentik.ip_address
 }
 
-# NetBox — CMDB
+################################################################################
+# Layer 3 — VCS & CI
+################################################################################
+
+# GitLab CE — VCS, CI orchestrator, container registry
+# Port: 8080 (HTTP — Traefik terminates TLS)
+# Exception: GitLab bundles nginx — Traefik proxies via HTTP mode
+# Spec: 4 vCPU / 8 GB minimum per vendor. 8 GB vendor minimum, kept at constraint.
+module "gitlab" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-gitlab-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 4
+  memory    = 8192
+  disk_size = "50G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.20/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "gitlab_vm_id" {
+  value = module.gitlab.vm_id
+}
+
+output "gitlab_ip" {
+  value = module.gitlab.ip_address
+}
+
+# GitLab Runner — CI pipeline executor (Docker executor)
+# Spec: 2 vCPU / 2 GB PoC for light pipelines (lint, build, test).
+module "gitlab_runner" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-gitlab-runner-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 2
+  memory    = 2048
+  disk_size = "20G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.21/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "gitlab_runner_vm_id" {
+  value = module.gitlab_runner.vm_id
+}
+
+output "gitlab_runner_ip" {
+  value = module.gitlab_runner.ip_address
+}
+
+################################################################################
+# Layer 4 — Collaboration
+################################################################################
+
+# Nextcloud — Team file storage + collaboration
+# Docker: nextcloud-fpm + nginx sidecar. Primary storage: Contabo S3.
+# Spec: 2 vCPU / 2 GB PoC — fpm workers + nginx sidecar + S3 client.
+module "nextcloud" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-nextcloud-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 2
+  memory    = 2048
+  disk_size = "20G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.35/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "nextcloud_vm_id" {
+  value = module.nextcloud.vm_id
+}
+
+output "nextcloud_ip" {
+  value = module.nextcloud.ip_address
+}
+
+################################################################################
+# Layer 5 — IPAM & DCIM
+################################################################################
+
+# NetBox — CMDB / IPAM
 # Depends on: vm-postgres-poc-01, vm-redis-poc-01, vm-vault-poc-01, vm-traefik-poc-01
 # Port: 8080
+# Spec: 2 vCPU / 2 GB PoC — Django + worker, modest RAM usage.
 module "netbox" {
   source = "../../modules/vm-linux"
 
@@ -276,8 +402,8 @@ module "netbox" {
   clone       = "debian-12-cloud"
 
   cores     = 2
-  memory    = 4096
-  disk_size = "30G"
+  memory    = 2048
+  disk_size = "20G"
   storage   = "poc-data"
 
   network_bridge = "vmbrOOB"
@@ -297,22 +423,29 @@ output "netbox_ip" {
   value = module.netbox.ip_address
 }
 
-# MinIO — S3-compatible object storage (ILM → Contabo S3 for DR)
-# Ports: 9000 (S3 API), 9001 (console)
-module "minio" {
+################################################################################
+# Layer 6 — Package Registry
+################################################################################
+
+# Nexus OSS — Artifact registry (pip, npm, Docker, Maven)
+# Ports: 8081 (HTTP), 8082 (Docker proxy)
+# Spec: 2 vCPU / 6 GB PoC — JVM default heap 2703 MB + MaxDirectMemory 2703 MB = ~5.4 GB JVM
+#       + Docker/OS overhead. 2 GB is CRITICALLY UNDERSIZED — OOM on startup guaranteed.
+#       6 GB minimum for stable operation. See: sonatype.com/system-requirements
+module "nexus" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-minio-poc-01"
+  name        = "vm-nexus-poc-01"
   target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
-  memory    = 2048
-  disk_size = "100G"
+  memory    = 6144
+  disk_size = "50G"
   storage   = "poc-data"
 
   network_bridge = "vmbrOOB"
-  ip             = "10.6.225.18/20"
+  ip             = "10.6.225.40/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
 
@@ -320,16 +453,57 @@ module "minio" {
   ssh_keys = local.standard_ssh_keys
 }
 
-output "minio_vm_id" {
-  value = module.minio.vm_id
+output "nexus_vm_id" {
+  value = module.nexus.vm_id
 }
 
-output "minio_ip" {
-  value = module.minio.ip_address
+output "nexus_ip" {
+  value = module.nexus.ip_address
 }
 
-# PostgreSQL — shared database server (Authentik, NetBox, future services)
+################################################################################
+# Layer 7 — Observability
+################################################################################
+
+# Observability — Prometheus + Grafana + Loki (colocated for PoC)
+# Docker Compose. Loki S3 backend (Contabo). Prometheus TSDB on local disk.
+# Spec: 2 vCPU / 4 GB PoC — Prometheus ~256 MB + Grafana ~256 MB + Loki ~512 MB + overhead.
+module "observability" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-observability-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 2
+  memory    = 4096
+  disk_size = "30G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.50/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "observability_vm_id" {
+  value = module.observability.vm_id
+}
+
+output "observability_ip" {
+  value = module.observability.ip_address
+}
+
+################################################################################
+# Layer 8 — Shared Infrastructure
+################################################################################
+
+# PostgreSQL — shared database server (Authentik, NetBox, Nextcloud, Vaultwarden)
 # Port: 5432
+# Spec: 2 vCPU / 4 GB PoC — shared_buffers ~1 GB for 4 active databases + connections.
 module "postgres" {
   source = "../../modules/vm-linux"
 
@@ -359,8 +533,9 @@ output "postgres_ip" {
   value = module.postgres.ip_address
 }
 
-# Redis — shared cache/queue server (Authentik, NetBox, future services)
+# Redis — shared cache/queue server (Authentik, NetBox, Nextcloud)
 # Port: 6379
+# Spec: 1 vCPU / 1 GB PoC — in-memory store, ~50-100 MB baseline; 1 GB gives headroom.
 module "redis" {
   source = "../../modules/vm-linux"
 
@@ -369,7 +544,7 @@ module "redis" {
   clone       = "debian-12-cloud"
 
   cores     = 1
-  memory    = 2048
+  memory    = 1024
   disk_size = "10G"
   storage   = "poc-data"
 
@@ -388,4 +563,40 @@ output "redis_vm_id" {
 
 output "redis_ip" {
   value = module.redis.ip_address
+}
+
+################################################################################
+# Layer 9 — Network Management
+################################################################################
+
+# Unifi Network App — Ubiquiti controller (WiFi AP + VLAN management)
+# Port: 8443 (UI), 8080 (device inform)
+# Spec: 1 vCPU / 2 GB PoC — Java app + bundled MongoDB. 1 GB is OOM risk.
+module "unifi" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-unifi-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 1
+  memory    = 2048
+  disk_size = "10G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.62/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "unifi_vm_id" {
+  value = module.unifi.vm_id
+}
+
+output "unifi_ip" {
+  value = module.unifi.ip_address
 }
