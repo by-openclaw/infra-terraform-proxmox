@@ -190,7 +190,8 @@ output "traefik_ip" {
   value = module.traefik.ip_address
 }
 
-# Authentik — SSO (OIDC/SAML) + bundled postgres + redis
+# Authentik — SSO (OIDC/SAML)
+# Depends on: vm-postgres-poc-01, vm-redis-poc-01, vm-vault-poc-01, vm-traefik-poc-01
 # Ports: 9000 (HTTP), 9443 (HTTPS)
 module "authentik" {
   source = "../../modules/vm-linux"
@@ -221,7 +222,8 @@ output "authentik_ip" {
   value = module.authentik.ip_address
 }
 
-# NetBox — CMDB + bundled postgres + redis
+# NetBox — CMDB
+# Depends on: vm-postgres-poc-01, vm-redis-poc-01, vm-vault-poc-01, vm-traefik-poc-01
 # Port: 8080
 module "netbox" {
   source = "../../modules/vm-linux"
@@ -281,4 +283,66 @@ output "minio_vm_id" {
 
 output "minio_ip" {
   value = module.minio.ip_address
+}
+
+# PostgreSQL — shared database server (Authentik, NetBox, future services)
+# Port: 5432
+module "postgres" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-postgres-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 2
+  memory    = 4096
+  disk_size = "50G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.19/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "postgres_vm_id" {
+  value = module.postgres.vm_id
+}
+
+output "postgres_ip" {
+  value = module.postgres.ip_address
+}
+
+# Redis — shared cache/queue server (Authentik, NetBox, future services)
+# Port: 6379
+module "redis" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-redis-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 1
+  memory    = 2048
+  disk_size = "10G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB"
+  ip             = "10.6.225.20/20"
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "redis_vm_id" {
+  value = module.redis.vm_id
+}
+
+output "redis_ip" {
+  value = module.redis.ip_address
 }
