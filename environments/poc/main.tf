@@ -57,14 +57,55 @@ output "bootstrap_test_ip" {
 
 ################################################################################
 # Platform services — deployment order matters
-# 1. step-ca  (internal CA — all other TLS depends on this)
-# 2. Vault     (secrets — Traefik, Authentik, NetBox depend on this)
-# 3. Traefik   (reverse proxy — needs certs from step-ca)
-# 4. Vaultwarden (human password manager — needs Traefik for HTTPS)
-# 5. Authentik (SSO — needs Vault + Traefik)
-# 6. NetBox    (CMDB — needs Authentik for SSO, Vault for secrets)
-# 7. MinIO     (object storage — needs Authentik for console SSO)
+# Layer 0: OPNsense      (virtual router + WireGuard — all VM networking depends on this)
+# Layer 1: Pi-hole       (DNS — must be up before any service needs name resolution)
+# Layer 1: Traefik       (reverse proxy — HTTP/S entry point)
+# Layer 2: step-ca       (internal CA — optional for PoC, LE covers public certs)
+# Layer 2: Vault         (secrets — Traefik, Authentik, NetBox depend on this)
+# Layer 3: Vaultwarden   (human password manager — needs Traefik for HTTPS)
+# Layer 3: Authentik     (SSO — needs Vault + Traefik)
+# Layer 4: NetBox        (CMDB — needs Authentik for SSO, Vault for secrets)
+# ...
+#
+# DNS note: all VMs set dns = "10.1.1.60" (Pi-hole) once SDN is up.
+# During bootstrap (OOB network): dns = "10.6.224.1" (Proxmox host / upstream).
 ################################################################################
+
+################################################################################
+# Layer 1 — DNS
+# Pi-hole + Unbound sidecar. All VMs point here for DNS.
+# DNS flow: VM → Pi-hole :53 → Unbound → DoT 1.1.1.1:853
+# Local overrides: *.by-systems.be → internal IPs configured in Pi-hole custom DNS
+################################################################################
+
+module "pihole" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-pihole-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 1
+  memory    = 512
+  disk_size = "10G"
+  storage   = "poc-data"
+
+  network_bridge = "vmbrOOB" # TODO: move to vnet-poc-mgmt (10.1.1.60) once SDN deployed
+  ip             = "10.6.225.60/20" # OOB bootstrap IP — reassign to 10.1.1.60 post-SDN
+  gateway        = "10.6.224.1"
+  dns            = "10.6.224.1" # Bootstrap: upstream DNS. Post-deploy: points to itself.
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "pihole_vm_id" {
+  value = module.pihole.vm_id
+}
+
+output "pihole_ip" {
+  value = module.pihole.ip_address
+}
 
 # step-ca — Internal CA for *.poc.by-systems.arpa
 # Ports: 443 (ACME/HTTPS), 9000 (step-ca API)
