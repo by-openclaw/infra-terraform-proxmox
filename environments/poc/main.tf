@@ -549,7 +549,7 @@ module "redis" {
   storage   = "poc-data"
 
   network_bridge = "vmbrOOB"
-  ip             = "10.6.225.20/20"
+  ip             = "10.6.225.18/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
 
