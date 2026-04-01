@@ -73,9 +73,11 @@ output "bootstrap_test_ip" {
 
 ################################################################################
 # Layer 1 — DNS
-# Pi-hole + Unbound sidecar. All VMs point here for DNS.
-# DNS flow: VM → Pi-hole :53 → Unbound → DoT 1.1.1.1:853
-# Local overrides: *.by-systems.be → internal IPs configured in Pi-hole custom DNS
+# Pi-hole only — no Unbound sidecar. Blocklist + local DNS overrides.
+# DNS flow: VM :53 → [OPNsense NAT redirect] → Pi-hole :53 → OPNsense Unbound :853 → DoT 1.1.1.1:853
+# OPNsense NAT rule: intercepts all :53 from PoC zones, redirects to Pi-hole. Bypass prevention.
+# OPNsense Unbound: DoT terminator (enabled). Pi-hole upstream = OPNsense internal IP :853.
+# Local overrides: *.by-systems.be → private IPs via Pi-hole v6 REST API (Ansible)
 ################################################################################
 
 module "pihole" {
