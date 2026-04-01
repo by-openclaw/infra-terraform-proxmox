@@ -43,9 +43,9 @@ variable "storage" {
 }
 
 variable "network_bridge" {
-  description = "Proxmox network bridge to attach the LXC NIC to (e.g., vmbrMGMT)"
+  description = "Proxmox network bridge to attach the LXC NIC to (e.g., vmbrOOB, vmbrFAB)"
   type        = string
-  default     = "vmbrMGMT"
+  default     = "vmbrOOB"
 }
 
 variable "ip" {
