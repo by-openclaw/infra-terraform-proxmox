@@ -24,7 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `environments/poc/main.tf`: replaced stale `vnet-poc-*` bridge names with environment-agnostic SDN VNets `mgmt`, `dmz`, `svc`
+- `environments/poc/main.tf`: `iso_storage` changed from `local` to `poc-iso`
 - `modules/vm-opnsense/variables.tf`, `AGENTS.md`, `CLAUDE.md`, `RAID.md`: removed stale `vmbrPOC` language and aligned with `vmbrAPPS` trunk + SDN VNet model
+- Locked storage rule: ISO / vztmpl media must live on `poc-iso`; never use `local`, `local-lvm`, or thin-LVM for ISO storage
 
 ## [0.2.0] — 2026-03-28
 

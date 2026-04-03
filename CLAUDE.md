@@ -58,8 +58,9 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 ### Storage
 
 - `poc-data` (ZFS): correct target for all VM/LXC disks — use this
-- `poc-iso` (NFS): iso/vztmpl only — **never use for qcow2 disk import**
-- `local`: staging only for disk imports (temporary)
+- `poc-iso` (NFS): the only valid target for `iso` / `vztmpl` content in PoC
+- `local`, `local-lvm`, `lvm-thin`: do **not** use for ISO storage
+- `poc-iso` is not for qcow2 disk import; VM disks stay on `poc-data`
 
 ### Network
 

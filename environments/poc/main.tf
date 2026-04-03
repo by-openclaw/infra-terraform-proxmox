@@ -46,7 +46,7 @@ module "opnsense" {
   disk_size    = 20
   disk_storage = "poc-data"
 
-  iso_storage  = "local"
+  iso_storage  = "poc-iso"
   iso_file     = "OPNsense-25.1-dvd-amd64.iso"
 
   wan_bridge   = "vmbrWAN3"

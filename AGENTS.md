@@ -50,6 +50,13 @@ Before touching anything in this repo:
 - VNet names are environment-agnostic: `mgmt`, `dmz`, `svc`
 - Do **not** introduce `vmbrPOC`, `pocmgmt`, `vnet-poc-svc`, or similar invented bridge names
 
+## ISO Storage Rule (locked 2026-04-03)
+
+- `poc-iso` is the only valid storage for ISO / vztmpl content in PoC
+- Do **not** place ISOs on `local`, `local-lvm`, or any thin-LVM storage
+- `poc-data` / ZFS is for VM and LXC disks
+- `poc-iso` / NFS is for ISO and template media only
+
 ## GitHub Repo
 
 <https://github.com/by-openclaw/infra-terraform-proxmox>
