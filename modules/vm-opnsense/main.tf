@@ -1,27 +1,36 @@
 # OPNsense VM module
 #
-# OPNsense is a FreeBSD-based firewall appliance — NOT cloud-init based.
-# It installs from ISO. Initial install requires ~5 min console interaction.
+# FreeBSD-based firewall appliance. NOT cloud-init based. Installs from ISO.
+# No in-band hook is available during provisioning — all post-install config
+# is handled by Ansible (ansible-platform/roles/opnsense) after first boot.
 #
 # Network layout:
 #   vtnet0 (WAN) → vmbrWAN3
-#   vtnet1 (LAN) → SDN VNet bridge (vmbrAPPS → mgmt/dmz/svc VNets)
+#   vtnet1 (LAN) → vmbrAPPS (SDN trunk → mgmt/dmz/svc VNets)
 #
-# After first boot and install:
-#   - Access OPNsense console via Proxmox noVNC
-#   - Complete install wizard (assign interfaces, set LAN IP)
-#   - Install os-qemu-guest-agent plugin (System → Firmware → Plugins)
-#   - Enable SSH + OPNsense API for Ansible automation
-#   - Configure WireGuard for Rune VM access to 10.1.x.x
-#   - Detach ISO from Proxmox after successful install
+# Provisioning sequence (mandatory):
+#   1. terraform apply  — creates VM, attaches ISO, starts VM
+#   2. console install  — Proxmox noVNC → complete OPNsense installer
+#   3. bootstrap        — set LAN IP, enable SSH + API
+#   4. ansible-platform — roles/opnsense bootstrap playbook:
+#                         installs os-qemu-guest-agent, configures interfaces,
+#                         firewall rules, DNS, WireGuard
+#   5. terraform apply  — flip agent { enabled = true } after Ansible confirms
+#                         qemu-guest-agent is running
+#   6. detach ISO       — update cdrom block or remove from Proxmox UI
 #
-# QEMU guest agent note:
-#   agent.enabled = false at provision time — OPNsense does NOT install
-#   qemu-guest-agent by default. Plugin must be installed post-install:
-#     System → Firmware → Plugins → os-qemu-guest-agent
-#   After install, flip agent { enabled = true } in Terraform and re-apply.
-#   Without the agent: no IP reporting in Proxmox UI, no clean snapshots,
-#   no qm guest exec support.
+# QEMU guest agent (see ADR-0003):
+#   agent { enabled = false } at provision time — os-qemu-guest-agent is NOT
+#   installed by default in OPNsense. Ansible installs it in step 4.
+#   Without agent: no IP in Proxmox UI, no consistent snapshots, no qm exec.
+#
+# CPU type (see ADR-0003):
+#   type = "host" — single node only. Switch to "x86-64-v2-AES" when cluster
+#   is added. That change requires a maintenance window (FW reboot = downtime).
+#
+# RAM / Disk minimums enforced in variables.tf:
+#   memory >= 3072 MiB   (4096 MiB default — covers base + Suricata + state)
+#   disk_size >= 8 GiB   (20 GiB default)
 
 resource "proxmox_virtual_environment_vm" "this" {
   name      = var.name
@@ -42,9 +51,9 @@ resource "proxmox_virtual_environment_vm" "this" {
   started    = true
   protection = var.protection
 
-  # QEMU guest agent disabled at install time.
-  # OPNsense does not ship with qemu-guest-agent enabled by default.
-  # Install os-qemu-guest-agent plugin post-install, then set enabled = true.
+  # QEMU agent disabled — os-qemu-guest-agent is not installed by default.
+  # Ansible bootstrap installs it (step 4 of provisioning sequence above).
+  # After Ansible confirms agent is running: set enabled = true, re-apply.
   agent {
     enabled = false
   }
@@ -52,20 +61,17 @@ resource "proxmox_virtual_environment_vm" "this" {
   cpu {
     cores      = var.cores
     sockets    = 1
-    type       = "host"
+    type       = "host"        # single node; → "x86-64-v2-AES" when cluster (ADR-0003)
     hotplugged = 0
-    # AES-NI: with type="host" this is already exposed if the host supports it.
-    # Kept explicit per BY-SYSTEMS ADR — always guarantee AES for crypto workloads.
-    # For HA/cluster: switch to type="x86-64-v2-AES" (migratable, AES guaranteed).
-    flags = ["+aes"]
+    flags      = ["+aes"]     # AES-NI: mandatory for WireGuard/IPsec/TLS (ADR-0003)
+                               # with type=host this is already exposed; flag is an
+                               # explicit guard — Proxmox errors if host lacks AES-NI
   }
 
   memory {
-    dedicated = var.memory
-    # Ballooning disabled — critical for firewall stability.
-    # Proxmox reclaiming RAM dynamically causes state table instability and
-    # connection drops on OPNsense/pfSense.
-    floating = 0
+    dedicated = var.memory  # min 3072 MiB enforced in variables.tf
+    floating  = 0           # ballooning disabled — Proxmox reclaiming RAM causes
+                            # state table instability and connection drops (ADR-0003)
   }
 
   # Boot disk — OPNsense installs here from ISO
@@ -118,8 +124,8 @@ resource "proxmox_virtual_environment_vm" "this" {
     memory = 16
   }
 
-  # Serial console — useful for out-of-band debug if noVNC is unavailable
-  # Access via: qm terminal <vmid> --iface serial0
+  # Out-of-band console — useful if noVNC is unavailable
+  # Access: qm terminal <vmid> --iface serial0
   serial_device {}
 
   # No cloud-init — OPNsense uses its own config system
