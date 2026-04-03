@@ -1,10 +1,10 @@
 variable "name" {
-  description = "VM name — must follow convention: vm-opnsense-{seq:02d} (prod) or vm-opnsense-{env}-{seq:02d} (non-prod). See ADR-0010."
+  description = "VM name — convention: vm-opnsense-{env}-{seq:02d} for non-prod; vm-opnsense-{seq:02d} for prod (ADR-0010: prod omits env)"
   type        = string
 }
 
 variable "vm_id" {
-  description = "Proxmox VM ID — must be unique on the cluster/node"
+  description = "Proxmox VM ID (e.g. 101)"
   type        = number
 }
 
@@ -14,85 +14,53 @@ variable "target_node" {
 }
 
 variable "iso_storage" {
-  description = "Storage pool where the OPNsense ISO lives"
+  description = "Storage pool where the OPNsense ISO lives. Must be poc-iso (ADR-0015: poc-iso is the only valid ISO storage target in PoC)"
   type        = string
   default     = "poc-iso"
 }
 
 variable "iso_file" {
-  description = "ISO filename on the storage pool"
+  description = "ISO filename on the storage (e.g. OPNsense-25.1-dvd-amd64.iso)"
   type        = string
   default     = "OPNsense-25.1-dvd-amd64.iso"
 }
 
 variable "disk_size" {
-  description = "Primary disk size in GiB. Minimum 8 GiB for OPNsense base install."
+  description = "Primary disk size in GB"
   type        = number
   default     = 20
-
-  validation {
-    condition     = var.disk_size >= 8
-    error_message = "OPNsense requires at least 8 GiB disk."
-  }
 }
 
 variable "disk_storage" {
-  description = "Proxmox storage pool for the VM disk and EFI disk (e.g. poc-data)"
+  description = "Proxmox storage pool for the VM disk (e.g. poc-data)"
   type        = string
 }
 
 variable "cores" {
-  description = "Number of vCPUs. Minimum 1, but 2+ recommended for IDS/Suricata workloads."
+  description = "Number of vCPUs"
   type        = number
   default     = 2
-
-  validation {
-    condition     = var.cores >= 1
-    error_message = "cores must be at least 1."
-  }
 }
 
 variable "memory" {
-  description = "RAM in MiB. Minimum 3072 MiB. 4096 MiB recommended for Suricata/IDS."
+  description = "RAM in MB"
   type        = number
-  default     = 4096
-
-  validation {
-    condition     = var.memory >= 3072
-    error_message = "OPNsense requires at least 3072 MiB RAM. 4096 MiB recommended for IDS workloads."
-  }
+  default     = 2048
 }
 
 variable "wan_bridge" {
-  description = "Proxmox bridge for WAN NIC — vmbrWAN3 (production internet uplink, renamed 2026-04-03)"
+  description = "Proxmox bridge for WAN NIC. vmbrWAN3 = bootstrap internet path (active during ISP migration). vmbrWAN1 = Proximus PPPoE (Phase 2 target)."
   type        = string
   default     = "vmbrWAN3"
 }
 
 variable "lan_bridge" {
-  description = "Proxmox bridge for LAN NIC — vmbrAPPS (SDN trunk uplink; VMs land on mgmt/dmz/svc VNets behind OPNsense)"
+  description = "Proxmox bridge for LAN NIC — use vmbrAPPS as the SDN trunk uplink; VMs land on VNets mgmt/dmz/svc behind OPNsense"
   type        = string
-}
-
-variable "env" {
-  description = "Environment tier for this VM (prod/dev/test/staging/acc). prod = no env suffix in hostname (ADR-0010). Env is per-VM, not per-node."
-  type        = string
-  default     = "prod"
-
-  validation {
-    condition     = contains(["prod", "dev", "test", "staging", "acc"], var.env)
-    error_message = "env must be one of: prod, dev, test, staging, acc."
-  }
 }
 
 variable "tags" {
-  description = "Additional Proxmox tags. env-{var.env} is always appended automatically. No colons in tag values (Proxmox rejects them)."
+  description = "Proxmox tags"
   type        = list(string)
-  default     = ["layer0", "opnsense"]
-}
-
-variable "protection" {
-  description = "Protect VM against accidental deletion via Proxmox/Terraform. Set true in production."
-  type        = bool
-  default     = false
+  default     = ["layer0", "env-poc", "opnsense"]  # Proxmox tags: no colons, use hyphens
 }
