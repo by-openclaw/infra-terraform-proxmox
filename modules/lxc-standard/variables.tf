@@ -9,7 +9,7 @@ variable "target_node" {
 }
 
 variable "ostemplate" {
-  description = "Proxmox LXC OS template path (e.g., local:vztmpl/debian-12-standard_12.2-1_amd64.tar.zst)"
+  description = "Proxmox LXC OS template path — must reference poc-iso storage (e.g., poc-iso:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst). Never use local:vztmpl."
   type        = string
 }
 
