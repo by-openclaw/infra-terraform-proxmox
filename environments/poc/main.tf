@@ -28,8 +28,32 @@ locals {
 }
 
 ################################################################################
+# Layer -1 — Proxmox SDN (pre-requisite for ALL VM networking)
+# Deploy FIRST. Creates SDN zone `poc` + VNets mgmt/dmz/svc on vmbrAPPS.
+# Without this, VM NICs referencing `mgmt`, `dmz`, `svc` will fail to attach.
+# Ref: platform-setup #78, ADR-0015
+################################################################################
+
+module "sdn" {
+  source = "../../modules/sdn-poc"
+
+  node_name = "srv-proxmox-poc-01"
+  zone_id   = "poc"
+  bridge    = "vmbrAPPS"
+  mtu       = 1500
+}
+
+output "sdn_zone_id" {
+  value = module.sdn.zone_id
+}
+
+output "sdn_vnet_ids" {
+  value = module.sdn.vnet_ids
+}
+
+################################################################################
 # Layer 0 — Network Gateway
-# Deploy first. All VM networking depends on OPNsense + SDN being live.
+# Deploy after SDN. OPNsense LAN NIC attaches to vmbrAPPS as VLAN trunk.
 # After apply: open Proxmox noVNC console → complete OPNsense install wizard (~5 min)
 # Then Ansible configures interfaces, WireGuard, VLAN subinterfaces, Unbound DoT.
 ################################################################################

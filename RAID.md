@@ -21,7 +21,8 @@
 
 | ID | Issue | Priority | Status | GitHub |
 |---|---|---|---|---|
-| I-001 | OPNsense VM + SDN-backed LAN not deployed (`vmbrAPPS` trunk, VNets `mgmt`/`dmz`/`svc`) | HIGH | OPEN | — |
+| I-001a | ~~SDN zone + VNets not deployed~~ | HIGH | **CLOSED 2026-04-03** | #78 |
+| I-001b | OPNsense VM not yet deployed | HIGH | OPEN | #79 |
 | I-002 | Debian 12 cloud-init template needs serial0 removal verified | LOW | RESOLVED | Template 9000 clean |
 
 ## Dependencies

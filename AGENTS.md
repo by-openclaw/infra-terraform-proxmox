@@ -1,6 +1,6 @@
 # AGENTS.md — infra-terraform-proxmox
 
-Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for Proxmox VE provisioning at BY-SYSTEMS.
+Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and environment definitions for Proxmox VE SDN, VM, and LXC provisioning at BY-SYSTEMS.
 
 ## Always Read First
 
@@ -47,6 +47,9 @@ Before touching anything in this repo:
 
 - OPNsense LAN attaches to `vmbrAPPS` as trunk uplink
 - Proxmox SDN zone = environment (`poc` on this node)
+- **SDN deployed 2026-04-03** — zone `poc`, VNets `mgmt`/`dmz`/`svc` live in Proxmox
+- `TerraformRole` now includes `SDN.Allocate + SDN.Audit` — updated 2026-04-03
+- Provider resolved to `bpg/proxmox v0.100.0` (lock file updated)
 - VNet names are environment-agnostic: `mgmt`, `dmz`, `svc`
 - Do **not** introduce `vmbrPOC`, `pocmgmt`, `vnet-poc-svc`, or similar invented bridge names
 

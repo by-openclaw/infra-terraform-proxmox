@@ -13,7 +13,7 @@ Claude Code and AI agent context for this repo. Read this before touching any fi
 
 ## What This Repo Does
 
-Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for Proxmox VE VM and LXC provisioning at BY-SYSTEMS. This is the single source of truth for infrastructure-as-code on the Proxmox layer.
+Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and environment definitions for Proxmox VE VM, LXC, and SDN provisioning at BY-SYSTEMS. This is the single source of truth for infrastructure-as-code on the Proxmox layer.
 
 ---
 
@@ -29,6 +29,8 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 | [`environments/poc/`](environments/poc/) | Live PoC environment |
 | [`modules/vm-linux/`](modules/vm-linux/) | VM module — cloud-init, VirtIO, qemu-guest-agent |
 | [`modules/lxc-standard/`](modules/lxc-standard/) | LXC module — unprivileged containers |
+| [`modules/sdn-poc/`](modules/sdn-poc/) | SDN module — VLAN zone + VNets + subnets (deployed 2026-04-03) |
+| [`modules/vm-opnsense/`](modules/vm-opnsense/) | OPNsense VM module — ISO-based, Layer 0 |
 
 ---
 
@@ -37,7 +39,7 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 | Tool | Version |
 |---|---|
 | Terraform | v1.14.8 |
-| bpg/proxmox provider | v0.99.0 |
+| bpg/proxmox provider | v0.100.0 (resolved from ~> 0.99) |
 
 ---
 
