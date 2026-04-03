@@ -70,6 +70,7 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
 resource "proxmox_virtual_environment_vm" "this" {
   name      = var.name
   node_name = var.target_node
+  tags      = concat(var.tags, ["env-${var.env}"])
 
   clone {
     vm_id = data.proxmox_virtual_environment_vms.template.vms[0].vm_id

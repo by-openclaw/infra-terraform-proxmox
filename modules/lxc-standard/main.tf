@@ -3,6 +3,7 @@ resource "proxmox_lxc" "this" {
   hostname    = var.name
   target_node = var.target_node
   description = "Managed by Terraform — BY-SYSTEMS infra-terraform-proxmox"
+  tags        = join(",", concat(var.tags, ["env-${var.env}"]))
 
   # Template
   ostemplate = var.ostemplate
