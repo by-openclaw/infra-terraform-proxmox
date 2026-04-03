@@ -45,8 +45,8 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 
 | VM | Proxmox ID | IP | Status |
 |---|---|---|---|
-| vm-debian-bootstrap-test-01 | 100 | 10.6.225.11 | ✅ VALIDATED — decommission when netbox is up |
-| vm-netbox-poc-01 | TBD | 10.6.225.12 | ⏸ PLANNED — next deploy |
+| vm-debian-bootstrap-test-01 | 100 | 10.1.1.x (post-SDN) | ✅ VALIDATED — decommission when netbox is up |
+| vm-netbox-poc-01 | TBD | 10.1.1.x (post-SDN) | ⏸ PLANNED — next deploy |
 
 ### Proxmox Template Status
 
@@ -63,9 +63,9 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 
 ### Network
 
-- OOB subnet: `10.6.224.0/20` — bridge `vmbrWAN3` (renamed from vmbrOOB 2026-04-03; vmbrOOB now reserved for break-glass, not yet created)
-- VM subnet: `10.6.225.x` — static IPs only (avoid DHCP pool 10.6.239.101–199)
-- **OOB gateway: `10.6.224.1`** (pfSense) ← correct value, do not use 10.6.255.254
+- Physical OOB (bootstrap only): vmbrWAN3 10.6.224.105/20 — keep until OPNsense + SDN deployed
+- VM addressing (post-SDN): `10.1.x.x` supernet via Proxmox SDN VNets (VLAN 300/310/320/330)
+- Bootstrap VM IPs (`10.6.225.x`) are temporary pre-SDN only — reassign to 10.1.x.x when SDN live
 
 ---
 
@@ -85,7 +85,7 @@ See ADR-0008 for full state management decision.
 
 | Blocker | Status |
 |---|---|
-| vm-netbox-poc-01 not yet deployed | Unblocked — template ready, 10.6.225.12, 2CPU/4GB/50GB |
+| vm-netbox-poc-01 not yet deployed | Unblocked — template ready, 2CPU/4GB/50GB. Gets 10.1.x.x post-SDN. |
 | SSH key for Rune VM → PoC node | Add `id_ed25519_rune` pubkey to `/root/.ssh/authorized_keys` on PoC node |
 
 ---
