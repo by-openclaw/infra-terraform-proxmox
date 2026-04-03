@@ -21,17 +21,17 @@ resource "proxmox_virtual_environment_vm" "this" {
   tags = var.tags
 
   # OPNsense requires UEFI/BIOS + VirtIO SCSI
-  bios            = "seabios"
-  scsi_hardware   = "virtio-scsi-single"
-  tablet_device   = false  # not needed for firewall appliance
+  bios          = "seabios"
+  scsi_hardware = "virtio-scsi-single"
+  tablet_device = false # not needed for firewall appliance
 
-  on_boot  = true
-  started  = true
+  on_boot = true
+  started = true
 
   cpu {
-    cores  = var.cores
+    cores   = var.cores
     sockets = 1
-    type   = "host"
+    type    = "host"
   }
 
   memory {
