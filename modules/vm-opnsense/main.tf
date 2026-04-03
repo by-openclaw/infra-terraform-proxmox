@@ -44,7 +44,7 @@ resource "proxmox_virtual_environment_vm" "this" {
     datastore_id = var.disk_storage
     interface    = "scsi0"
     size         = var.disk_size
-    file_format  = "qcow2"
+    file_format  = "raw"
     iothread     = true
     discard      = "on"
     cache        = "none"
