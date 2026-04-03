@@ -67,7 +67,7 @@ module "opnsense" {
   target_node = "srv-proxmox-poc-01"
 
   cores        = 2
-  memory       = 2048
+  memory       = 4096
   disk_size    = 20
   disk_storage = "poc-data"
 
