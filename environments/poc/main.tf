@@ -59,8 +59,8 @@ module "opnsense" {
   iso_storage  = "local"
   iso_file     = "OPNsense-25.1-dvd-amd64.iso"
 
-  wan_bridge   = "vmbrWAN3"  # WAN: internet via pfSense 10.6.224.1 — renamed from vmbrOOB 2026-04-03
-  lan_bridge   = "vmbrSDN"   # LAN: SDN VNet bridge — replace vmbrPOC (removed 2026-04-03)
+  wan_bridge   = "vmbrWAN3"
+  lan_bridge   = "vmbrSDN"
 }
 
 output "opnsense_vm_id" {
@@ -81,8 +81,6 @@ output "opnsense_vm_id" {
 # Layer 4: NetBox        (CMDB — needs Authentik for SSO, Vault for secrets)
 # ...
 #
-# DNS note: all VMs set dns = "10.1.1.60" (Pi-hole) once SDN is up.
-# During bootstrap (OOB network): dns = "10.6.224.1" (Proxmox host / upstream).
 ################################################################################
 
 ################################################################################
@@ -139,7 +137,7 @@ module "traefik" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
+  network_bridge = "vmbrWAN3"
   ip             = "10.6.225.15/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"

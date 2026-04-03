@@ -4,8 +4,8 @@
 # It installs from ISO. Initial install requires ~5 min console interaction.
 #
 # Network layout:
-#   vtnet0 (WAN) → vmbrWAN3 → gets IP on 10.6.224.0/20 (renamed from vmbrOOB 2026-04-03)
-#   vtnet1 (LAN) → SDN VNet bridge → 10.1.0.1/20 (gateway for all PoC VLANs)
+#   vtnet0 (WAN) → vmbrWAN3
+#   vtnet1 (LAN) → SDN VNet bridge
 #
 # After first boot and install:
 #   - Access OPNsense console via Proxmox noVNC
@@ -57,16 +57,14 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   boot_order = ["scsi0", "ide0"]
 
-  # WAN NIC — connects to vmbrWAN3 (10.6.224.0/20) — renamed from vmbrOOB 2026-04-03
-  # OPNsense WAN gets 10.6.225.1/20 static (set in OPNsense UI post-install)
+  # WAN NIC
   network_device {
     bridge   = var.wan_bridge
     model    = "virtio"
     firewall = false
   }
 
-  # LAN NIC — connects to SDN VNet bridge (vmbrPOC removed 2026-04-03)
-  # OPNsense LAN = 10.1.0.1/20 — gateway for all PoC VLANs (310/320/330)
+  # LAN NIC
   network_device {
     bridge   = var.lan_bridge
     model    = "virtio"
