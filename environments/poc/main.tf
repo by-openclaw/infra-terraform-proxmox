@@ -75,7 +75,7 @@ module "pihole" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-mgmt"
+  network_bridge = "mgmt"
   ip             = "10.1.1.60/24"
   gateway        = "10.1.1.1"
   dns            = "10.1.1.1"
@@ -109,7 +109,7 @@ module "traefik" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-dmz"
+  network_bridge = "dmz"
   ip             = "10.1.2.10/24"
   gateway        = "10.1.2.1"
   dns            = "10.1.1.60"
@@ -142,7 +142,7 @@ module "vault" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.10/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -171,7 +171,7 @@ module "vaultwarden" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.11/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -200,7 +200,7 @@ module "authentik" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.12/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -233,7 +233,7 @@ module "gitlab" {
   disk_size = "50G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.20/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -262,7 +262,7 @@ module "gitlab_runner" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.21/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -295,7 +295,7 @@ module "nextcloud" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.30/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -328,7 +328,7 @@ module "netbox" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.31/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -361,7 +361,7 @@ module "nexus" {
   disk_size = "50G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.40/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -394,7 +394,7 @@ module "observability" {
   disk_size = "30G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.50/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -427,7 +427,7 @@ module "postgres" {
   disk_size = "50G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.60/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -456,7 +456,7 @@ module "redis" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-svc"
+  network_bridge = "svc"
   ip             = "10.1.3.61/24"
   gateway        = "10.1.3.1"
   dns            = "10.1.1.60"
@@ -489,7 +489,7 @@ module "unifi" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vnet-poc-mgmt"
+  network_bridge = "mgmt"
   ip             = "10.1.1.70/24"
   gateway        = "10.1.1.1"
   dns            = "10.1.1.60"

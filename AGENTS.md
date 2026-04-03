@@ -43,6 +43,13 @@ Before touching anything in this repo:
 - ❌ Do NOT add resources outside `modules/` or `environments/` without discussion
 - ❌ Do NOT use count/for_each patterns that break state key stability without justification
 
+## Network Naming Rule (locked 2026-04-03)
+
+- OPNsense LAN attaches to `vmbrAPPS` as trunk uplink
+- Proxmox SDN zone = environment (`poc` on this node)
+- VNet names are environment-agnostic: `mgmt`, `dmz`, `svc`
+- Do **not** introduce `vmbrPOC`, `pocmgmt`, `vnet-poc-svc`, or similar invented bridge names
+
 ## GitHub Repo
 
 <https://github.com/by-openclaw/infra-terraform-proxmox>
@@ -80,4 +87,3 @@ This ensures any AI agent (or human) picking up the project always has accurate,
 | YAML/Ansible files | 2 |
 | ADR decisions | 2 |
 | CI workflows | 2 |
-

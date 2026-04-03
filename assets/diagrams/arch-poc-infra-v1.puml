@@ -60,13 +60,13 @@ rectangle "  <b>Production Network</b>  — 10.6.224.x / 10.6.0.0/20  " as PROD 
 }
 
 ' ─── POC VM NETWORK ───
-rectangle "  <b>PoC VM Network</b>  — vmbrOOB + vmbrPOC (planned)  " as POCNET #162032 {
+rectangle "  <b>PoC VM Network</b>  — vmbrWAN3 bootstrap + vmbrAPPS SDN trunk (planned)  " as POCNET #162032 {
 
-  node "🛡 OPNsense VM\n<size:10>vm-opnsense-poc-01 · planned</size>\n<size:10>WAN: vmbrOOB · LAN: vmbrPOC</size>" as OPN #1F2937
+  node "🛡 OPNsense VM\n<size:10>vm-opnsense-poc-01 · planned</size>\n<size:10>WAN: vmbrWAN3 · LAN: vmbrAPPS trunk</size>" as OPN #1F2937
 
-  rectangle "  <b>vmbrPOC</b>  — 10.6.226.x (virtual, isolated)  " as VMBR #0F1E2E {
+  rectangle "  <b>SDN zone poc</b>  — VNets: mgmt / dmz / svc  " as VMBR #0F1E2E {
     node "📦 vm-debian-bootstrap-test-01\n<size:10>ID 100 · 10.6.225.11 · ✅ VALIDATED</size>" as VM1 #1F2937
-    node "📡 vm-netbox-poc-01\n<size:10>10.6.226.10 · 🔲 PLANNED</size>" as NETBOX #1F2937
+    node "📡 vm-netbox-poc-01\n<size:10>10.1.3.31 · 🔲 PLANNED</size>" as NETBOX #1F2937
   }
 }
 

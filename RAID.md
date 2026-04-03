@@ -21,7 +21,7 @@
 
 | ID | Issue | Priority | Status | GitHub |
 |---|---|---|---|---|
-| I-001 | OPNsense VM + vmbrPOC bridge not deployed | HIGH | OPEN | — |
+| I-001 | OPNsense VM + SDN-backed LAN not deployed (`vmbrAPPS` trunk, VNets `mgmt`/`dmz`/`svc`) | HIGH | OPEN | — |
 | I-002 | Debian 12 cloud-init template needs serial0 removal verified | LOW | RESOLVED | Template 9000 clean |
 
 ## Dependencies

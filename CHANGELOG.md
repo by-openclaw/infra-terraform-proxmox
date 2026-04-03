@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - OOB gateway corrected everywhere: `10.6.255.254` → `10.6.224.1` (pfSense) in all docs, READMEs, diagrams
 
+### Changed
+- `environments/poc/main.tf`: replaced stale `vnet-poc-*` bridge names with environment-agnostic SDN VNets `mgmt`, `dmz`, `svc`
+- `modules/vm-opnsense/variables.tf`, `AGENTS.md`, `CLAUDE.md`, `RAID.md`: removed stale `vmbrPOC` language and aligned with `vmbrAPPS` trunk + SDN VNet model
+
 ## [0.2.0] — 2026-03-28
 
 ### Added

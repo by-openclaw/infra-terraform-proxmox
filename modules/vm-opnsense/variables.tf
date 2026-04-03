@@ -55,7 +55,7 @@ variable "wan_bridge" {
 }
 
 variable "lan_bridge" {
-  description = "Proxmox bridge for LAN NIC (internal PoC network) — SDN VNet bridge (vmbrPOC removed 2026-04-03)"
+  description = "Proxmox bridge for LAN NIC — use vmbrAPPS as the SDN trunk uplink; VMs land on VNets mgmt/dmz/svc behind OPNsense"
   type        = string
 }
 

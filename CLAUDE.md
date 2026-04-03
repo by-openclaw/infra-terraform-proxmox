@@ -66,6 +66,7 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 - Physical OOB (bootstrap only): vmbrWAN3 10.6.224.105/20 — keep until OPNsense + SDN deployed
 - VM addressing (post-SDN): `10.1.x.x` supernet via Proxmox SDN VNets (VLAN 300/310/320/330)
 - Bootstrap VM IPs (`10.6.225.x`) are temporary pre-SDN only — reassign to 10.1.x.x when SDN live
+- SDN naming standard: zone = environment (`poc` here), VNet names = `mgmt`, `dmz`, `svc` (environment-agnostic)
 
 ---
 

@@ -82,8 +82,8 @@ label(7, 13.3,  'Proxmox VE — hypervisor', 8.5, '#607d8b')
 box(1.2, 11.0, 5.2, 2.0, '#162a3a')
 label(3.8, 12.7, 'vm-opnsense-poc-01', 9, '#4fc3f7', bold=True)
 label(3.8, 12.38,'OPNsense  |  2 vCPU  2GB', 8, '#90caf9')
-label(3.8, 12.05,'WAN: vmbrOOB  10.6.225.2/20', 7.5, '#ffcc80')
-label(3.8, 11.72,'LAN: vmbrPOC  10.6.226.1/24', 7.5, '#a5d6a7')
+label(3.8, 12.05,'WAN: vmbrWAN3  bootstrap path', 7.5, '#ffcc80')
+label(3.8, 11.72,'LAN: vmbrAPPS  trunk → SDN', 7.5, '#a5d6a7')
 label(3.8, 11.28,'GW → 10.6.224.1 (pfSense)', 7.5, '#888888')
 
 # OPNsense WAN tap to OOB bus
@@ -102,10 +102,10 @@ label(10.3, 12.38,'OpenClaw  |  Terraform  |  Ansible', 8, '#81c784')
 label(10.3, 12.05,'vmbrOOB  10.6.224.x (DHCP)', 7.5, '#ffcc80')
 label(10.3, 11.55,'SSH keys: id_ed25519_rune', 7.5, '#888888')
 
-# ── vmbrPOC bus ──────────────────────────────────────────────────────────
-bus(1.2, 12.6, 10.6, 'vmbrPOC  10.6.226.0/24  (virtual bridge — no physical NIC)', '#a5d6a7')
+# ── SDN bus ──────────────────────────────────────────────────────────────
+bus(1.2, 12.6, 10.6, 'vmbrAPPS trunk  →  SDN zone poc  →  VNets mgmt / dmz / svc', '#a5d6a7')
 
-# OPNsense LAN → vmbrPOC
+# OPNsense LAN → SDN
 vline(3.8, 11.0, 10.6, col='#a5d6a7')
 
 # ── PoC VMs cluster ──────────────────────────────────────────────────────
@@ -113,7 +113,7 @@ vline(3.8, 11.0, 10.6, col='#a5d6a7')
 box(1.2, 7.6, 3.8, 2.6, '#1a2637')
 label(3.1, 9.9, 'vm-netbox-poc-01', 8.5, '#4fc3f7', bold=True)
 label(3.1, 9.58,'NetBox  (IPAM / DCIM)', 8, '#90caf9')
-label(3.1, 9.25,'10.6.226.10/24', 7.5, '#a5d6a7')
+label(3.1, 9.25,'10.1.3.31/24', 7.5, '#a5d6a7')
 label(3.1, 8.92,'2 vCPU  4GB  50GB', 7.5, '#607d8b')
 label(3.1, 8.55,'PostgreSQL :5432 (local)', 7, '#888888')
 label(3.1, 8.22,'Redis :6379 (local)', 7, '#888888')
@@ -124,15 +124,15 @@ box(5.4, 7.6, 3.5, 2.6, '#1e2a1e')
 label(7.15, 9.9, 'vm-debian-bootstrap', 8.5, '#a5d6a7', bold=True)
 label(7.15, 9.58,'-test-01  (validated (validated))', 8, '#81c784')
 label(7.15, 9.25,'10.6.225.11/20 (OOB now)', 7.5, '#ffcc80')
-label(7.15, 8.75,'→ move to vmbrPOC', 7.5, '#ffcc80')
-label(7.15, 8.42,'10.6.226.11/24', 7.5, '#a5d6a7')
+label(7.15, 8.75,'→ move to SDN VNet', 7.5, '#ffcc80')
+label(7.15, 8.42,'10.1.1.x/10.1.3.x', 7.5, '#a5d6a7')
 label(7.15, 7.88,'Baseline validated', 7, '#888888')
 
 # Future VM slot
 box(9.2, 7.6, 3.5, 2.6, '#1a1a2e')
 label(10.95, 9.9, 'vm-???-poc-xx', 8.5, '#607d8b', bold=True)
 label(10.95, 9.58,'future VMs', 8, '#546e7a')
-label(10.95, 9.1, '10.6.226.x/24', 7.5, '#4a5568')
+label(10.95, 9.1, '10.1.x.x/24', 7.5, '#4a5568')
 label(10.95, 8.1, '(planned)', 7, '#404040')
 # dashed border override
 b2 = FancyBboxPatch((9.2, 7.6), 3.5, 2.6,
@@ -141,7 +141,7 @@ b2 = FancyBboxPatch((9.2, 7.6), 3.5, 2.6,
                     linestyle='--', facecolor='#1a1a2e', alpha=0.5, zorder=3)
 ax.add_patch(b2)
 
-# PoC VMs → vmbrPOC
+# PoC VMs → SDN
 vline(3.1,  10.2, 10.6, col='#a5d6a7')
 vline(7.15, 10.2, 10.6, col='#a5d6a7', dashed=True)
 vline(10.95,10.2, 10.6, col='#444466', dashed=True)
@@ -164,7 +164,7 @@ box(7.5, 4.3, 5.7, 2.9, '#1a1020')
 label(10.35, 6.9, 'Physical Switches', 9, '#ce93d8', bold=True)
 label(10.35, 6.58,'Arista 7060 + 7020', 8, '#ba68c8')
 label(10.35, 6.25,'10.6.224.x (OOB)', 7.5, '#9575cd')
-label(10.35, 5.8, '[X]  vmbrPOC = virtual only', 7.5, '#ff8a65')
+label(10.35, 5.8, '[X]  no fake env bridge names', 7.5, '#ff8a65')
 label(10.35, 5.47,'   no physical NIC attached', 7, '#888888')
 label(10.35, 5.14,'[X]  PoC VMs never reach', 7.5, '#ff8a65')
 label(10.35, 4.81,'   physical switch fabric', 7, '#888888')
@@ -178,7 +178,7 @@ label(7, 3.5, 'LEGEND', 8, '#aaaaaa', bold=True)
 
 items = [
     ('#e8a838', 'vmbrOOB — physical OOB bridge  (10.6.224.0/20)'),
-    ('#a5d6a7', 'vmbrPOC — virtual only, no physical NIC  (10.6.226.0/24)'),
+    ('#a5d6a7', 'vmbrAPPS trunk → SDN zone poc → VNets mgmt/dmz/svc'),
     ('#61dafb', 'Internet / pfSense uplink'),
     ('#ff8a65', 'Isolation boundary — PoC VMs cannot reach physical switch fabric'),
     ('#ffd54f', 'Storage — Synology NAS (poc-data pool)'),
