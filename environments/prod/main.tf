@@ -61,7 +61,7 @@ output "sdn_vnet_ids" {
 module "opnsense" {
   source = "../../modules/vm-opnsense"
 
-  name        = "vm-opnsense-01"  # env=prod → no env suffix (ADR-0010)
+  name        = "vm-opnsense-01" # env=prod → no env suffix (ADR-0010)
   vm_id       = 100
   env         = "prod"
   target_node = "srv-proxmox-poc-01"

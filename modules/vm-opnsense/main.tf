@@ -23,8 +23,8 @@ resource "proxmox_virtual_environment_vm" "this" {
   # OPNsense requires UEFI/BIOS + VirtIO SCSI
   bios          = "seabios"
   machine       = "q35"
-  scsi_hardware = "virtio-scsi-single"  # required for iothread=true (virtio-scsi-pci ignores iothread)
-  tablet_device = false                 # not needed for firewall appliance
+  scsi_hardware = "virtio-scsi-single" # required for iothread=true (virtio-scsi-pci ignores iothread)
+  tablet_device = false                # not needed for firewall appliance
 
   on_boot = true
   started = true
