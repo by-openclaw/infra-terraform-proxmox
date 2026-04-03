@@ -63,7 +63,7 @@ Terraform modules (`vm-linux`, `lxc-standard`) and environment definitions for P
 
 ### Network
 
-- OOB subnet: `10.6.224.0/20` — bridge `vmbrOOB`
+- OOB subnet: `10.6.224.0/20` — bridge `vmbrWAN3` (renamed from vmbrOOB 2026-04-03; vmbrOOB now reserved for break-glass, not yet created)
 - VM subnet: `10.6.225.x` — static IPs only (avoid DHCP pool 10.6.239.101–199)
 - **OOB gateway: `10.6.224.1`** (pfSense) ← correct value, do not use 10.6.255.254
 

@@ -5,9 +5,20 @@
 # State: local backend (migrate to GitLab managed state when GitLab CE deployed)
 #
 # IP strategy:
-#   10.6.224.x — infrastructure (fw, switches, Proxmox nodes, NAS)
-#   10.6.225.x — VMs/LXCs (PoC/dev)
-#   10.6.239.101-199 — DHCP pool (avoid for static)
+#   10.6.224.x — OOB infrastructure (Proxmox host, NAS, switches, pfSense) — physical only
+#   10.1.0.0/20  — PoC VM supernet (OPNsense manages, 4 VLANs: 300/310/320/330)
+#   10.6.225.x   — DO NOT USE for VMs — OOB bootstrap range, decommissioned
+#
+# Network bridges on srv-proxmox-poc-01 (as of 2026-04-03):
+#   vmbrWAN1 — WAN1 Proximus PPPoE — OPNsense WAN primary
+#   vmbrWAN2 — WAN Telenet — OPNsense WAN secondary (untested)
+#   vmbrWAN3 — OOB Proximus path (10.6.224.0/20) — internet access during ISP migration
+#   vmbrOOB  — break-glass only (planned — no IP, isolated, emergency console access)
+#   vmbrFAB  — fabric supervision bridge (disabled until PoC fabric physically wired)
+#   vmbrAPPS — application/production VLAN bridge (placeholder, no ports)
+#   vmbrPOC  — REMOVED 2026-04-03 (was virtual internal bridge, not in any ADR)
+#
+# Deploy order: OPNsense first → SDN VLANs → all other VMs
 ################################################################################
 
 # Standard SSH keys injected into all VMs
@@ -21,39 +32,42 @@ locals {
   ]
 }
 
-# Bootstrap test VM — validating VM baseline standard before deploying apps
-# Once validated, this will be destroyed and the pattern used for real VMs
-module "bootstrap_test" {
-  source = "../../modules/vm-linux"
+################################################################################
+# Layer 0 — Network Gateway (deploy first — everything depends on this)
+################################################################################
 
-  name        = "vm-debian-bootstrap-test-01"
-  target_node = "srv-proxmox-poc-01"
-  clone       = "debian-12-cloud"
+# OPNsense — PoC virtual router and firewall (ADR-0015)
+# WAN: vmbrWAN3 → gets 10.6.225.1/20, GW 10.6.224.1 (set in OPNsense post-install)
+# LAN: SDN VNet bridge → 10.1.0.1/20 (gateway for all PoC VLANs 310/320/330)
+# WireGuard: Rune VM peer → access to 10.1.x.x without physical VLAN switch
+#
+# ⚠ INSTALL REQUIRED: After terraform apply, open Proxmox noVNC console for
+#   vm-opnsense-poc-01 and complete the OPNsense install wizard (~5 min).
+#   Then Ansible takes over for WireGuard + interface config.
+module "opnsense" {
+  source = "../../modules/vm-opnsense"
 
-  cores     = 1
-  memory    = 1024
-  disk_size = "10G"
-  storage   = "poc-data"
+  name         = "vm-opnsense-poc-01"
+  vm_id        = 100
+  target_node  = "srv-proxmox-poc-01"
 
-  network_bridge = "vmbrOOB"
-  ip             = "10.6.225.11/20"
-  gateway        = "10.6.224.1"
-  dns            = "10.6.224.1"
+  cores        = 2
+  memory       = 2048
+  disk_size    = 20
+  disk_storage = "poc-data"
 
-  ci_user  = "by-systems"
-  ssh_keys = local.standard_ssh_keys
+  iso_storage  = "local"
+  iso_file     = "OPNsense-25.1-dvd-amd64.iso"
+
+  wan_bridge   = "vmbrWAN3"  # WAN: internet via pfSense 10.6.224.1 — renamed from vmbrOOB 2026-04-03
+  lan_bridge   = "vmbrSDN"   # LAN: SDN VNet bridge — replace vmbrPOC (removed 2026-04-03)
 }
 
-output "bootstrap_test_vm_id" {
-  value = module.bootstrap_test.vm_id
+output "opnsense_vm_id" {
+  value = module.opnsense.vm_id
 }
 
-output "bootstrap_test_ip" {
-  value = module.bootstrap_test.ip_address
-}
-
-# NOTE: vm-netbox-poc-01 (ID 100) still exists with old config
-# Will be destroyed manually after bootstrap test is validated
+# Bootstrap test VM — DESTROYED 2026-04-03. Removed from config.
 
 ################################################################################
 # Platform services — deployment order matters
@@ -92,7 +106,7 @@ module "pihole" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB" # TODO: move to vnet-poc-mgmt (10.1.1.60) once SDN deployed
+  network_bridge = "vmbrWAN3" # TODO: move to vnet-poc-mgmt (10.1.1.60) once SDN deployed — renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.60/20" # OOB bootstrap IP — reassign to 10.1.1.60 post-SDN
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1" # Bootstrap: upstream DNS. Post-deploy: points to itself.
@@ -109,40 +123,7 @@ output "pihole_ip" {
   value = module.pihole.ip_address
 }
 
-################################################################################
-# Layer 0 — Network Foundation
-################################################################################
-
-# OPNsense — Virtual router, firewall, WireGuard, dual-WAN
-# Ports: all network (router/firewall)
-module "opnsense" {
-  source = "../../modules/vm-linux"
-
-  name        = "vm-opnsense-poc-01"
-  target_node = "srv-proxmox-poc-01"
-  clone       = "debian-12-cloud"
-
-  cores     = 2
-  memory    = 2048
-  disk_size = "20G"
-  storage   = "poc-data"
-
-  network_bridge = "vmbrOOB"
-  ip             = "10.6.225.1/20"
-  gateway        = "10.6.224.1"
-  dns            = "10.6.224.1"
-
-  ci_user  = "by-systems"
-  ssh_keys = local.standard_ssh_keys
-}
-
-output "opnsense_vm_id" {
-  value = module.opnsense.vm_id
-}
-
-output "opnsense_ip" {
-  value = module.opnsense.ip_address
-}
+# (stale vm-linux opnsense block removed 2026-04-03 — replaced by vm-opnsense module above)
 
 # Traefik — Reverse proxy + TLS termination
 # Ports: 80 (redirect), 443 (HTTPS)
@@ -158,7 +139,7 @@ module "traefik" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.15/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -200,7 +181,7 @@ module "vault" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.13/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -232,7 +213,7 @@ module "vaultwarden" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.14/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -265,7 +246,7 @@ module "authentik" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.16/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -302,7 +283,7 @@ module "gitlab" {
   disk_size = "50G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.20/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -333,7 +314,7 @@ module "gitlab_runner" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.21/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -369,7 +350,7 @@ module "nextcloud" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.35/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -406,7 +387,7 @@ module "netbox" {
   disk_size = "20G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.17/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -444,7 +425,7 @@ module "nexus" {
   disk_size = "50G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.40/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -480,7 +461,7 @@ module "observability" {
   disk_size = "30G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.50/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -516,7 +497,7 @@ module "postgres" {
   disk_size = "50G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.19/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -548,7 +529,7 @@ module "redis" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.18/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
@@ -584,7 +565,7 @@ module "unifi" {
   disk_size = "10G"
   storage   = "poc-data"
 
-  network_bridge = "vmbrOOB"
+  network_bridge = "vmbrWAN3" // renamed from vmbrOOB 2026-04-03
   ip             = "10.6.225.62/20"
   gateway        = "10.6.224.1"
   dns            = "10.6.224.1"
