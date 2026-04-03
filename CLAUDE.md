@@ -13,7 +13,7 @@ Claude Code and AI agent context for this repo. Read this before touching any fi
 
 ## What This Repo Does
 
-Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn`) and environment definitions for Proxmox VE VM, LXC, and SDN provisioning at BY-SYSTEMS. This is the single source of truth for infrastructure-as-code on the Proxmox layer.
+Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and environment definitions for Proxmox VE VM, LXC, and SDN provisioning at BY-SYSTEMS. This is the single source of truth for infrastructure-as-code on the Proxmox layer.
 
 ---
 
@@ -26,10 +26,10 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn`) and environ
 | [`docs/variables-reference.md`](docs/variables-reference.md) | All module inputs, types, defaults |
 | [`versions.tf`](versions.tf) | Pinned versions — do not change without instruction |
 | [`providers.tf`](providers.tf) | Provider config (bpg/proxmox v0.99.0) |
-| [`environments/prod/`](environments/prod/) | Current Terraform root for node `srv-proxmox-01` (folder name is legacy; not an env tier) |
+| [`environments/poc/`](environments/poc/) | Current Terraform root for node `srv-proxmox-poc-01` (folder name is legacy; not an env tier) |
 | [`modules/vm-linux/`](modules/vm-linux/) | VM module — cloud-init, VirtIO, qemu-guest-agent |
 | [`modules/lxc-standard/`](modules/lxc-standard/) | LXC module — unprivileged containers |
-| [`modules/sdn/`](modules/sdn/) | SDN module — VLAN zone + VNets + subnets (deployed 2026-04-03) |
+| [`modules/sdn-poc/`](modules/sdn-poc/) | SDN module — VLAN zone + VNets + subnets (deployed 2026-04-03) |
 | [`modules/vm-opnsense/`](modules/vm-opnsense/) | OPNsense VM module — ISO-based, Layer 0 |
 
 ---
@@ -45,17 +45,17 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn`) and environ
 
 ## Current Infrastructure State (2026-04-03)
 
-> `srv-proxmox-01` = node name only. All current VMs on this node = `env=prod`.
+> `srv-proxmox-poc-01` = node name only. All current VMs on this node = `env=prod`.
 
 | VM | Proxmox ID | env | IP | Status |
 |---|---|---|---|---|
-| vm-opnsense-01 | 100 | prod | WAN 10.6.224.x` / LAN `10.1.1.1` | ⏸ bootstrap complete, full config pending |
+| vm-opnsense-01 | 100 | prod | WAN `10.6.224.106` / LAN `10.1.1.1` | ⏸ bootstrap complete, full config pending |
 | vm-debian-bootstrap-test-01 | 100 (historical bootstrap ref) | prod | 10.1.1.x (post-SDN) | ✅ VALIDATED — decommission when netbox is up |
 | vm-netbox-01 | TBD | prod | 10.1.1.x (post-SDN) | ⏸ PLANNED — next deploy |
 
 ### Proxmox Template Status
 
-- `debian-12-cloud` template: **VM 9000** on `srv-proxmox-01`
+- `debian-12-cloud` template: **VM 9000** on `srv-proxmox-poc-01`
   - Disk: `poc-data:vm-9000-disk-0` (ZFS)
   - Cloud-init: `poc-data:vm-9000-cloudinit`
   - ✅ Ready for Terraform clone
@@ -72,15 +72,15 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn`) and environ
 - Physical OOB (bootstrap only): vmbrWAN3 10.6.224.105/20 — keep until OPNsense + SDN deployed
 - VM addressing (post-SDN): `10.1.x.x` supernet via Proxmox SDN VNets (VLAN 300/310/320/330)
 - Bootstrap VM IPs (`10.6.225.x`) are temporary pre-SDN only — reassign to 10.1.x.x when SDN live
-- SDN naming standard: zone = env tier (prod, test)), VNet names = `mgmt`, `dmz`, `svc` (environment-agnostic)
+- SDN naming standard: zone = node/network label (`poc` here), VNet names = `mgmt`, `dmz`, `svc` (environment-agnostic)
 
 ---
 
 ## State Backend
 
-- **Current:** local file (`environments/prod/terraform.tfstate`)
-- **Backup:** Synology NAS `/by-terraform-state/prod/terraform.tfstate` — synced after every apply
-- **Restore:** `python3 scripts/backup-state.py --env prod` (downloads from NAS if local is lost)
+- **Current:** local file (`environments/poc/terraform.tfstate`)
+- **Backup:** Synology NAS `/by-terraform-state/poc/terraform.tfstate` — synced after every apply
+- **Restore:** `python3 scripts/backup-state.py --env poc` (downloads from NAS if local is lost)
 - **Wrapper:** use `scripts/tf.sh` instead of bare `terraform` — auto-backs up on apply/destroy
 - **Migration:** GitLab managed state (Phase 5, ADR-0005) — do NOT migrate until instructed
 
@@ -113,7 +113,7 @@ See ADR-0008 for full state management decision.
 ```
 
 API token: `svc-terraform@pve!ci` — do not rotate without updating this file.
-**Note:** do not derive service-account env scope from the node name. Env is per-VM, not per-node`. Env must be explicit in the account purpose and target resources.
+**Note:** do not derive service-account env scope from the node name `poc-01`. Env must be explicit in the account purpose and target resources.
 
 ---
 
