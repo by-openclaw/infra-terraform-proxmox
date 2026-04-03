@@ -61,21 +61,20 @@ output "sdn_vnet_ids" {
 module "opnsense" {
   source = "../../modules/vm-opnsense"
 
-  name        = "vm-opnsense-01" # env=prod → no env suffix (ADR-0010)
-  vm_id       = 100
-  env         = "prod"
-  target_node = "srv-proxmox-poc-01"
+  name         = "vm-opnsense-poc-01"
+  vm_id        = 100
+  target_node  = "srv-proxmox-poc-01"
 
   cores        = 2
-  memory       = 4096
-  disk_size    = 20
+  memory       = 3072
+  disk_size    = 16
   disk_storage = "poc-data"
 
-  iso_storage = "poc-iso"
-  iso_file    = "OPNsense-25.1-dvd-amd64.iso"
+  iso_storage  = "poc-iso"
+  iso_file     = "OPNsense-25.1-dvd-amd64.iso"
 
-  wan_bridge = "vmbrWAN3"
-  lan_bridge = "vmbrAPPS"
+  wan_bridge   = "vmbrWAN3"
+  lan_bridge   = "vmbrAPPS"
 }
 
 output "opnsense_vm_id" {
