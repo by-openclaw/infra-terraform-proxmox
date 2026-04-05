@@ -61,17 +61,17 @@ resource "proxmox_virtual_environment_vm" "this" {
   cpu {
     cores      = var.cores
     sockets    = 1
-    type       = "host"        # single node; → "x86-64-v2-AES" when cluster (ADR-0003)
+    type       = "host" # single node; → "x86-64-v2-AES" when cluster (ADR-0003)
     hotplugged = 0
-    flags      = ["+aes"]     # AES-NI: mandatory for WireGuard/IPsec/TLS (ADR-0003)
-                               # with type=host this is already exposed; flag is an
-                               # explicit guard — Proxmox errors if host lacks AES-NI
+    flags      = ["+aes"] # AES-NI: mandatory for WireGuard/IPsec/TLS (ADR-0003)
+    # with type=host this is already exposed; flag is an
+    # explicit guard — Proxmox errors if host lacks AES-NI
   }
 
   memory {
-    dedicated = var.memory  # min 3072 MiB enforced in variables.tf
-    floating  = 0           # ballooning disabled — Proxmox reclaiming RAM causes
-                            # state table instability and connection drops (ADR-0003)
+    dedicated = var.memory # min 3072 MiB enforced in variables.tf
+    floating  = 0          # ballooning disabled — Proxmox reclaiming RAM causes
+    # state table instability and connection drops (ADR-0003)
   }
 
   # Boot disk — OPNsense installs here from ISO
@@ -79,11 +79,11 @@ resource "proxmox_virtual_environment_vm" "this" {
     datastore_id = var.disk_storage
     interface    = "scsi0"
     size         = var.disk_size
-    file_format  = "raw"  # ZFS requires raw (qcow2 not supported on ZFS pools)
+    file_format  = "raw" # ZFS requires raw (qcow2 not supported on ZFS pools)
     iothread     = true
     discard      = "on"
     cache        = "none"
-    ssd          = true   # SSD emulation hint — enables TRIM/discard path in guest
+    ssd          = true # SSD emulation hint — enables TRIM/discard path in guest
   }
 
   # EFI disk — required with bios = "ovmf"
@@ -108,7 +108,7 @@ resource "proxmox_virtual_environment_vm" "this" {
     bridge   = var.wan_bridge
     model    = "virtio"
     firewall = false
-    queues   = var.cores  # multiqueue VirtIO — one queue per core, improves throughput
+    queues   = var.cores # multiqueue VirtIO — one queue per core, improves throughput
   }
 
   # LAN NIC
