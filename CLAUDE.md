@@ -26,7 +26,7 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 | [`docs/variables-reference.md`](docs/variables-reference.md) | All module inputs, types, defaults |
 | [`versions.tf`](versions.tf) | Pinned versions — do not change without instruction |
 | [`providers.tf`](providers.tf) | Provider config (bpg/proxmox v0.99.0) |
-| [`environments/poc/`](environments/poc/) | Live PoC environment |
+| [`environments/poc/`](environments/poc/) | Current Terraform root for node `srv-proxmox-poc-01` (folder name is legacy; not an env tier) |
 | [`modules/vm-linux/`](modules/vm-linux/) | VM module — cloud-init, VirtIO, qemu-guest-agent |
 | [`modules/lxc-standard/`](modules/lxc-standard/) | LXC module — unprivileged containers |
 | [`modules/sdn-poc/`](modules/sdn-poc/) | SDN module — VLAN zone + VNets + subnets (deployed 2026-04-03) |
@@ -43,12 +43,15 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 
 ---
 
-## Current Infrastructure State (2026-03-29)
+## Current Infrastructure State (2026-04-03)
 
-| VM | Proxmox ID | IP | Status |
-|---|---|---|---|
-| vm-debian-bootstrap-test-01 | 100 | 10.1.1.x (post-SDN) | ✅ VALIDATED — decommission when netbox is up |
-| vm-netbox-poc-01 | TBD | 10.1.1.x (post-SDN) | ⏸ PLANNED — next deploy |
+> `srv-proxmox-poc-01` = node name only. All current VMs on this node = `env=prod`.
+
+| VM | Proxmox ID | env | IP | Status |
+|---|---|---|---|---|
+| vm-opnsense-01 | 100 | prod | WAN `10.6.224.106` / LAN `10.1.1.1` | ⏸ bootstrap complete, full config pending |
+| vm-debian-bootstrap-test-01 | 100 (historical bootstrap ref) | prod | 10.1.1.x (post-SDN) | ✅ VALIDATED — decommission when netbox is up |
+| vm-netbox-01 | TBD | prod | 10.1.1.x (post-SDN) | ⏸ PLANNED — next deploy |
 
 ### Proxmox Template Status
 
@@ -60,7 +63,7 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 ### Storage
 
 - `poc-data` (ZFS): correct target for all VM/LXC disks — use this
-- `poc-iso` (NFS): the only valid target for `iso` / `vztmpl` content in PoC
+- `poc-iso` (NFS): the only valid target for `iso` / `vztmpl` content on this node (storage pool name, not env tier)
 - `local`, `local-lvm`, `lvm-thin`: do **not** use for ISO storage
 - `poc-iso` is not for qcow2 disk import; VM disks stay on `poc-data`
 
@@ -69,7 +72,7 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 - Physical OOB (bootstrap only): vmbrWAN3 10.6.224.105/20 — keep until OPNsense + SDN deployed
 - VM addressing (post-SDN): `10.1.x.x` supernet via Proxmox SDN VNets (VLAN 300/310/320/330)
 - Bootstrap VM IPs (`10.6.225.x`) are temporary pre-SDN only — reassign to 10.1.x.x when SDN live
-- SDN naming standard: zone = environment (`poc` here), VNet names = `mgmt`, `dmz`, `svc` (environment-agnostic)
+- SDN naming standard: zone = node/network label (`poc` here), VNet names = `mgmt`, `dmz`, `svc` (environment-agnostic)
 
 ---
 
@@ -89,7 +92,7 @@ See ADR-0008 for full state management decision.
 
 | Blocker | Status |
 |---|---|
-| vm-netbox-poc-01 not yet deployed | Unblocked — template ready, 2CPU/4GB/50GB. Gets 10.1.x.x post-SDN. |
+| vm-netbox-01 not yet deployed | Unblocked — template ready, 2CPU/4GB/50GB. Gets 10.1.x.x post-SDN. |
 | SSH key for Rune VM → PoC node | Add `id_ed25519_rune` pubkey to `/root/.ssh/authorized_keys` on PoC node |
 
 ---
@@ -110,7 +113,7 @@ See ADR-0008 for full state management decision.
 ```
 
 API token: `svc-terraform@pve!ci` — do not rotate without updating this file.
-**Note:** ADR-0010 requires `svc-terraform-poc@pve!ci` (env tier label). Rename pending — see `docs/pending-manual-ops.md`.
+**Note:** do not derive service-account env scope from the node name `poc-01`. Env must be explicit in the account purpose and target resources.
 
 ---
 
@@ -140,7 +143,7 @@ When asked to generate or update a diagram, always follow this pipeline:
 ## Cross-repo References
 
 - Naming convention: see `doc-platform-core/docs/adr/0010-naming-and-identity-convention.md`
-- Environment tiers: poc/dev/test/staging/acc/prod — always explicit. See `doc-platform-core/docs/adr/0012-environment-tier-standard.md`
+- Environment tiers: dev/test/staging/acc/prod — always explicit per VM/LXC. See `doc-platform-core/docs/adr/0012-environment-tier-standard.md`
 
 ---
 

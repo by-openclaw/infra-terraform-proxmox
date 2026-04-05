@@ -24,9 +24,11 @@ Before touching anything in this repo:
 
   | Resource | Pattern | Example |
   |---|---|---|
-  | VM | `vm-{service}-{env}-{seq:02d}` | `vm-netbox-poc-01` |
-  | LXC | `lxc-{service}-{env}-{seq:02d}` | `lxc-pihole-poc-01` |
+  | VM | `vm-{service}-{seq:02d}` for `env=prod`; `vm-{service}-{env}-{seq:02d}` for non-prod | `vm-netbox-01`, `vm-netbox-dev-01` |
+  | LXC | `lxc-{service}-{seq:02d}` for `env=prod`; `lxc-{service}-{env}-{seq:02d}` for non-prod | `lxc-pihole-01`, `lxc-pihole-test-01` |
   | Module call | matches resource name | `module "netbox"` |
+
+- **Critical env rule (2026-04-03):** `env` is per VM/LXC, not per Proxmox node. `srv-proxmox-poc-01` is a node name (hardware label), not an environment tier.
 
 - **Branch naming:** `feat/{issue-id}-{description}` or `fix/{issue-id}-{description}`
 - **No merge commits** — rebase only
@@ -46,7 +48,7 @@ Before touching anything in this repo:
 ## Network Naming Rule (locked 2026-04-03)
 
 - OPNsense LAN attaches to `vmbrAPPS` as trunk uplink
-- Proxmox SDN zone = environment (`poc` on this node)
+- Proxmox SDN zone = node/network label (`poc` on this node). Do **not** infer VM environment from SDN zone name.
 - **SDN deployed 2026-04-03** — zone `poc`, VNets `mgmt`/`dmz`/`svc` live in Proxmox
 - `TerraformRole` now includes `SDN.Allocate + SDN.Audit` — updated 2026-04-03
 - Provider resolved to `bpg/proxmox v0.100.0` (lock file updated)
@@ -55,7 +57,7 @@ Before touching anything in this repo:
 
 ## ISO Storage Rule (locked 2026-04-03)
 
-- `poc-iso` is the only valid storage for ISO / vztmpl content in PoC
+- `poc-iso` is the only valid storage for ISO / vztmpl content on this node (storage pool name, not env tier)
 - Do **not** place ISOs on `local`, `local-lvm`, or any thin-LVM storage
 - `poc-data` / ZFS is for VM and LXC disks
 - `poc-iso` / NFS is for ISO and template media only

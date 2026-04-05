@@ -88,3 +88,20 @@ variable "ssh_keys" {
   type        = list(string)
   default     = []
 }
+
+variable "env" {
+  description = "Environment tier for this VM (prod/dev/test/staging/acc). prod = no env suffix in hostname (ADR-0010). Env is per-VM, not per-node."
+  type        = string
+  default     = "prod"
+
+  validation {
+    condition     = contains(["prod", "dev", "test", "staging", "acc"], var.env)
+    error_message = "env must be one of: prod, dev, test, staging, acc."
+  }
+}
+
+variable "tags" {
+  description = "Additional Proxmox tags. env-{var.env} is always added automatically. No colons in tag values."
+  type        = list(string)
+  default     = ["linux"]
+}
