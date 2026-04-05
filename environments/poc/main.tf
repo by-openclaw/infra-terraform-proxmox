@@ -67,12 +67,12 @@ module "opnsense" {
   target_node = "srv-proxmox-poc-01"
 
   cores        = 2
-  memory       = 4096
+  memory       = 8192
   disk_size    = 20
   disk_storage = "poc-data"
 
   iso_storage = "poc-iso"
-  iso_file    = "OPNsense-25.1-dvd-amd64.iso"
+  iso_file    = "OPNsense-26.1.2-dvd-amd64.iso"
 
   wan_bridge = "vmbrWAN3"
   lan_bridge = "vmbrAPPS"

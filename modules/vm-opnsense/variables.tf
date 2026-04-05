@@ -22,7 +22,7 @@ variable "iso_storage" {
 variable "iso_file" {
   description = "ISO filename on the storage pool"
   type        = string
-  default     = "OPNsense-25.1-dvd-amd64.iso"
+  default     = "OPNsense-26.1.2-dvd-amd64.iso"
 }
 
 variable "disk_size" {
