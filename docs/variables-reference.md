@@ -62,7 +62,7 @@ For lightweight LXC containers (no cloud-init, no full OS install).
 | `swap` | number | `0` | — | ✅ | Swap in MB (0 = disabled) |
 | `disk` | string | `"8G"` | — | ✅ | Root filesystem size |
 | `storage` | string | — | ✅ | ✅ | Proxmox storage pool |
-| `network_bridge` | string | `"vmbrMGMT"` | — | ✅ | Network bridge |
+| `network_bridge` | string | `"vmbrOOB"` | — | ✅ | Network bridge |
 | `ip` | string | — | ✅ | ✅ | CIDR notation |
 | `gateway` | string | — | ✅ | ✅ | Default gateway |
 | `unprivileged` | bool | `true` | — | ✅ | Unprivileged container (recommended) |

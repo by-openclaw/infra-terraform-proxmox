@@ -46,7 +46,7 @@ module "my_lxc" {
 | `swap` | Swap in MB | number | `0` | no |
 | `disk` | Root filesystem size | string | `"8G"` | no |
 | `storage` | Storage pool name | string | — | yes |
-| `network_bridge` | Proxmox bridge name | string | `"vmbrMGMT"` | no |
+| `network_bridge` | Proxmox bridge name | string | `"vmbrOOB"` | no |
 | `ip` | Static IP in CIDR | string | — | yes |
 | `gateway` | Default gateway | string | — | yes |
 | `unprivileged` | Run as unprivileged container | bool | `true` | no |

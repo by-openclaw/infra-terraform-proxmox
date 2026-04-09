@@ -46,7 +46,7 @@ module "my_vm" {
 | `memory` | Memory in MB | number | `2048` | no |
 | `disk_size` | Primary disk size | string | `"20G"` | no |
 | `storage` | Storage pool name | string | — | yes |
-| `network_bridge` | Proxmox bridge name | string | `"vmbrMGMT"` | no |
+| `network_bridge` | Proxmox bridge name | string | `"vmbrOOB"` | no |
 | `ip` | Static IP in CIDR | string | — | yes |
 | `gateway` | Default gateway | string | — | yes |
 | `ci_user` | Cloud-init user | string | `"sysadmin"` | no |
