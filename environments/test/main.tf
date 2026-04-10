@@ -25,7 +25,7 @@ locals {
   # One key per user. Passphrase mandatory. Loaded via ssh-agent.
   # TODO: define in user identity ADR (svc-rune + by-systems profiles)
   standard_ssh_keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu rune@by-systems-rune-vm",
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu svc-rune@by-systems.be",
   ]
 }
 
