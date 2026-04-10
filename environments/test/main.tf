@@ -216,38 +216,10 @@ resource "proxmox_sdn_applier" "test" {
 }
 
 ################################################################################
-# OPNsense test VM (EXISTING — vm-fw-poc-01, VMID 101)
-# DO NOT MODIFY — kept running until vm-fw-test-01 (1100) is validated.
-# LAN (vtnet0→vmbrAPPS inverted during console install) / WAN (vtnet1→vmbrWAN3)
-################################################################################
-
-module "opnsense" {
-  source = "../../modules/vm-opnsense"
-
-  name        = "vm-opnsense-test-01"
-  vm_id       = 101
-  env         = "test"
-  target_node = "srv-proxmox-poc-01"
-
-  cores        = 2
-  memory       = 4096
-  disk_size    = 20
-  disk_storage = "poc-data"
-
-  iso_storage = "poc-iso"
-  iso_file    = "OPNsense-26.1.2-dvd-amd64.iso"
-
-  wan_bridge = "vmbrWAN3"
-  lan_bridge = "vmbrAPPS"
-
-  depends_on = [proxmox_sdn_applier.test]
-}
-
-################################################################################
-# OPNsense test VM (NEW — vm-fw-test-01, VMID 1100)
+# OPNsense test VM — vm-fw-test-01, VMID 1100
 #
 # NIC order: LAN first (vtnet0), then 3x WAN
-#   vtnet0 (LAN)  → vmbrAPPS (trunk: VLANs 1310-1340)
+#   vtnet0 (LAN)  → vmbrAPPS (trunk: VLANs 2010-2400)
 #   vtnet1 (WAN1) → vmbrWAN1 (future Proximus — not connected yet)
 #   vtnet2 (WAN2) → vmbrWAN2 (future Telenet — not connected yet)
 #   vtnet3 (WAN3) → vmbrWAN3 (current internet via pfSense OOB)
@@ -437,10 +409,6 @@ resource "proxmox_virtual_environment_vm" "fw_test_01" {
 ################################################################################
 # Outputs
 ################################################################################
-
-output "opnsense_vm_id" {
-  value = module.opnsense.vm_id
-}
 
 output "fw_test_01_vm_id" {
   value = proxmox_virtual_environment_vm.fw_test_01.vm_id
