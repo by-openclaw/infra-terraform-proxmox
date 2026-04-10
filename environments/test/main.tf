@@ -1,18 +1,28 @@
 ################################################################################
-# BY-SYSTEMS — Test Environment
+# BY-SYSTEMS — Test Environment (ADR-0032)
 # Node: srv-proxmox-poc-01
-# Purpose: lib-opnsense integration testing
+# Purpose: lib-opnsense integration testing + full network simulation
 #
-# SDN zone: test (VLANs 1310/1320/1330/1340 on vmbrAPPS)
-# IP supernet: 10.11.0.0/20 (v4) + fd11::/32 (v6 ULA)
-#   MGMT  1310  10.11.1.0/24  fd11:1::/64  gw 10.11.1.1
-#   DMZ   1320  10.11.2.0/24  fd11:2::/64  gw 10.11.2.1
-#   SVC   1330  10.11.3.0/24  fd11:3::/64  gw 10.11.3.1
-#   VPN   1340  10.11.4.0/24  fd11:4::/64  gw 10.11.4.1
+# SDN zone: test (9 segments, VLANs 2010-2400 on vmbrAPPS)
+# VLAN range: 2001-2999 (test), offset +1000 from prod (1001-1999)
+# Reserved: 1-999 (ISP, Arista, fabric)
+#
+# Segments (all dual-stack IPv4 + IPv6 ULA):
+#   MGMT    2010  10.11.1.0/24   fd11:1::/64    gw 10.11.1.1
+#   DMZ     2020  10.11.2.0/24   fd11:2::/64    gw 10.11.2.1
+#   SVC     2030  10.11.3.0/24   fd11:3::/64    gw 10.11.3.1
+#   VPN     2040  10.11.4.0/24   fd11:4::/64    gw 10.11.4.1
+#   IoT     2100  10.11.10.0/24  fd11:10::/64   gw 10.11.10.1
+#   VoIP    2110  10.11.11.0/24  fd11:11::/64   gw 10.11.11.1
+#   Storage 2200  10.11.20.0/24  fd11:20::/64   gw 10.11.20.1
+#   Media   2300  10.11.30.0/24  fd11:30::/64   gw 10.11.30.1
+#   CCTV    2400  10.11.40.0/24  fd11:40::/64   gw 10.11.40.1
 #
 # Network bridges:
-#   vmbrAPPS — VLAN trunk (OPNsense LAN + all LXC NICs)
-#   vmbrWAN3 — WAN uplink (temporary internet via pfSense OOB 10.6.224.0/20)
+#   vmbrAPPS — VLAN trunk (OPNsense LAN + all VM/LXC NICs)
+#   vmbrWAN1 — WAN1 Proximus PPPoE (future)
+#   vmbrWAN2 — WAN2 Telenet (future)
+#   vmbrWAN3 — WAN3 temporary internet via pfSense OOB (10.6.224.0/20)
 #
 # VMID scheme:
 #   test VM:  1100-1499
@@ -22,8 +32,7 @@
 ################################################################################
 
 locals {
-  # One key per user. Passphrase mandatory. Loaded via ssh-agent.
-  # TODO: define in user identity ADR (svc-rune + by-systems profiles)
+  # One key per user. Passphrase mandatory (ADR-0033). Loaded via ssh-agent.
   standard_ssh_keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu svc-rune@by-systems.be",
   ]
@@ -31,7 +40,7 @@ locals {
 
 ################################################################################
 # SDN Zone: test
-# VLAN offset +1000 from poc (310→1310, 320→1320, 330→1330, 340→1340)
+# 9 segments, VLAN offset +1000 from prod (ADR-0032)
 ################################################################################
 
 resource "proxmox_sdn_zone_vlan" "test" {
@@ -41,12 +50,13 @@ resource "proxmox_sdn_zone_vlan" "test" {
   nodes  = ["srv-proxmox-poc-01"]
 }
 
+# --- Core segments ---
+
 resource "proxmox_sdn_vnet" "tmgmt" {
   id    = "tmgmt"
   zone  = proxmox_sdn_zone_vlan.test.id
   alias = "Test Management"
-  tag   = 1310
-
+  tag   = 2010
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
@@ -54,8 +64,7 @@ resource "proxmox_sdn_vnet" "tdmz" {
   id    = "tdmz"
   zone  = proxmox_sdn_zone_vlan.test.id
   alias = "Test DMZ"
-  tag   = 1320
-
+  tag   = 2020
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
@@ -63,8 +72,7 @@ resource "proxmox_sdn_vnet" "tsvc" {
   id    = "tsvc"
   zone  = proxmox_sdn_zone_vlan.test.id
   alias = "Test Services"
-  tag   = 1330
-
+  tag   = 2030
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
@@ -72,16 +80,58 @@ resource "proxmox_sdn_vnet" "tvpn" {
   id    = "tvpn"
   zone  = proxmox_sdn_zone_vlan.test.id
   alias = "Test VPN Clients"
-  tag   = 1340
-
+  tag   = 2040
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
+
+# --- Extended segments ---
+
+resource "proxmox_sdn_vnet" "tiot" {
+  id    = "tiot"
+  zone  = proxmox_sdn_zone_vlan.test.id
+  alias = "Test IoT"
+  tag   = 2100
+  depends_on = [proxmox_sdn_zone_vlan.test]
+}
+
+resource "proxmox_sdn_vnet" "tvoip" {
+  id    = "tvoip"
+  zone  = proxmox_sdn_zone_vlan.test.id
+  alias = "Test VoIP"
+  tag   = 2110
+  depends_on = [proxmox_sdn_zone_vlan.test]
+}
+
+resource "proxmox_sdn_vnet" "tstor" {
+  id    = "tstor"
+  zone  = proxmox_sdn_zone_vlan.test.id
+  alias = "Test Storage"
+  tag   = 2200
+  depends_on = [proxmox_sdn_zone_vlan.test]
+}
+
+resource "proxmox_sdn_vnet" "tmedia" {
+  id    = "tmedia"
+  zone  = proxmox_sdn_zone_vlan.test.id
+  alias = "Test Media"
+  tag   = 2300
+  depends_on = [proxmox_sdn_zone_vlan.test]
+}
+
+resource "proxmox_sdn_vnet" "tcctv" {
+  id    = "tcctv"
+  zone  = proxmox_sdn_zone_vlan.test.id
+  alias = "Test CCTV"
+  tag   = 2400
+  depends_on = [proxmox_sdn_zone_vlan.test]
+}
+
+# --- Subnets (all dual-stack, IPv6 configured on OPNsense) ---
 
 resource "proxmox_sdn_subnet" "tmgmt" {
   vnet    = proxmox_sdn_vnet.tmgmt.id
   cidr    = "10.11.1.0/24"
   gateway = "10.11.1.1"
-
   depends_on = [proxmox_sdn_vnet.tmgmt]
 }
 
@@ -89,7 +139,6 @@ resource "proxmox_sdn_subnet" "tdmz" {
   vnet    = proxmox_sdn_vnet.tdmz.id
   cidr    = "10.11.2.0/24"
   gateway = "10.11.2.1"
-
   depends_on = [proxmox_sdn_vnet.tdmz]
 }
 
@@ -97,7 +146,6 @@ resource "proxmox_sdn_subnet" "tsvc" {
   vnet    = proxmox_sdn_vnet.tsvc.id
   cidr    = "10.11.3.0/24"
   gateway = "10.11.3.1"
-
   depends_on = [proxmox_sdn_vnet.tsvc]
 }
 
@@ -105,8 +153,42 @@ resource "proxmox_sdn_subnet" "tvpn" {
   vnet    = proxmox_sdn_vnet.tvpn.id
   cidr    = "10.11.4.0/24"
   gateway = "10.11.4.1"
-
   depends_on = [proxmox_sdn_vnet.tvpn]
+}
+
+resource "proxmox_sdn_subnet" "tiot" {
+  vnet    = proxmox_sdn_vnet.tiot.id
+  cidr    = "10.11.10.0/24"
+  gateway = "10.11.10.1"
+  depends_on = [proxmox_sdn_vnet.tiot]
+}
+
+resource "proxmox_sdn_subnet" "tvoip" {
+  vnet    = proxmox_sdn_vnet.tvoip.id
+  cidr    = "10.11.11.0/24"
+  gateway = "10.11.11.1"
+  depends_on = [proxmox_sdn_vnet.tvoip]
+}
+
+resource "proxmox_sdn_subnet" "tstor" {
+  vnet    = proxmox_sdn_vnet.tstor.id
+  cidr    = "10.11.20.0/24"
+  gateway = "10.11.20.1"
+  depends_on = [proxmox_sdn_vnet.tstor]
+}
+
+resource "proxmox_sdn_subnet" "tmedia" {
+  vnet    = proxmox_sdn_vnet.tmedia.id
+  cidr    = "10.11.30.0/24"
+  gateway = "10.11.30.1"
+  depends_on = [proxmox_sdn_vnet.tmedia]
+}
+
+resource "proxmox_sdn_subnet" "tcctv" {
+  vnet    = proxmox_sdn_vnet.tcctv.id
+  cidr    = "10.11.40.0/24"
+  gateway = "10.11.40.1"
+  depends_on = [proxmox_sdn_vnet.tcctv]
 }
 
 resource "proxmox_sdn_applier" "test" {
@@ -116,10 +198,20 @@ resource "proxmox_sdn_applier" "test" {
     proxmox_sdn_vnet.tdmz,
     proxmox_sdn_vnet.tsvc,
     proxmox_sdn_vnet.tvpn,
+    proxmox_sdn_vnet.tiot,
+    proxmox_sdn_vnet.tvoip,
+    proxmox_sdn_vnet.tstor,
+    proxmox_sdn_vnet.tmedia,
+    proxmox_sdn_vnet.tcctv,
     proxmox_sdn_subnet.tmgmt,
     proxmox_sdn_subnet.tdmz,
     proxmox_sdn_subnet.tsvc,
     proxmox_sdn_subnet.tvpn,
+    proxmox_sdn_subnet.tiot,
+    proxmox_sdn_subnet.tvoip,
+    proxmox_sdn_subnet.tstor,
+    proxmox_sdn_subnet.tmedia,
+    proxmox_sdn_subnet.tcctv,
   ]
 }
 
