@@ -22,9 +22,10 @@
 ################################################################################
 
 locals {
+  # One key per user. Passphrase mandatory. Loaded via ssh-agent.
+  # TODO: define in user identity ADR (svc-rune + by-systems profiles)
   standard_ssh_keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu rune@by-systems-rune-vm",
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF8wby/zI+Mx0CEtG6rvpAz9ijK9xu+GtuMR8ssAH23t rune@opnsense-test",
   ]
 }
 
@@ -128,7 +129,7 @@ resource "proxmox_sdn_applier" "test" {
 # LAN (vtnet0→vmbrAPPS inverted during console install) / WAN (vtnet1→vmbrWAN3)
 ################################################################################
 
-module "opnsense_poc" {
+module "opnsense" {
   source = "../../modules/vm-opnsense"
 
   name        = "vm-opnsense-test-01"
@@ -345,8 +346,8 @@ resource "proxmox_virtual_environment_vm" "fw_test_01" {
 # Outputs
 ################################################################################
 
-output "opnsense_poc_vm_id" {
-  value = module.opnsense_poc.vm_id
+output "opnsense_vm_id" {
+  value = module.opnsense.vm_id
 }
 
 output "fw_test_01_vm_id" {
