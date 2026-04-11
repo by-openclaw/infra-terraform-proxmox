@@ -1,5 +1,5 @@
 # State: local backend — migrate to GitLab managed state at Phase 5 per ADR-0011
-# Backup: scripts/backup-state.py --env poc syncs to Synology NAS
+# Backup: scripts/backup-state.py --env prod syncs to Synology NAS
 # Wrapper: scripts/tf.sh auto-backs up on apply/destroy
 
 terraform {
@@ -8,7 +8,7 @@ terraform {
   # backend "s3" {
   #   endpoint = "https://minio.by-systems.arpa"
   #   bucket   = "terraform-state"
-  #   key      = "poc/terraform.tfstate"
+  #   key      = "prod/terraform.tfstate"
   #   region   = "us-east-1"  # required by S3 provider, value doesn't matter for MinIO
   #   skip_credentials_validation = true
   #   skip_metadata_api_check     = true

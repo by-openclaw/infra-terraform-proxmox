@@ -10,7 +10,7 @@ provider "proxmox" {
     username = "root"
 
     node {
-      name    = "srv-proxmox-poc-01"
+      name    = "srv-proxmox-01"
       address = "10.6.224.105"
       port    = 22222
     }

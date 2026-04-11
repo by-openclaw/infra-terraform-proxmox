@@ -1,6 +1,6 @@
 ################################################################################
 # BY-SYSTEMS — Production Environment (ADR-0032)
-# Node: srv-proxmox-poc-01
+# Node: srv-proxmox-01
 # Provider: bpg/proxmox ~> 0.99
 # State: local backend → GitLab managed state when GitLab CE deployed
 #
@@ -42,9 +42,9 @@ locals {
 ################################################################################
 
 module "sdn" {
-  source = "../../modules/sdn-poc"
+  source = "../../modules/sdn"
 
-  node_name = "srv-proxmox-poc-01"
+  node_name = "srv-proxmox-01"
   zone_id   = "prod"
   bridge    = "vmbrAPPS"
   mtu       = 1500
@@ -128,7 +128,7 @@ module "opnsense" {
   name        = "vm-opnsense-01" # env=prod → no env suffix (ADR-0010)
   vm_id       = 100
   env         = "prod"
-  target_node = "srv-proxmox-poc-01"
+  target_node = "srv-proxmox-01"
 
   cores        = 2
   memory       = 8192
@@ -155,8 +155,8 @@ output "opnsense_vm_id" {
 module "pihole" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-pihole-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-pihole-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -189,8 +189,8 @@ output "pihole_ip" {
 module "traefik" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-traefik-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-traefik-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -222,8 +222,8 @@ output "traefik_ip" {
 module "vault" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-vault-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-vault-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -251,8 +251,8 @@ output "vault_ip" {
 module "vaultwarden" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-vaultwarden-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-vaultwarden-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -280,8 +280,8 @@ output "vaultwarden_ip" {
 module "authentik" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-authentik-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-authentik-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -313,8 +313,8 @@ output "authentik_ip" {
 module "gitlab" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-gitlab-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-gitlab-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 4
@@ -342,8 +342,8 @@ output "gitlab_ip" {
 module "gitlab_runner" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-gitlab-runner-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-gitlab-runner-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -375,8 +375,8 @@ output "gitlab_runner_ip" {
 module "nextcloud" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-nextcloud-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-nextcloud-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -408,8 +408,8 @@ output "nextcloud_ip" {
 module "netbox" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-netbox-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-netbox-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -441,8 +441,8 @@ output "netbox_ip" {
 module "nexus" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-nexus-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-nexus-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -474,8 +474,8 @@ output "nexus_ip" {
 module "observability" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-observability-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-observability-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -507,8 +507,8 @@ output "observability_ip" {
 module "postgres" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-postgres-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-postgres-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -536,8 +536,8 @@ output "postgres_ip" {
 module "redis" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-redis-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-redis-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -569,8 +569,8 @@ output "redis_ip" {
 module "unifi" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-unifi-poc-01"
-  target_node = "srv-proxmox-poc-01"
+  name        = "vm-unifi-01"
+  target_node = "srv-proxmox-01"
   clone       = "debian-12-cloud"
 
   cores     = 1

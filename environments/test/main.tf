@@ -1,6 +1,6 @@
 ################################################################################
 # BY-SYSTEMS — Test Environment (ADR-0032)
-# Node: srv-proxmox-poc-01
+# Node: srv-proxmox-01
 # Purpose: lib-opnsense integration testing + full network simulation
 #
 # SDN zone: test (9 segments, VLANs 2010-2400 on vmbrAPPS)
@@ -47,7 +47,7 @@ resource "proxmox_sdn_zone_vlan" "test" {
   id     = "test"
   bridge = "vmbrAPPS"
   mtu    = 1500
-  nodes  = ["srv-proxmox-poc-01"]
+  nodes  = ["srv-proxmox-01"]
 }
 
 # --- Core segments ---
@@ -239,7 +239,7 @@ resource "proxmox_sdn_applier" "test" {
 resource "proxmox_virtual_environment_vm" "fw_test_01" {
   name      = "vm-fw-test-01"
   vm_id     = 1100
-  node_name = "srv-proxmox-poc-01"
+  node_name = "srv-proxmox-01"
 
   tags = ["layer0", "opnsense", "env-test"]
 
@@ -349,7 +349,7 @@ resource "proxmox_virtual_environment_vm" "fw_test_01" {
 #
 #   name        = "lxc-webdmz-test-01"
 #   vm_id       = 1500
-#   target_node = "srv-proxmox-poc-01"
+#   target_node = "srv-proxmox-01"
 #   ostemplate  = "local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst"
 #
 #   cores   = 1
@@ -369,7 +369,7 @@ resource "proxmox_virtual_environment_vm" "fw_test_01" {
 #
 #   name        = "lxc-websrv-test-01"
 #   vm_id       = 1501
-#   target_node = "srv-proxmox-poc-01"
+#   target_node = "srv-proxmox-01"
 #   ostemplate  = "local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst"
 #
 #   cores   = 1
@@ -389,7 +389,7 @@ resource "proxmox_virtual_environment_vm" "fw_test_01" {
 #
 #   name        = "lxc-dhcpclient-test-01"
 #   vm_id       = 1502
-#   target_node = "srv-proxmox-poc-01"
+#   target_node = "srv-proxmox-01"
 #   ostemplate  = "local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst"
 #
 #   cores   = 1

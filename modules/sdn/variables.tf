@@ -1,12 +1,12 @@
 variable "node_name" {
-  description = "Proxmox node name to deploy SDN on (e.g., srv-proxmox-poc-01)"
+  description = "Proxmox node name to deploy SDN on (e.g., srv-proxmox-01)"
   type        = string
 }
 
 variable "zone_id" {
-  description = "SDN zone identifier — must be environment name (e.g., poc, dev, prod)"
+  description = "SDN zone identifier — must be environment name (e.g., prod, dev, test)"
   type        = string
-  default     = "poc"
+  default     = "prod"
 }
 
 variable "bridge" {

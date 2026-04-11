@@ -8,7 +8,7 @@
 # No VXLAN, no EVPN — single node, no inter-node tunnelling required.
 #
 # Naming standard (ADR-0010 / ADR-0015):
-#   Zone = environment name (poc / dev / prod)
+#   Zone = environment name (prod, dev, test)
 #   VNet = environment-agnostic (mgmt / dmz / svc)
 #   Environment context lives in VM hostname, FQDN, cert — not in SDN primitives.
 #
@@ -22,16 +22,16 @@
 
 # Step 1 — SDN applier: acts as a gate. Applied after all resources.
 # Required by bpg/proxmox to push pending SDN config to Proxmox.
-resource "proxmox_sdn_applier" "poc" {
+resource "proxmox_sdn_applier" "this" {
   depends_on = [
-    proxmox_sdn_zone_vlan.poc,
+    proxmox_sdn_zone_vlan.this,
     proxmox_sdn_vnet.vnets,
     proxmox_sdn_subnet.subnets,
   ]
 }
 
 # Step 2 — Zone: VLAN type, attached to vmbrAPPS
-resource "proxmox_sdn_zone_vlan" "poc" {
+resource "proxmox_sdn_zone_vlan" "this" {
   id     = var.zone_id
   bridge = var.bridge
   mtu    = var.mtu
@@ -43,11 +43,11 @@ resource "proxmox_sdn_vnet" "vnets" {
   for_each = var.vnets
 
   id    = each.key
-  zone  = proxmox_sdn_zone_vlan.poc.id
+  zone  = proxmox_sdn_zone_vlan.this.id
   alias = each.value.alias
   tag   = each.value.tag
 
-  depends_on = [proxmox_sdn_zone_vlan.poc]
+  depends_on = [proxmox_sdn_zone_vlan.this]
 }
 
 # Step 4 — Subnets: one per VNet, gateway = OPNsense VLAN sub-interface IP
