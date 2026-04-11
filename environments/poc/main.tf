@@ -1,13 +1,20 @@
 ################################################################################
-# BY-SYSTEMS — Proxmox PoC Environment
+# BY-SYSTEMS — Production Environment (ADR-0032)
 # Node: srv-proxmox-poc-01
-# Provider: bpg/proxmox ~> 0.66
+# Provider: bpg/proxmox ~> 0.99
 # State: local backend → GitLab managed state when GitLab CE deployed
 #
-# IP supernet: 10.1.0.0/20 (OPNsense manages, 4 VLANs: 300/310/320/330)
-#   MGMT  310  10.1.1.0/24  gw 10.1.1.1
-#   DMZ   320  10.1.2.0/24  gw 10.1.2.1
-#   SVC   330  10.1.3.0/24  gw 10.1.3.1
+# SDN zone: prod (9 segments, VLANs 1010-1400 on vmbrAPPS, ADR-0032)
+# All dual-stack IPv4 + IPv6 ULA
+#   MGMT    1010  10.1.1.0/24   fd01:1::/64    gw 10.1.1.1
+#   DMZ     1020  10.1.2.0/24   fd01:2::/64    gw 10.1.2.1
+#   SVC     1030  10.1.3.0/24   fd01:3::/64    gw 10.1.3.1
+#   VPN     1040  10.1.4.0/24   fd01:4::/64    gw 10.1.4.1
+#   IoT     1100  10.1.10.0/24  fd01:10::/64   gw 10.1.10.1
+#   VoIP    1110  10.1.11.0/24  fd01:11::/64   gw 10.1.11.1
+#   Storage 1200  10.1.20.0/24  fd01:20::/64   gw 10.1.20.1
+#   Media   1300  10.1.30.0/24  fd01:30::/64   gw 10.1.30.1
+#   CCTV    1400  10.1.40.0/24  fd01:40::/64   gw 10.1.40.1
 #
 # Network bridges on node:
 #   vmbrWAN1  — WAN1 Proximus PPPoE (OPNsense WAN primary)
@@ -29,18 +36,75 @@ locals {
 
 ################################################################################
 # Layer -1 — Proxmox SDN (pre-requisite for ALL VM networking)
-# Deploy FIRST. Creates SDN zone `poc` + VNets mgmt/dmz/svc on vmbrAPPS.
-# Without this, VM NICs referencing `mgmt`, `dmz`, `svc` will fail to attach.
-# Ref: platform-setup #78, ADR-0015
+# Deploy FIRST. Creates SDN zone `prod` + 9 VNets on vmbrAPPS (ADR-0032).
+# Without this, VM NICs referencing VNets will fail to attach.
+# Ref: ADR-0032, ADR-0015 (superseded for VLAN ranges)
 ################################################################################
 
 module "sdn" {
   source = "../../modules/sdn-poc"
 
   node_name = "srv-proxmox-poc-01"
-  zone_id   = "poc"
+  zone_id   = "prod"
   bridge    = "vmbrAPPS"
   mtu       = 1500
+
+  vnets = {
+    mgmt = {
+      tag     = 1010
+      alias   = "Management"
+      subnet  = "10.1.1.0/24"
+      gateway = "10.1.1.1"
+    }
+    dmz = {
+      tag     = 1020
+      alias   = "DMZ"
+      subnet  = "10.1.2.0/24"
+      gateway = "10.1.2.1"
+    }
+    svc = {
+      tag     = 1030
+      alias   = "Services"
+      subnet  = "10.1.3.0/24"
+      gateway = "10.1.3.1"
+    }
+    vpn = {
+      tag     = 1040
+      alias   = "VPN"
+      subnet  = "10.1.4.0/24"
+      gateway = "10.1.4.1"
+    }
+    iot = {
+      tag     = 1100
+      alias   = "IoT"
+      subnet  = "10.1.10.0/24"
+      gateway = "10.1.10.1"
+    }
+    voip = {
+      tag     = 1110
+      alias   = "VoIP"
+      subnet  = "10.1.11.0/24"
+      gateway = "10.1.11.1"
+    }
+    storage = {
+      tag     = 1200
+      alias   = "Storage"
+      subnet  = "10.1.20.0/24"
+      gateway = "10.1.20.1"
+    }
+    media = {
+      tag     = 1300
+      alias   = "Media"
+      subnet  = "10.1.30.0/24"
+      gateway = "10.1.30.1"
+    }
+    cctv = {
+      tag     = 1400
+      alias   = "CCTV"
+      subnet  = "10.1.40.0/24"
+      gateway = "10.1.40.1"
+    }
+  }
 }
 
 output "sdn_zone_id" {
