@@ -1,6 +1,5 @@
 # AGENTS.md -- infra-terraform-proxmox
 
-> **Rules:** See [OPERATING-STANDARD.md](~/.openclaw/workspace/OPERATING-STANDARD.md) for all platform rules.
 
 Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and environment definitions for Proxmox VE SDN, VM, and LXC provisioning at BY-SYSTEMS.
 
