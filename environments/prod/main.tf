@@ -61,14 +61,13 @@ output "sdn_vnet_ids" {
 module "opnsense" {
   source = "../../modules/vm-opnsense"
 
-  name        = "vm-opnsense-01" # env=prod → no env suffix (ADR-0010)
+  name        = "vm-opnsense-01"   # prod omits env; non-prod carries it (ADR-0010 amended 2026-04-03)
   vm_id       = 100
-  env         = "prod"
   target_node = "srv-proxmox-poc-01"
 
   cores        = 2
-  memory       = 4096
-  disk_size    = 20
+  memory       = 3072
+  disk_size    = 16
   disk_storage = "poc-data"
 
   iso_storage = "poc-iso"
@@ -529,4 +528,41 @@ output "unifi_vm_id" {
 
 output "unifi_ip" {
   value = module.unifi.ip_address
+}
+
+################################################################################
+# Layer 10 — Email Infrastructure
+# Mailcow: full mail stack (SMTP, IMAP, webmail, anti-spam, DKIM).
+# Self-contained Docker Compose stack — bundles own MariaDB + Redis.
+# Exception to ADR-0018 (centralized DB) — mailcow requires MariaDB.
+# Ref: ADR-0026 (email infrastructure standard)
+################################################################################
+
+module "mailcow" {
+  source = "../../modules/vm-linux"
+
+  name        = "vm-mailcow-poc-01"
+  target_node = "srv-proxmox-poc-01"
+  clone       = "debian-12-cloud"
+
+  cores     = 2
+  memory    = 6144
+  disk_size = "30G"
+  storage   = "poc-data"
+
+  network_bridge = "svc"
+  ip             = "10.1.3.55/24"
+  gateway        = "10.1.3.1"
+  dns            = "10.1.1.60"
+
+  ci_user  = "by-systems"
+  ssh_keys = local.standard_ssh_keys
+}
+
+output "mailcow_vm_id" {
+  value = module.mailcow.vm_id
+}
+
+output "mailcow_ip" {
+  value = module.mailcow.ip_address
 }
