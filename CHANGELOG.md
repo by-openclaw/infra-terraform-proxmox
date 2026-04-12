@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.0.0...v1.1.0) (2026-04-12)
+
+
+### Features
+
+* **modules:** add env variable to all modules — env is per-VM not per-node ([3997309](https://github.com/by-openclaw/infra-terraform-proxmox/commit/39973094892d3cc3fd757d5b661bf372b165aa6c))
+* **poc:** add mailcow VM to PoC environment ([e821482](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e821482086ec0c6ac7b351ccfa7a3e558ca329e7))
+* **poc:** add mailcow VM to PoC environment ([53767f6](https://github.com/by-openclaw/infra-terraform-proxmox/commit/53767f66d7158712b200ada5f263a529b1761bf1)), closes [#4](https://github.com/by-openclaw/infra-terraform-proxmox/issues/4)
+* **vm-opnsense:** apply audit fixes + merge response ([8b6237e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8b6237eb77d7b0ffd650386c7cdb8a095282ac54))
+
+
+### Bug Fixes
+
+* **fmt:** terraform fmt — align comment whitespace ([93cef2f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/93cef2f19e2d4cec85d50b298ac0408f90977549))
+* **poc:** vm-opnsense-poc-01 memory 3072MB, disk 16GB — reflect actual install ([ba96334](https://github.com/by-openclaw/infra-terraform-proxmox/commit/ba96334d8041ca0a4d7e3d51d39ecfccacbf5ae5))
+* run terraform fmt on all .tf files ([b707a27](https://github.com/by-openclaw/infra-terraform-proxmox/commit/b707a27afcea9688a83b212a2a78b7f447bb03d1)), closes [#6](https://github.com/by-openclaw/infra-terraform-proxmox/issues/6)
+* terraform fmt alignment for CI ([eeb624f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/eeb624fd06cd3fbdfeefa31dad012928ec15c95a))
+* **vm-opnsense:** align module with ADR-0010 + Proxmox reality ([641902b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/641902b4d3de7eab0d9fa0f21067c57c3bbf5a7e))
+* **vm-opnsense:** use raw disk format for ZFS datastore compatibility ([17ab32f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/17ab32f03d22d1859e56d654fa7c1b37e7fef81d))
+
 ## [1.0.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v0.2.1...v1.0.0) (2026-04-11)
 
 
