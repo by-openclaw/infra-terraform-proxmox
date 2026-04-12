@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v0.2.1...v1.0.0) (2026-04-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* purge all poc references — rename to prod standard
+* rename zone poc → prod, renumber VLANs to ADR-0032
+* remove VM 101 (vm-opnsense-test-01), keep only VM 1100
+
+### Features
+
+* add test environment with vm-fw-test-01 (VMID 1100) ([ea079b9](https://github.com/by-openclaw/infra-terraform-proxmox/commit/ea079b941fd950088918639419e6478609052d2b))
+* **poc:** add platform service VMs — step-ca, vault, vaultwarden, traefik, authentik, netbox, minio ([7a089c4](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7a089c4d0d5281409ce3ca3b40ed8767fb54f626))
+* **poc:** add shared postgres and redis VMs — one VM per service ([0a00f9a](https://github.com/by-openclaw/infra-terraform-proxmox/commit/0a00f9a7634313e5b74bc4eac1903a55a36b2356))
+* **poc:** add vm-pihole-poc-01 — Pi-hole + Unbound DNS, DoT upstream :853, all VMs point to Pi-hole ([628593c](https://github.com/by-openclaw/infra-terraform-proxmox/commit/628593cfdb3fa6356561a1a6f63f505173303514))
+* **poc:** apply finalized VM sizing from spec sheet ([35505ba](https://github.com/by-openclaw/infra-terraform-proxmox/commit/35505bab4cc54899a7f3a29057f98d9dd704bd22))
+* purge all poc references — rename to prod standard ([eabe1db](https://github.com/by-openclaw/infra-terraform-proxmox/commit/eabe1dbd00f9cd62fa15ac1301a88a0da79bae11))
+* remove VM 101 (vm-opnsense-test-01), keep only VM 1100 ([456fc44](https://github.com/by-openclaw/infra-terraform-proxmox/commit/456fc44f1c4f53fd648448fdb7d2cf7bf6fb07a7))
+* rename zone poc → prod, renumber VLANs to ADR-0032 ([7d51d2c](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7d51d2cd9954e32912bf0f04385a36761b9cd963))
+* renumber test VLANs to ADR-0032, add all 9 segments ([d17d3e2](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d17d3e2393b58a5a59bca3d1475740745ef4f9ae))
+* **sdn:** deploy PoC SDN zone poc with VNets mgmt/dmz/svc ([7d173ea](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7d173ea53a3b42daa8e7dd39add3dafa897c81ad))
+
+
+### Bug Fixes
+
+* **lxc:** update ostemplate var description to reference poc-iso not local ([8dabced](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8dabced44ee7123ba038daaa9cd7cdede9110817))
+* **opnsense:** update ISO to OPNsense 26.1.2 ([#8](https://github.com/by-openclaw/infra-terraform-proxmox/issues/8)) ([8bd76b9](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8bd76b980c4e3b3e45a1d30b1c618472863018b5))
+* **poc:** correct Proxmox API token comment — svc-rune@pve!terraform (was svc-terraform@pve!ci which does not exist) ([7c6d4be](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7c6d4be801aaac62a8c45127a80095fc76bf26de))
+* **poc:** replace env-prefixed VNet bridge names with agnostic SDN VNets ([8e7d839](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8e7d83988ccfa224e56163ea03d1c5c2b68776f7))
+* **poc:** resolve IP collision — vm-redis 10.6.225.20 → 10.6.225.18 ([7d9202a](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7d9202a92f373698309dbcd2a29e823448f0cfb5))
+* **poc:** update Pi-hole module comment — no Unbound sidecar, upstream=OPNsense Unbound DoT :853 ([2281dba](https://github.com/by-openclaw/infra-terraform-proxmox/commit/2281dbac384efdda4e0842ddb8605fb026744275))
+* **poc:** use poc-iso for OPNsense ISO media ([bd7d04a](https://github.com/by-openclaw/infra-terraform-proxmox/commit/bd7d04a44fb2d1f6d27b135a3bad48eea0e81726))
+* revert module rename (keeps VM 101 state), single SSH key ([c8af68f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c8af68f9f42ac04d9bb2ab2b773f225262e81069))
+* **scripts:** update backup-state.py for ADR-0007 upload return dict ([b6b089b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/b6b089b4be52e0d0c631af67e7259ee2f274cd67))
+* SSH key comment svc-rune@by-systems.be (agnostic identity) ([00f3e0e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/00f3e0eb9a37f869af362665158391de1a3b94dc))
+* update lxc-standard network_bridge default from vmbrMGMT to vmbrOOB ([d870841](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d8708414886bb39e716329e2dbf0ba7d3c8ebbb6))
+
 ## [Unreleased]
 
 ### Features
