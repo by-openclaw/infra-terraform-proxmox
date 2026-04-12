@@ -1,20 +1,13 @@
 ################################################################################
-# BY-SYSTEMS — Production Environment (ADR-0032)
-# Node: srv-proxmox-01
-# Provider: bpg/proxmox ~> 0.99
+# BY-SYSTEMS — Proxmox PoC Environment
+# Node: srv-proxmox-poc-01
+# Provider: bpg/proxmox ~> 0.66
 # State: local backend → GitLab managed state when GitLab CE deployed
 #
-# SDN zone: prod (9 segments, VLANs 1010-1400 on vmbrAPPS, ADR-0032)
-# All dual-stack IPv4 + IPv6 ULA
-#   MGMT    1010  10.1.1.0/24   fd01:1::/64    gw 10.1.1.1
-#   DMZ     1020  10.1.2.0/24   fd01:2::/64    gw 10.1.2.1
-#   SVC     1030  10.1.3.0/24   fd01:3::/64    gw 10.1.3.1
-#   VPN     1040  10.1.4.0/24   fd01:4::/64    gw 10.1.4.1
-#   IoT     1100  10.1.10.0/24  fd01:10::/64   gw 10.1.10.1
-#   VoIP    1110  10.1.11.0/24  fd01:11::/64   gw 10.1.11.1
-#   Storage 1200  10.1.20.0/24  fd01:20::/64   gw 10.1.20.1
-#   Media   1300  10.1.30.0/24  fd01:30::/64   gw 10.1.30.1
-#   CCTV    1400  10.1.40.0/24  fd01:40::/64   gw 10.1.40.1
+# IP supernet: 10.1.0.0/20 (OPNsense manages, 4 VLANs: 300/310/320/330)
+#   MGMT  310  10.1.1.0/24  gw 10.1.1.1
+#   DMZ   320  10.1.2.0/24  gw 10.1.2.1
+#   SVC   330  10.1.3.0/24  gw 10.1.3.1
 #
 # Network bridges on node:
 #   vmbrWAN1  — WAN1 Proximus PPPoE (OPNsense WAN primary)
@@ -36,75 +29,18 @@ locals {
 
 ################################################################################
 # Layer -1 — Proxmox SDN (pre-requisite for ALL VM networking)
-# Deploy FIRST. Creates SDN zone `prod` + 9 VNets on vmbrAPPS (ADR-0032).
-# Without this, VM NICs referencing VNets will fail to attach.
-# Ref: ADR-0032, ADR-0015 (superseded for VLAN ranges)
+# Deploy FIRST. Creates SDN zone `poc` + VNets mgmt/dmz/svc on vmbrAPPS.
+# Without this, VM NICs referencing `mgmt`, `dmz`, `svc` will fail to attach.
+# Ref: platform-setup #78, ADR-0015
 ################################################################################
 
 module "sdn" {
-  source = "../../modules/sdn"
+  source = "../../modules/sdn-poc"
 
-  node_name = "srv-proxmox-01"
-  zone_id   = "prod"
+  node_name = "srv-proxmox-poc-01"
+  zone_id   = "poc"
   bridge    = "vmbrAPPS"
   mtu       = 1500
-
-  vnets = {
-    mgmt = {
-      tag     = 1010
-      alias   = "Management"
-      subnet  = "10.1.1.0/24"
-      gateway = "10.1.1.1"
-    }
-    dmz = {
-      tag     = 1020
-      alias   = "DMZ"
-      subnet  = "10.1.2.0/24"
-      gateway = "10.1.2.1"
-    }
-    svc = {
-      tag     = 1030
-      alias   = "Services"
-      subnet  = "10.1.3.0/24"
-      gateway = "10.1.3.1"
-    }
-    vpn = {
-      tag     = 1040
-      alias   = "VPN"
-      subnet  = "10.1.4.0/24"
-      gateway = "10.1.4.1"
-    }
-    iot = {
-      tag     = 1100
-      alias   = "IoT"
-      subnet  = "10.1.10.0/24"
-      gateway = "10.1.10.1"
-    }
-    voip = {
-      tag     = 1110
-      alias   = "VoIP"
-      subnet  = "10.1.11.0/24"
-      gateway = "10.1.11.1"
-    }
-    storage = {
-      tag     = 1200
-      alias   = "Storage"
-      subnet  = "10.1.20.0/24"
-      gateway = "10.1.20.1"
-    }
-    media = {
-      tag     = 1300
-      alias   = "Media"
-      subnet  = "10.1.30.0/24"
-      gateway = "10.1.30.1"
-    }
-    cctv = {
-      tag     = 1400
-      alias   = "CCTV"
-      subnet  = "10.1.40.0/24"
-      gateway = "10.1.40.1"
-    }
-  }
 }
 
 output "sdn_zone_id" {
@@ -128,15 +64,15 @@ module "opnsense" {
   name        = "vm-opnsense-01" # env=prod → no env suffix (ADR-0010)
   vm_id       = 100
   env         = "prod"
-  target_node = "srv-proxmox-01"
+  target_node = "srv-proxmox-poc-01"
 
   cores        = 2
-  memory       = 8192
+  memory       = 4096
   disk_size    = 20
   disk_storage = "poc-data"
 
   iso_storage = "poc-iso"
-  iso_file    = "OPNsense-26.1.2-dvd-amd64.iso"
+  iso_file    = "OPNsense-25.1-dvd-amd64.iso"
 
   wan_bridge = "vmbrWAN3"
   lan_bridge = "vmbrAPPS"
@@ -155,8 +91,8 @@ output "opnsense_vm_id" {
 module "pihole" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-pihole-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-pihole-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -189,8 +125,8 @@ output "pihole_ip" {
 module "traefik" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-traefik-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-traefik-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -222,8 +158,8 @@ output "traefik_ip" {
 module "vault" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-vault-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-vault-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -251,8 +187,8 @@ output "vault_ip" {
 module "vaultwarden" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-vaultwarden-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-vaultwarden-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -280,8 +216,8 @@ output "vaultwarden_ip" {
 module "authentik" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-authentik-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-authentik-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -313,8 +249,8 @@ output "authentik_ip" {
 module "gitlab" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-gitlab-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-gitlab-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 4
@@ -342,8 +278,8 @@ output "gitlab_ip" {
 module "gitlab_runner" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-gitlab-runner-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-gitlab-runner-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -375,8 +311,8 @@ output "gitlab_runner_ip" {
 module "nextcloud" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-nextcloud-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-nextcloud-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -408,8 +344,8 @@ output "nextcloud_ip" {
 module "netbox" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-netbox-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-netbox-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -441,8 +377,8 @@ output "netbox_ip" {
 module "nexus" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-nexus-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-nexus-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -474,8 +410,8 @@ output "nexus_ip" {
 module "observability" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-observability-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-observability-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -507,8 +443,8 @@ output "observability_ip" {
 module "postgres" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-postgres-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-postgres-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 2
@@ -536,8 +472,8 @@ output "postgres_ip" {
 module "redis" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-redis-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-redis-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
@@ -569,8 +505,8 @@ output "redis_ip" {
 module "unifi" {
   source = "../../modules/vm-linux"
 
-  name        = "vm-unifi-01"
-  target_node = "srv-proxmox-01"
+  name        = "vm-unifi-poc-01"
+  target_node = "srv-proxmox-poc-01"
   clone       = "debian-12-cloud"
 
   cores     = 1
