@@ -1,6 +1,6 @@
 # AGENTS.md -- infra-terraform-proxmox
 
-> **Rules:** OPERATING-STANDARD.md (workspace) is mandatory for all agents, all sessions.
+> **Rules:** [OPERATING-STANDARD.md](https://github.com/by-openclaw/doc-platform-core/blob/main/OPERATING-STANDARD.md) is mandatory for all agents, all sessions. [SOUL.md](https://github.com/by-openclaw/doc-platform-core/blob/main/SOUL.md) · [USER.md](https://github.com/by-openclaw/doc-platform-core/blob/main/USER.md)
 
 Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and environment definitions for Proxmox VE SDN, VM, and LXC provisioning at BY-SYSTEMS.
 
