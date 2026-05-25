@@ -385,42 +385,13 @@ module "lxc_cctv_rocky9_01" {
   ssh_keys    = local.standard_ssh_keys
 }
 
-# ===========================================================================
-# SERVICE LXC — AdGuard Home (Phase 2 of the DNS chain)
-# ===========================================================================
-# Sits in SVC VLAN as the client-facing DNS endpoint. Upstream → FW Unbound
-# (eventually on 53530 after Phase 3 cutover). Cache OFF (Unbound caches).
-# Also gets the FW jump-host key so vm-opns-test-01 can bootstrap AdGuard
-# install via SSH (Rune→LXC routing is blocked — ansible-platform#10).
-
-module "lxc_adguard_deb13_01" {
-  source = "../../modules/lxc-cloudinit"
-
-  name        = "lxc-adguard-deb13-test-01"
-  vmid        = 1520
-  target_node = local.test_node
-  env         = "test"
-  os_type     = "debian"
-  tags        = ["service", "vlan2030", "os-debian-13", "zone-svc", "role-adguard"]
-
-  ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
-
-  network_bridge = local.test_bridge
-  vlan_tag       = 2030
-  ipv4_address   = "10.11.203.101/24"
-  ipv4_gateway   = "10.11.203.1"
-  ipv6_address   = "fd11:203::101/64"
-  ipv6_gateway   = "fd11:203::1"
-
-  dns_domain  = local.test_domain
-  dns_servers = local.dns_svc
-  # Standard user key + FW jump-host key (latter for install bootstrap only).
-  ssh_keys    = concat(local.standard_ssh_keys, [local.fw_jumphost_pubkey])
-}
+# NOTE: AdGuard Home is provisioned as a QEMU VM (see vm-fleet.tf below),
+# not as an LXC. Reason: cloud LXC rootfs templates from images.linuxcontainers.org
+# do NOT include openssh-server, and PVE LXC API has no `exec` endpoint — so without
+# PVE node shell access (we have API-only) we cannot install software in a fresh LXC.
+# QEMU VMs include qemu-guest-agent in the cloud-init image, giving us `qm guest exec`
+# for post-create bootstrap exactly like vm-opns-test-01. The svc LXC slot 1520 is
+# reserved should the LXC bootstrap path ever be solved.
 
 # ---------------------------------------------------------------------------
 # Outputs — FQDNs (consumable by DNS / NetBox sync / validation matrix script)
@@ -438,6 +409,5 @@ output "lxc_fleet" {
     media   = { fqdn = module.lxc_media_rocky9_01.fqdn,  ipv4 = module.lxc_media_rocky9_01.ipv4_address,  ipv6 = module.lxc_media_rocky9_01.ipv6_address,  vlan = 2300, distro = "rocky-9" }
     gaming  = { fqdn = module.lxc_gaming_rocky9_01.fqdn, ipv4 = module.lxc_gaming_rocky9_01.ipv4_address, ipv6 = module.lxc_gaming_rocky9_01.ipv6_address, vlan = 2320, distro = "rocky-9" }
     cctv    = { fqdn = module.lxc_cctv_rocky9_01.fqdn,   ipv4 = module.lxc_cctv_rocky9_01.ipv4_address,   ipv6 = module.lxc_cctv_rocky9_01.ipv6_address,   vlan = 2400, distro = "rocky-9" }
-    adguard = { fqdn = module.lxc_adguard_deb13_01.fqdn, ipv4 = module.lxc_adguard_deb13_01.ipv4_address, ipv6 = module.lxc_adguard_deb13_01.ipv6_address, vlan = 2030, distro = "debian-13" }
   }
 }

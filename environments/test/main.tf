@@ -32,17 +32,15 @@
 ################################################################################
 
 locals {
-  # One key per user. Passphrase mandatory (ADR-0033). Loaded via ssh-agent.
+  # SSH keys injected into every LXC's root authorized_keys via cloud-init.
+  # First key = svc-rune (passphrase-protected — ADR-0033 — used by humans via agent).
+  # Second key = opnsense — the SAME key that authenticates by-rune@vm-opns-test-01,
+  # so SSH from Rune can use vm-opns-test-01 as a ProxyJump host into the LXCs
+  # (no Rune→LXC route needed until ansible-platform#10 is resolved).
   standard_ssh_keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu svc-rune@by-systems.be",
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF8wby/zI+Mx0CEtG6rvpAz9ijK9xu+GtuMR8ssAH23t rune@opnsense-test",
   ]
-
-  # FW jump-host key (used to bootstrap LXCs from vm-opns-test-01 since Rune cannot
-  # route to the LXC VLANs — ansible-platform#10 unresolved). Generated on FW
-  # 2026-05-25 (key file: /root/.ssh/id_ed25519). Remove this entry once the
-  # routing blocker is fixed; the FW key should never live in production LXC
-  # authorized_keys.
-  fw_jumphost_pubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfsTANV965EVmrYiuyt7V4ZeaijWJ+vKuDZDhBUSHhV vm-opns-test-01-jumphost-2026-05-25"
 }
 
 ################################################################################
