@@ -36,6 +36,13 @@ locals {
   standard_ssh_keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu svc-rune@by-systems.be",
   ]
+
+  # FW jump-host key (used to bootstrap LXCs from vm-opns-test-01 since Rune cannot
+  # route to the LXC VLANs — ansible-platform#10 unresolved). Generated on FW
+  # 2026-05-25 (key file: /root/.ssh/id_ed25519). Remove this entry once the
+  # routing blocker is fixed; the FW key should never live in production LXC
+  # authorized_keys.
+  fw_jumphost_pubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfsTANV965EVmrYiuyt7V4ZeaijWJ+vKuDZDhBUSHhV vm-opns-test-01-jumphost-2026-05-25"
 }
 
 ################################################################################
