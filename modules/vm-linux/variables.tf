@@ -105,3 +105,42 @@ variable "tags" {
   type        = list(string)
   default     = ["linux"]
 }
+
+# --- Optional extensions for dual-stack + VLAN tagging (added 2026-05-23) ---
+# Defaults preserve existing single-NIC v4-only behaviour.
+
+variable "vlan_id" {
+  description = "802.1Q VLAN tag for the NIC (0 = untagged). Used when network_bridge is a trunk like vmbrAPPS."
+  type        = number
+  default     = 0
+}
+
+variable "vmid" {
+  description = "Explicit Proxmox VMID (optional). If 0, Proxmox auto-assigns from the cluster next-id."
+  type        = number
+  default     = 0
+}
+
+variable "dns_servers" {
+  description = "List of DNS resolvers (cloud-init writes one nameserver line each). Dual-stack — pass both IPv4 and IPv6 entries. Empty list = fall back to var.dns (single)."
+  type        = list(string)
+  default     = []
+}
+
+variable "ipv6_address" {
+  description = "Static IPv6 in CIDR notation (e.g. fd11:1::100/64). Empty = IPv6 disabled."
+  type        = string
+  default     = ""
+}
+
+variable "ipv6_gateway" {
+  description = "IPv6 default gateway. Required if ipv6_address is set."
+  type        = string
+  default     = ""
+}
+
+variable "use_vendor_data" {
+  description = "When true, generate a cloud-init vendor-data snippet (locale/timezone/keyboard/sudo/packages/runcmd) and attach it to the VM. Requires SSH access to the PVE node (bpg/proxmox proxmox_virtual_environment_file uploads via SSH). Set to false when PVE node SSH is unavailable; bare-bones cloud-init (IP + ssh-key + hostname) still applies via the initialization block, and post-create Ansible can pick up the rest."
+  type        = bool
+  default     = true
+}

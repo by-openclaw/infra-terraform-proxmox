@@ -38,6 +38,12 @@ module "vm_adguard_test_01" {
   domain      = local.test_domain
   dns_servers = local.dns_svc
   ssh_keys    = local.standard_ssh_keys
+
+  # PVE node SSH for snippets upload is unavailable (see CLAUDE.md Known Blocker
+  # "SSH key for Rune VM → node"). Bare-bones cloud-init (IP + ssh-key + hostname)
+  # still applies via the initialization block; locale/sudo/packages handled by
+  # post-create /opt/AdGuardHome bootstrap.
+  use_vendor_data = false
 }
 
 output "vm_adguard" {

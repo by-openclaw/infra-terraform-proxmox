@@ -241,108 +241,108 @@ resource "proxmox_sdn_applier" "test" {
 #   6. Verify: API + SSH from Rune VM
 ################################################################################
 
-resource "proxmox_virtual_environment_vm" "fw_test_01" {
-  name      = "vm-fw-test-01"
-  vm_id     = 1100
-  node_name = "srv-proxmox-01"
-
-  tags = ["layer0", "opnsense", "env-test"]
-
-  bios          = "ovmf"
-  machine       = "q35"
-  scsi_hardware = "virtio-scsi-single"
-  tablet_device = false
-
-  on_boot    = true
-  started    = true
-  protection = false
-
-  agent {
-    enabled = false
-  }
-
-  cpu {
-    cores      = 2
-    sockets    = 1
-    type       = "host"
-    hotplugged = 0
-    flags      = ["+aes"]
-  }
-
-  memory {
-    dedicated = 4096
-    floating  = 0
-  }
-
-  # Boot disk
-  disk {
-    datastore_id = "poc-data"
-    interface    = "scsi0"
-    size         = 20
-    file_format  = "raw"
-    iothread     = true
-    discard      = "on"
-    cache        = "none"
-    ssd          = true
-  }
-
-  # EFI disk (UEFI)
-  efi_disk {
-    datastore_id      = "poc-data"
-    file_format       = "raw"
-    type              = "4m"
-    pre_enrolled_keys = false
-  }
-
-  # ISO for installation
-  cdrom {
-    file_id   = "poc-iso:iso/OPNsense-26.1.2-dvd-amd64.iso"
-    interface = "ide0"
-  }
-
-  boot_order = ["scsi0", "ide0"]
-
-  # vtnet0 — LAN (VLAN trunk, first NIC = OPNsense default LAN)
-  network_device {
-    bridge   = "vmbrAPPS"
-    model    = "virtio"
-    firewall = false
-    queues   = 2
-  }
-
-  # vtnet1 — WAN1 (future Proximus)
-  network_device {
-    bridge   = "vmbrWAN1"
-    model    = "virtio"
-    firewall = false
-    queues   = 2
-  }
-
-  # vtnet2 — WAN2 (future Telenet)
-  network_device {
-    bridge   = "vmbrWAN2"
-    model    = "virtio"
-    firewall = false
-    queues   = 2
-  }
-
-  # vtnet3 — WAN3 (current internet via pfSense OOB)
-  network_device {
-    bridge   = "vmbrWAN3"
-    model    = "virtio"
-    firewall = false
-    queues   = 2
-  }
-
-  vga {
-    type   = "std"
-    memory = 16
-  }
-
-  serial_device {}
-
-  depends_on = [proxmox_sdn_applier.test]
-}
+# resource "proxmox_virtual_environment_vm" "fw_test_01" {
+#   name      = "vm-fw-test-01"
+#   vm_id     = 1100
+#   node_name = "srv-proxmox-01"
+# 
+#   tags = ["layer0", "opnsense", "env-test"]
+# 
+#   bios          = "ovmf"
+#   machine       = "q35"
+#   scsi_hardware = "virtio-scsi-single"
+#   tablet_device = false
+# 
+#   on_boot    = true
+#   started    = true
+#   protection = false
+# 
+#   agent {
+#     enabled = false
+#   }
+# 
+#   cpu {
+#     cores      = 2
+#     sockets    = 1
+#     type       = "host"
+#     hotplugged = 0
+#     flags      = ["+aes"]
+#   }
+# 
+#   memory {
+#     dedicated = 4096
+#     floating  = 0
+#   }
+# 
+#   # Boot disk
+#   disk {
+#     datastore_id = "poc-data"
+#     interface    = "scsi0"
+#     size         = 20
+#     file_format  = "raw"
+#     iothread     = true
+#     discard      = "on"
+#     cache        = "none"
+#     ssd          = true
+#   }
+# 
+#   # EFI disk (UEFI)
+#   efi_disk {
+#     datastore_id      = "poc-data"
+#     file_format       = "raw"
+#     type              = "4m"
+#     pre_enrolled_keys = false
+#   }
+# 
+#   # ISO for installation
+#   cdrom {
+#     file_id   = "poc-iso:iso/OPNsense-26.1.2-dvd-amd64.iso"
+#     interface = "ide0"
+#   }
+# 
+#   boot_order = ["scsi0", "ide0"]
+# 
+#   # vtnet0 — LAN (VLAN trunk, first NIC = OPNsense default LAN)
+#   network_device {
+#     bridge   = "vmbrAPPS"
+#     model    = "virtio"
+#     firewall = false
+#     queues   = 2
+#   }
+# 
+#   # vtnet1 — WAN1 (future Proximus)
+#   network_device {
+#     bridge   = "vmbrWAN1"
+#     model    = "virtio"
+#     firewall = false
+#     queues   = 2
+#   }
+# 
+#   # vtnet2 — WAN2 (future Telenet)
+#   network_device {
+#     bridge   = "vmbrWAN2"
+#     model    = "virtio"
+#     firewall = false
+#     queues   = 2
+#   }
+# 
+#   # vtnet3 — WAN3 (current internet via pfSense OOB)
+#   network_device {
+#     bridge   = "vmbrWAN3"
+#     model    = "virtio"
+#     firewall = false
+#     queues   = 2
+#   }
+# 
+#   vga {
+#     type   = "std"
+#     memory = 16
+#   }
+# 
+#   serial_device {}
+# 
+#   depends_on = [proxmox_sdn_applier.test]
+# }
 
 ################################################################################
 # Test LXCs — created after OPNsense is configured with VLANs + DHCP + FW
@@ -415,6 +415,6 @@ resource "proxmox_virtual_environment_vm" "fw_test_01" {
 # Outputs
 ################################################################################
 
-output "fw_test_01_vm_id" {
-  value = proxmox_virtual_environment_vm.fw_test_01.vm_id
-}
+# output "fw_test_01_vm_id" {
+#   value = proxmox_virtual_environment_vm.fw_test_01.vm_id
+# }

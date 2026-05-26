@@ -21,53 +21,56 @@
 ################################################################################
 
 # ---------------------------------------------------------------------------
-# Template URLs (linuxcontainers.org cloud images — have cloud-init pre-installed)
-# Update the *_url variables when newer snapshots are needed.
+# Template URLs — Proxmox-standard tarballs from download.proxmox.com.
+#
+# Why Proxmox-standard (not linuxcontainers.org cloud):
+#   - cloud variant from images.linuxcontainers.org does NOT include openssh-server
+#     (it expects cloud-init runcmd to install it — but bpg's LXC initialization
+#     block doesn't support user_data_file_id / runcmd, so sshd never gets installed
+#     → port 22 RST'd on all containers, integration tests blocked).
+#   - Proxmox-standard tarballs ship with openssh-server preinstalled and enabled.
+#   - BPG's initialization.user_account.keys writes /root/.ssh/authorized_keys
+#     natively (no cloud-init dependency), so the standard-template switch is clean.
+#
+# Rocky Linux 9 has NO Proxmox-standard variant in the aplinfo catalogue.
+# For now Rocky LXCs use debian-13-standard (loses distro diversity but unblocks
+# integration tests). Follow-up: pre-bake a Rocky-9 vztmpl with openssh-server.
+# Update the *_url variables when newer snapshots are released.
 # ---------------------------------------------------------------------------
 variable "tmpl_debian_13_url" {
-  description = "URL to Debian 13 (trixie) cloud LXC rootfs (cloud-init enabled). Path uses codename, not version. Find current snapshot: https://images.linuxcontainers.org/streams/v1/images.json → debian:trixie:amd64:cloud."
+  description = "URL to Debian 13 (trixie) Proxmox-standard LXC vztmpl (openssh-server preinstalled + enabled). From http://download.proxmox.com/images/system/."
   type        = string
-  default     = "https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/20260523_05:24/rootfs.tar.xz"
+  default     = "http://download.proxmox.com/images/system/debian-13-standard_13.1-2_amd64.tar.zst"
 }
 
 variable "tmpl_ubuntu_2404_url" {
-  description = "URL to Ubuntu 24.04 (noble) cloud LXC rootfs (cloud-init enabled). Codename = noble."
+  description = "URL to Ubuntu 24.04 (noble) Proxmox-standard LXC vztmpl (openssh-server preinstalled + enabled). From http://download.proxmox.com/images/system/."
   type        = string
-  default     = "https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/20260523_07:42/rootfs.tar.xz"
-}
-
-variable "tmpl_rocky_9_url" {
-  description = "URL to Rocky Linux 9 cloud LXC rootfs (cloud-init enabled)."
-  type        = string
-  default     = "https://images.linuxcontainers.org/images/rockylinux/9/amd64/cloud/20260523_02:06/rootfs.tar.xz"
+  default     = "http://download.proxmox.com/images/system/ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
 }
 
 resource "proxmox_virtual_environment_download_file" "tmpl_debian_13" {
-  content_type = "vztmpl"
-  datastore_id = "poc-iso"
-  node_name    = "srv-proxmox-poc-01"
-  url          = var.tmpl_debian_13_url
-  file_name    = "debian-13-cloud_amd64.tar.xz"
-  overwrite    = false
+  content_type        = "vztmpl"
+  datastore_id        = "poc-iso"
+  node_name           = "srv-proxmox-poc-01"
+  url                 = var.tmpl_debian_13_url
+  file_name           = "debian-13-standard_13.1-2_amd64.tar.zst"
+  overwrite           = false
+  overwrite_unmanaged = true
 }
 
 resource "proxmox_virtual_environment_download_file" "tmpl_ubuntu_2404" {
-  content_type = "vztmpl"
-  datastore_id = "poc-iso"
-  node_name    = "srv-proxmox-poc-01"
-  url          = var.tmpl_ubuntu_2404_url
-  file_name    = "ubuntu-24.04-cloud_amd64.tar.xz"
-  overwrite    = false
+  content_type        = "vztmpl"
+  datastore_id        = "poc-iso"
+  node_name           = "srv-proxmox-poc-01"
+  url                 = var.tmpl_ubuntu_2404_url
+  file_name           = "ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
+  overwrite           = false
+  overwrite_unmanaged = true
 }
 
-resource "proxmox_virtual_environment_download_file" "tmpl_rocky_9" {
-  content_type = "vztmpl"
-  datastore_id = "poc-iso"
-  node_name    = "srv-proxmox-poc-01"
-  url          = var.tmpl_rocky_9_url
-  file_name    = "rockylinux-9-cloud_amd64.tar.xz"
-  overwrite    = false
-}
+# NOTE: rockylinux-9 stays as debian-13-standard until a Rocky vztmpl with
+# openssh-server is pre-baked. See follow-up issue.
 
 # ---------------------------------------------------------------------------
 # Locals — repeated values
@@ -298,20 +301,22 @@ module "lxc_storage_ubu2404_01" {
 }
 
 # ===========================================================================
-# ROCKY LINUX 9 — 3 LXCs (Media, GAMING, CCTV)
+# DEBIAN 13 — 3 LXCs (Media, GAMING, CCTV) — was Rocky-9; switched until
+# a Rocky-9 vztmpl with openssh-server is pre-baked. Distro diversity returns
+# once the follow-up custom-template work lands.
 # ===========================================================================
 
-module "lxc_media_rocky9_01" {
+module "lxc_media_deb13_01" {
   source = "../../modules/lxc-cloudinit"
 
-  name        = "lxc-media-rocky9-test-01"
+  name        = "lxc-media-deb13-test-01"
   vmid        = 1517
   target_node = local.test_node
   env         = "test"
-  os_type     = "centos"
-  tags        = ["probe", "vlan2300", "os-rocky-9", "zone-media"]
+  os_type     = "debian"
+  tags        = ["probe", "vlan2300", "os-debian-13", "zone-media"]
 
-  ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_rocky_9.id
+  ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores   = 1
   memory  = 512
   disk_gb = 4
@@ -329,17 +334,17 @@ module "lxc_media_rocky9_01" {
   ssh_keys    = local.standard_ssh_keys
 }
 
-module "lxc_gaming_rocky9_01" {
+module "lxc_gaming_deb13_01" {
   source = "../../modules/lxc-cloudinit"
 
-  name        = "lxc-gaming-rocky9-test-01"
+  name        = "lxc-gaming-deb13-test-01"
   vmid        = 1518
   target_node = local.test_node
   env         = "test"
-  os_type     = "centos"
-  tags        = ["probe", "vlan2320", "os-rocky-9", "zone-gaming"]
+  os_type     = "debian"
+  tags        = ["probe", "vlan2320", "os-debian-13", "zone-gaming"]
 
-  ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_rocky_9.id
+  ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores   = 1
   memory  = 512
   disk_gb = 4
@@ -357,17 +362,17 @@ module "lxc_gaming_rocky9_01" {
   ssh_keys    = local.standard_ssh_keys
 }
 
-module "lxc_cctv_rocky9_01" {
+module "lxc_cctv_deb13_01" {
   source = "../../modules/lxc-cloudinit"
 
-  name        = "lxc-cctv-rocky9-test-01"
+  name        = "lxc-cctv-deb13-test-01"
   vmid        = 1519
   target_node = local.test_node
   env         = "test"
-  os_type     = "centos"
-  tags        = ["probe", "vlan2400", "os-rocky-9", "zone-cctv"]
+  os_type     = "debian"
+  tags        = ["probe", "vlan2400", "os-debian-13", "zone-cctv"]
 
-  ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_rocky_9.id
+  ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores   = 1
   memory  = 512
   disk_gb = 4
@@ -406,8 +411,8 @@ output "lxc_fleet" {
     iot     = { fqdn = module.lxc_iot_ubu2404_01.fqdn,   ipv4 = module.lxc_iot_ubu2404_01.ipv4_address,   ipv6 = module.lxc_iot_ubu2404_01.ipv6_address,   vlan = 2100, distro = "ubuntu-24.04" }
     voip    = { fqdn = module.lxc_voip_ubu2404_01.fqdn,  ipv4 = module.lxc_voip_ubu2404_01.ipv4_address,  ipv6 = module.lxc_voip_ubu2404_01.ipv6_address,  vlan = 2110, distro = "ubuntu-24.04" }
     storage = { fqdn = module.lxc_storage_ubu2404_01.fqdn, ipv4 = module.lxc_storage_ubu2404_01.ipv4_address, ipv6 = module.lxc_storage_ubu2404_01.ipv6_address, vlan = 2200, distro = "ubuntu-24.04" }
-    media   = { fqdn = module.lxc_media_rocky9_01.fqdn,  ipv4 = module.lxc_media_rocky9_01.ipv4_address,  ipv6 = module.lxc_media_rocky9_01.ipv6_address,  vlan = 2300, distro = "rocky-9" }
-    gaming  = { fqdn = module.lxc_gaming_rocky9_01.fqdn, ipv4 = module.lxc_gaming_rocky9_01.ipv4_address, ipv6 = module.lxc_gaming_rocky9_01.ipv6_address, vlan = 2320, distro = "rocky-9" }
-    cctv    = { fqdn = module.lxc_cctv_rocky9_01.fqdn,   ipv4 = module.lxc_cctv_rocky9_01.ipv4_address,   ipv6 = module.lxc_cctv_rocky9_01.ipv6_address,   vlan = 2400, distro = "rocky-9" }
+    media   = { fqdn = module.lxc_media_deb13_01.fqdn,  ipv4 = module.lxc_media_deb13_01.ipv4_address,  ipv6 = module.lxc_media_deb13_01.ipv6_address,  vlan = 2300, distro = "debian-13" }
+    gaming  = { fqdn = module.lxc_gaming_deb13_01.fqdn, ipv4 = module.lxc_gaming_deb13_01.ipv4_address, ipv6 = module.lxc_gaming_deb13_01.ipv6_address, vlan = 2320, distro = "debian-13" }
+    cctv    = { fqdn = module.lxc_cctv_deb13_01.fqdn,   ipv4 = module.lxc_cctv_deb13_01.ipv4_address,   ipv6 = module.lxc_cctv_deb13_01.ipv6_address,   vlan = 2400, distro = "debian-13" }
   }
 }
