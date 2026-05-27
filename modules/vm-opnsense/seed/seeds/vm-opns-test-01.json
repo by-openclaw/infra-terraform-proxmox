@@ -1,0 +1,95 @@
+{
+  "hostname": "vm-opns-test-01",
+  "domain": "test.by-research.be",
+  "timezone": "Europe/Brussels",
+  "physical_interfaces": {
+    "trunk": "vtnet0",
+    "oob_mgmt": "vtnet1",
+    "wan_parent": "vtnet2",
+    "wan2_parent": "vtnet3"
+  },
+  "lan": {
+    "if": "vtnet1",
+    "descr": "OOB_MGMT",
+    "ipv4": "10.6.239.195",
+    "ipv4_prefix": 20,
+    "ipv4_gateway": "10.6.224.1",
+    "ipv6": "dhcp6",
+    "ipv6_prefix": 64
+  },
+  "trunk": {
+    "if": "vtnet0",
+    "descr": "LAN_TRUNK",
+    "ipv4": "10.11.1.1",
+    "ipv4_prefix": 24,
+    "ipv6": "fd11:1::1",
+    "ipv6_prefix": 64
+  },
+  "wan": {
+    "if": "pppoe0",
+    "descr": "WAN1_PROXIMUS",
+    "ipv4": "pppoe",
+    "ipv6": "dhcp6",
+    "mtu": 1492,
+    "block_private": true,
+    "block_bogons": true,
+    "ipv6_dhcp6_ia_pd_only": true,
+    "ipv6_prefix_hint": 56,
+    "ipv6_send_rapid_commit": false,
+    "ipv6_request_dns": true,
+    "pppoe_link_interface": "vtnet2",
+    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json"
+  },
+  "wan_parent": {
+    "if": "vtnet2",
+    "descr": "WAN1_Parent",
+    "block_private": true,
+    "block_bogons": true
+  },
+  "wan2": {
+    "if": "vtnet3",
+    "descr": "WAN2_TELENET",
+    "ipv4": "static",
+    "ipv6": "static",
+    "block_private": true,
+    "block_bogons": true,
+    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-telenet.json",
+    "default_gateway_v4": true,
+    "default_gateway_v6": true,
+    "gateway_descr": "ISP TELENET 500/50",
+    "monitor_ip_v4": "ipv4_gateway",
+    "monitor_ip_v6": "ipv6_gateway"
+  },
+  "ipv6_pd_tracking": {
+    "_comment": "Track Interface IPv6 — internal NICs carve /64 sub-prefixes from WAN1 (Proximus /56 PD)",
+    "track_source": "wan",
+    "interfaces": {
+      "lan":      { "prefix_id": "0x0",  "_descr": "OOB_MGMT (mgmt-only, ULA preferred — but allow GUA too)" },
+      "trunk":    { "prefix_id": "0x1",  "_descr": "LAN_TRUNK (no clients normally, just transport)" },
+      "vlan2010": { "prefix_id": "0x2",  "_descr": "MGMT" },
+      "vlan2020": { "prefix_id": "0x3",  "_descr": "DMZ" },
+      "vlan2030": { "prefix_id": "0x4",  "_descr": "SVC" },
+      "vlan2040": { "prefix_id": "0x5",  "_descr": "VPN" },
+      "vlan2100": { "prefix_id": "0x6",  "_descr": "IoT" },
+      "vlan2110": { "prefix_id": "0x7",  "_descr": "VoIP" },
+      "vlan2200": { "prefix_id": "0x8",  "_descr": "Storage" },
+      "vlan2300": { "prefix_id": "0x9",  "_descr": "Media" },
+      "vlan2320": { "prefix_id": "0xa",  "_descr": "GAMING" },
+      "vlan2400": { "prefix_id": "0xb",  "_descr": "CCTV" }
+    }
+  },
+  "vlans": [
+    { "vlanif": "vlan2010", "tag": 2010, "pcp": 6, "descr": "MGMT",    "ipv4": "10.11.1.1",  "ipv6": "fd11:1::1"  },
+    { "vlanif": "vlan2020", "tag": 2020, "pcp": 1, "descr": "DMZ",     "ipv4": "10.11.2.1",  "ipv6": "fd11:2::1"  },
+    { "vlanif": "vlan2030", "tag": 2030, "pcp": 3, "descr": "SVC",     "ipv4": "10.11.3.1",  "ipv6": "fd11:3::1"  },
+    { "vlanif": "vlan2040", "tag": 2040, "pcp": 3, "descr": "VPN",     "ipv4": "10.11.4.1",  "ipv6": "fd11:4::1"  },
+    { "vlanif": "vlan2100", "tag": 2100, "pcp": 0, "descr": "IoT",     "ipv4": "10.11.10.1", "ipv6": "fd11:10::1" },
+    { "vlanif": "vlan2110", "tag": 2110, "pcp": 5, "descr": "VoIP",    "ipv4": "10.11.11.1", "ipv6": "fd11:11::1" },
+    { "vlanif": "vlan2200", "tag": 2200, "pcp": 2, "descr": "Storage", "ipv4": "10.11.20.1", "ipv6": "fd11:20::1" },
+    { "vlanif": "vlan2300", "tag": 2300, "pcp": 4, "descr": "Media",   "ipv4": "10.11.30.1", "ipv6": "fd11:30::1" },
+    { "vlanif": "vlan2320", "tag": 2320, "pcp": 5, "descr": "GAMING",  "ipv4": "10.11.32.1", "ipv6": "fd11:32::1" },
+    { "vlanif": "vlan2400", "tag": 2400, "pcp": 4, "descr": "CCTV",    "ipv4": "10.11.40.1", "ipv6": "fd11:40::1" }
+  ],
+  "ipv4_prefix": 24,
+  "ipv6_prefix": 64
+}

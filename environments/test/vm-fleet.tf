@@ -30,10 +30,10 @@ module "vm_adguard_test_01" {
 
   network_bridge = local.test_bridge
   vlan_id        = 2030
-  ip             = "10.11.203.101/24"
-  gateway        = "10.11.203.1"
-  ipv6_address   = "fd11:203::101/64"
-  ipv6_gateway   = "fd11:203::1"
+  ip             = "10.11.3.101/24"
+  gateway        = "10.11.3.1"
+  ipv6_address   = "fd11:3::101/64"
+  ipv6_gateway   = "fd11:3::1"
 
   domain      = local.test_domain
   dns_servers = local.dns_svc

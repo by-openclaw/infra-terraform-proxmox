@@ -82,18 +82,18 @@ locals {
 
   # standard_ssh_keys is defined in main.tf (one key, ED25519, passphrase-protected per ADR-0033)
 
-  # Per-zone DNS = OPNsense Unbound on this VLAN (dual-stack)
-  # NOTE: addressing matches current FW state (10.11.20x.1 — old seed).
-  dns_mgmt    = ["10.11.201.1", "fd11:201::1"]
-  dns_dmz     = ["10.11.202.1", "fd11:202::1"]
-  dns_svc     = ["10.11.203.1", "fd11:203::1"]
-  dns_vpn     = ["10.11.204.1", "fd11:204::1"]
-  dns_iot     = ["10.11.210.1", "fd11:210::1"]
-  dns_voip    = ["10.11.211.1", "fd11:211::1"]
-  dns_storage = ["10.11.220.1", "fd11:220::1"]
-  dns_media   = ["10.11.230.1", "fd11:230::1"]
-  dns_gaming  = ["10.11.232.1", "fd11:232::1"]
-  dns_cctv    = ["10.11.240.1", "fd11:240::1"]
+  # Per-zone DNS = OPNsense Unbound on this VLAN (dual-stack).
+  # Addressing per ADR infra/0004 §4 (post-reseed 2026-05-27).
+  dns_mgmt    = ["10.11.1.1", "fd11:1::1"]
+  dns_dmz     = ["10.11.2.1", "fd11:2::1"]
+  dns_svc     = ["10.11.3.1", "fd11:3::1"]
+  dns_vpn     = ["10.11.4.1", "fd11:4::1"]
+  dns_iot     = ["10.11.10.1", "fd11:10::1"]
+  dns_voip    = ["10.11.11.1", "fd11:11::1"]
+  dns_storage = ["10.11.20.1", "fd11:20::1"]
+  dns_media   = ["10.11.30.1", "fd11:30::1"]
+  dns_gaming  = ["10.11.32.1", "fd11:32::1"]
+  dns_cctv    = ["10.11.40.1", "fd11:40::1"]
 }
 
 # ===========================================================================
@@ -118,10 +118,10 @@ module "lxc_mgmt_deb13_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2010
-  ipv4_address   = "10.11.201.100/24"
-  ipv4_gateway   = "10.11.201.1"
-  ipv6_address   = "fd11:201::100/64"
-  ipv6_gateway   = "fd11:201::1"
+  ipv4_address   = "10.11.1.100/24"
+  ipv4_gateway   = "10.11.1.1"
+  ipv6_address   = "fd11:1::100/64"
+  ipv6_gateway   = "fd11:1::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_mgmt
@@ -146,10 +146,10 @@ module "lxc_dmz_deb13_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2020
-  ipv4_address   = "10.11.202.100/24"
-  ipv4_gateway   = "10.11.202.1"
-  ipv6_address   = "fd11:202::100/64"
-  ipv6_gateway   = "fd11:202::1"
+  ipv4_address   = "10.11.2.100/24"
+  ipv4_gateway   = "10.11.2.1"
+  ipv6_address   = "fd11:2::100/64"
+  ipv6_gateway   = "fd11:2::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_dmz
@@ -174,10 +174,10 @@ module "lxc_svc_deb13_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2030
-  ipv4_address   = "10.11.203.100/24"
-  ipv4_gateway   = "10.11.203.1"
-  ipv6_address   = "fd11:203::100/64"
-  ipv6_gateway   = "fd11:203::1"
+  ipv4_address   = "10.11.3.100/24"
+  ipv4_gateway   = "10.11.3.1"
+  ipv6_address   = "fd11:3::100/64"
+  ipv6_gateway   = "fd11:3::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_svc
@@ -202,10 +202,10 @@ module "lxc_vpn_deb13_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2040
-  ipv4_address   = "10.11.204.100/24"
-  ipv4_gateway   = "10.11.204.1"
-  ipv6_address   = "fd11:204::100/64"
-  ipv6_gateway   = "fd11:204::1"
+  ipv4_address   = "10.11.4.100/24"
+  ipv4_gateway   = "10.11.4.1"
+  ipv6_address   = "fd11:4::100/64"
+  ipv6_gateway   = "fd11:4::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_vpn
@@ -234,10 +234,10 @@ module "lxc_iot_ubu2404_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2100
-  ipv4_address   = "10.11.210.100/24"
-  ipv4_gateway   = "10.11.210.1"
-  ipv6_address   = "fd11:210::100/64"
-  ipv6_gateway   = "fd11:210::1"
+  ipv4_address   = "10.11.10.100/24"
+  ipv4_gateway   = "10.11.10.1"
+  ipv6_address   = "fd11:10::100/64"
+  ipv6_gateway   = "fd11:10::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_iot
@@ -262,10 +262,10 @@ module "lxc_voip_ubu2404_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2110
-  ipv4_address   = "10.11.211.100/24"
-  ipv4_gateway   = "10.11.211.1"
-  ipv6_address   = "fd11:211::100/64"
-  ipv6_gateway   = "fd11:211::1"
+  ipv4_address   = "10.11.11.100/24"
+  ipv4_gateway   = "10.11.11.1"
+  ipv6_address   = "fd11:11::100/64"
+  ipv6_gateway   = "fd11:11::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_voip
@@ -290,10 +290,10 @@ module "lxc_storage_ubu2404_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2200
-  ipv4_address   = "10.11.220.100/24"
-  ipv4_gateway   = "10.11.220.1"
-  ipv6_address   = "fd11:220::100/64"
-  ipv6_gateway   = "fd11:220::1"
+  ipv4_address   = "10.11.20.100/24"
+  ipv4_gateway   = "10.11.20.1"
+  ipv6_address   = "fd11:20::100/64"
+  ipv6_gateway   = "fd11:20::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_storage
@@ -324,10 +324,10 @@ module "lxc_media_deb13_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2300
-  ipv4_address   = "10.11.230.100/24"
-  ipv4_gateway   = "10.11.230.1"
-  ipv6_address   = "fd11:230::100/64"
-  ipv6_gateway   = "fd11:230::1"
+  ipv4_address   = "10.11.30.100/24"
+  ipv4_gateway   = "10.11.30.1"
+  ipv6_address   = "fd11:30::100/64"
+  ipv6_gateway   = "fd11:30::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_media
@@ -352,10 +352,10 @@ module "lxc_gaming_deb13_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2320
-  ipv4_address   = "10.11.232.100/24"
-  ipv4_gateway   = "10.11.232.1"
-  ipv6_address   = "fd11:232::100/64"
-  ipv6_gateway   = "fd11:232::1"
+  ipv4_address   = "10.11.32.100/24"
+  ipv4_gateway   = "10.11.32.1"
+  ipv6_address   = "fd11:32::100/64"
+  ipv6_gateway   = "fd11:32::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_gaming
@@ -380,10 +380,10 @@ module "lxc_cctv_deb13_01" {
 
   network_bridge = local.test_bridge
   vlan_tag       = 2400
-  ipv4_address   = "10.11.240.100/24"
-  ipv4_gateway   = "10.11.240.1"
-  ipv6_address   = "fd11:240::100/64"
-  ipv6_gateway   = "fd11:240::1"
+  ipv4_address   = "10.11.40.100/24"
+  ipv4_gateway   = "10.11.40.1"
+  ipv6_address   = "fd11:40::100/64"
+  ipv6_gateway   = "fd11:40::1"
 
   dns_domain  = local.test_domain
   dns_servers = local.dns_cctv
