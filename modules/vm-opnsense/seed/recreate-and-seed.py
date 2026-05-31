@@ -256,7 +256,27 @@ def apply_security_baseline(fw_oob_ip: str = "10.6.239.195") -> bool:
     sc, txt = post("/unbound/service/reconfigure", t=90)
     print(f"    unbound reconfigure: {sc}")
 
-    # 2)+3) NetFlow capture (all internal + WAN egress) + Insight local
+    # 2) DHCP server: Kea on, dnsmasq off. The complete-config seed has
+    #    historically left both enabled — they collide on UDP/67 (dnsmasq
+    #    grabs it because it starts first) and Kea ends up running idle.
+    #    NetBox integrates natively with Kea (Kea Source plugin / netbox-
+    #    kea-dhcp) and not with dnsmasq, so Kea is the future SOT. Unbound
+    #    is the DNS resolver; dnsmasq's DNS role is also redundant here.
+    #
+    #    We turn dnsmasq off and (re)start Kea so it can bind UDP/67. Per-
+    #    subnet DHCP option 6 (DNS) is set elsewhere — currently to AdGuard
+    #    so clients learn the filtering frontend at lease time; eventually
+    #    NetBox owns this via a VLAN-role config-context.
+    sc, _ = post("/dnsmasq/settings/set", {"dnsmasq": {"enable": "0"}})
+    print(f"    dnsmasq enable=0: {sc}")
+    sc, _ = post("/dnsmasq/service/stop", t=30)
+    print(f"    dnsmasq stop: {sc}")
+    sc, _ = post("/dnsmasq/service/reconfigure", t=60)
+    print(f"    dnsmasq reconfigure: {sc}")
+    sc, _ = post("/kea/service/restart", t=60)
+    print(f"    kea restart: {sc}")
+
+    # 3)+4) NetFlow capture (all internal + WAN egress) + Insight local
     ifaces = ",".join([
         "lan",   "opt1",  "opt2",  "opt3",  "opt4",  "opt5",
         "opt6",  "opt7",  "opt8",  "opt9",  "opt10", "opt11", "opt12",
