@@ -4,8 +4,11 @@
 # It installs from ISO. Initial install requires ~5 min console interaction.
 #
 # Network layout:
-#   vtnet0 (WAN) → vmbrWAN3
-#   vtnet1 (LAN) → SDN VNet bridge
+#   vtnet0 (LAN trunk) → vmbrAPPS (SDN prod) or test SDN bridge
+#   vtnet1 (WAN bootstrap) → vmbrOOB (bond0 → 10.6.224.0/20 OOB)
+#   vtnet2 (WAN1 future)   → vmbrWAN1 (Proximus PPPoE)
+#   vtnet3 (WAN2 future)   → vmbrWAN2 (Telenet)
+# For unattended provisioning, see modules/vm-opnsense/seed/ (nano + termproxy flow).
 #
 # After first boot and install:
 #   - Access OPNsense console via Proxmox noVNC
@@ -22,9 +25,9 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   # OPNsense requires UEFI/BIOS + VirtIO SCSI
   bios          = "seabios"
-  machine       = "q35"             # matches Proxmox default for this VM
-  scsi_hardware = "virtio-scsi-pci" # matches Proxmox default for this VM
-  tablet_device = false             # not needed for firewall appliance
+  machine       = "q35"
+  scsi_hardware = "virtio-scsi-single" # required for iothread=true on the disk
+  tablet_device = false
 
   on_boot = true
   started = true
@@ -44,10 +47,11 @@ resource "proxmox_virtual_environment_vm" "this" {
     datastore_id = var.disk_storage
     interface    = "scsi0"
     size         = var.disk_size
-    file_format  = "qcow2"
+    file_format  = "raw" # poc-data is ZFS — only raw is supported
     iothread     = true
     discard      = "on"
     cache        = "none"
+    ssd          = true
   }
 
   # ISO attached for installation — detach after first install
@@ -58,20 +62,39 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   boot_order = ["scsi0", "ide2"]
 
-  # WAN NIC (vtnet0) — untagged, direct internet access
+  # vtnet0 — LAN trunk (vmbrAPPS carries all SDN VLANs 1010-1400)
+  # OPNsense creates VLAN sub-interfaces (vtnet0.1010, vtnet0.1020, ...) internally.
+  network_device {
+    bridge   = var.lan_bridge
+    model    = "virtio"
+    firewall = false
+  }
+
+  # vtnet1 — WAN (bootstrap DHCP on OOB; later: Proximus or Telenet)
   network_device {
     bridge   = var.wan_bridge
     model    = "virtio"
     firewall = false
   }
 
-  # LAN trunk NIC (vtnet1) — carries all VLAN traffic (310/320/330) on vmbrAPPS
-  # OPNsense creates VLAN sub-interfaces (vtnet1.310, vtnet1.320, vtnet1.330) internally.
-  # Do NOT add separate tagged NICs per VLAN — one trunk NIC is correct.
-  network_device {
-    bridge   = var.lan_bridge
-    model    = "virtio"
-    firewall = false
+  # vtnet2 — WAN1 / Proximus PPPoE (vmbrWAN1 trunks VLAN 10)
+  dynamic "network_device" {
+    for_each = var.wan1_bridge != "" ? [1] : []
+    content {
+      bridge   = var.wan1_bridge
+      model    = "virtio"
+      firewall = false
+    }
+  }
+
+  # vtnet3 — WAN2 / Telenet (vmbrWAN2 trunks VLAN 999)
+  dynamic "network_device" {
+    for_each = var.wan2_bridge != "" ? [1] : []
+    content {
+      bridge   = var.wan2_bridge
+      model    = "virtio"
+      firewall = false
+    }
   }
 
   vga {

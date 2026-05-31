@@ -49,14 +49,26 @@ variable "memory" {
 }
 
 variable "wan_bridge" {
-  description = "Proxmox bridge for WAN NIC. vmbrWAN3 = bootstrap internet path (active during ISP migration). vmbrWAN1 = Proximus PPPoE (Phase 2 target)."
+  description = "vtnet1 — bootstrap/temp WAN via OOB uplink (default vmbrOOB = bond0 -> 10.6.224.0/20)"
   type        = string
-  default     = "vmbrWAN3"
+  default     = "vmbrOOB"
 }
 
 variable "lan_bridge" {
-  description = "Proxmox bridge for LAN NIC — use vmbrAPPS as the SDN trunk uplink; VMs land on VNets mgmt/dmz/svc behind OPNsense"
+  description = "vtnet1 — LAN trunk (vmbrAPPS = SDN parent for VLANs 1010-1400)"
   type        = string
+}
+
+variable "wan1_bridge" {
+  description = "vtnet2 — WAN1 / Proximus PPPoE (e.g. vmbrWAN1). Empty to skip."
+  type        = string
+  default     = ""
+}
+
+variable "wan2_bridge" {
+  description = "vtnet3 — WAN2 / Telenet (e.g. vmbrWAN2). Empty to skip."
+  type        = string
+  default     = ""
 }
 
 variable "tags" {
