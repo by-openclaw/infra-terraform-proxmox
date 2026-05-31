@@ -1,5 +1,5 @@
 variable "name" {
-  description = "VM name — convention: vm-opnsense-{env}-{seq:02d} for non-prod; vm-opnsense-{seq:02d} for prod (ADR-0010: prod omits env)"
+  description = "VM name — always vm-opns-{seq:02d}, identical across every tier (no env in the name, per naming/0001-infra §7/§10). Env lives in the NetBox env field + DNS zone, never the hostname."
   type        = string
 }
 
