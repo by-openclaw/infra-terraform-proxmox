@@ -76,9 +76,9 @@ resource "proxmox_virtual_environment_download_file" "tmpl_ubuntu_2404" {
 # Locals — repeated values
 # ---------------------------------------------------------------------------
 locals {
-  test_node    = "srv-proxmox-poc-01"
-  test_domain  = "test.by-research.be"
-  test_bridge  = "vmbrAPPS"
+  test_node   = "srv-proxmox-poc-01"
+  test_domain = "test.by-research.be"
+  test_bridge = "vmbrAPPS"
 
   # standard_ssh_keys is defined in main.tf (one key, ED25519, passphrase-protected per ADR-0033)
 
@@ -111,10 +111,10 @@ module "lxc_mgmt_deb13_01" {
   tags        = ["probe", "vlan2010", "os-debian-13", "zone-mgmt"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2010
@@ -139,10 +139,10 @@ module "lxc_dmz_deb13_01" {
   tags        = ["probe", "vlan2020", "os-debian-13", "zone-dmz"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2020
@@ -167,10 +167,10 @@ module "lxc_svc_deb13_01" {
   tags        = ["probe", "vlan2030", "os-debian-13", "zone-svc"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2030
@@ -195,10 +195,10 @@ module "lxc_vpn_deb13_01" {
   tags        = ["probe", "vlan2040", "os-debian-13", "zone-vpn"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2040
@@ -227,10 +227,10 @@ module "lxc_iot_ubu2404_01" {
   tags        = ["probe", "vlan2100", "os-ubuntu-24.04", "zone-iot"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_ubuntu_2404.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2100
@@ -255,10 +255,10 @@ module "lxc_voip_ubu2404_01" {
   tags        = ["probe", "vlan2110", "os-ubuntu-24.04", "zone-voip"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_ubuntu_2404.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2110
@@ -283,10 +283,10 @@ module "lxc_storage_ubu2404_01" {
   tags        = ["probe", "vlan2200", "os-ubuntu-24.04", "zone-storage"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_ubuntu_2404.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2200
@@ -317,10 +317,10 @@ module "lxc_media_deb13_01" {
   tags        = ["probe", "vlan2300", "os-debian-13", "zone-media"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2300
@@ -345,10 +345,10 @@ module "lxc_gaming_deb13_01" {
   tags        = ["probe", "vlan2320", "os-debian-13", "zone-gaming"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2320
@@ -373,10 +373,10 @@ module "lxc_cctv_deb13_01" {
   tags        = ["probe", "vlan2400", "os-debian-13", "zone-cctv"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores   = 1
-  memory  = 512
-  disk_gb = 4
-  storage = "poc-data"
+  cores              = 1
+  memory             = 512
+  disk_gb            = 4
+  storage            = "poc-data"
 
   network_bridge = local.test_bridge
   vlan_tag       = 2400
@@ -404,15 +404,15 @@ module "lxc_cctv_deb13_01" {
 output "lxc_fleet" {
   description = "All test LXCs with their FQDN, IPv4, IPv6, VLAN, distro"
   value = {
-    mgmt    = { fqdn = module.lxc_mgmt_deb13_01.fqdn,    ipv4 = module.lxc_mgmt_deb13_01.ipv4_address,    ipv6 = module.lxc_mgmt_deb13_01.ipv6_address,    vlan = 2010, distro = "debian-13" }
-    dmz     = { fqdn = module.lxc_dmz_deb13_01.fqdn,     ipv4 = module.lxc_dmz_deb13_01.ipv4_address,     ipv6 = module.lxc_dmz_deb13_01.ipv6_address,     vlan = 2020, distro = "debian-13" }
-    svc     = { fqdn = module.lxc_svc_deb13_01.fqdn,     ipv4 = module.lxc_svc_deb13_01.ipv4_address,     ipv6 = module.lxc_svc_deb13_01.ipv6_address,     vlan = 2030, distro = "debian-13" }
-    vpn     = { fqdn = module.lxc_vpn_deb13_01.fqdn,     ipv4 = module.lxc_vpn_deb13_01.ipv4_address,     ipv6 = module.lxc_vpn_deb13_01.ipv6_address,     vlan = 2040, distro = "debian-13" }
-    iot     = { fqdn = module.lxc_iot_ubu2404_01.fqdn,   ipv4 = module.lxc_iot_ubu2404_01.ipv4_address,   ipv6 = module.lxc_iot_ubu2404_01.ipv6_address,   vlan = 2100, distro = "ubuntu-24.04" }
-    voip    = { fqdn = module.lxc_voip_ubu2404_01.fqdn,  ipv4 = module.lxc_voip_ubu2404_01.ipv4_address,  ipv6 = module.lxc_voip_ubu2404_01.ipv6_address,  vlan = 2110, distro = "ubuntu-24.04" }
+    mgmt    = { fqdn = module.lxc_mgmt_deb13_01.fqdn, ipv4 = module.lxc_mgmt_deb13_01.ipv4_address, ipv6 = module.lxc_mgmt_deb13_01.ipv6_address, vlan = 2010, distro = "debian-13" }
+    dmz     = { fqdn = module.lxc_dmz_deb13_01.fqdn, ipv4 = module.lxc_dmz_deb13_01.ipv4_address, ipv6 = module.lxc_dmz_deb13_01.ipv6_address, vlan = 2020, distro = "debian-13" }
+    svc     = { fqdn = module.lxc_svc_deb13_01.fqdn, ipv4 = module.lxc_svc_deb13_01.ipv4_address, ipv6 = module.lxc_svc_deb13_01.ipv6_address, vlan = 2030, distro = "debian-13" }
+    vpn     = { fqdn = module.lxc_vpn_deb13_01.fqdn, ipv4 = module.lxc_vpn_deb13_01.ipv4_address, ipv6 = module.lxc_vpn_deb13_01.ipv6_address, vlan = 2040, distro = "debian-13" }
+    iot     = { fqdn = module.lxc_iot_ubu2404_01.fqdn, ipv4 = module.lxc_iot_ubu2404_01.ipv4_address, ipv6 = module.lxc_iot_ubu2404_01.ipv6_address, vlan = 2100, distro = "ubuntu-24.04" }
+    voip    = { fqdn = module.lxc_voip_ubu2404_01.fqdn, ipv4 = module.lxc_voip_ubu2404_01.ipv4_address, ipv6 = module.lxc_voip_ubu2404_01.ipv6_address, vlan = 2110, distro = "ubuntu-24.04" }
     storage = { fqdn = module.lxc_storage_ubu2404_01.fqdn, ipv4 = module.lxc_storage_ubu2404_01.ipv4_address, ipv6 = module.lxc_storage_ubu2404_01.ipv6_address, vlan = 2200, distro = "ubuntu-24.04" }
-    media   = { fqdn = module.lxc_media_deb13_01.fqdn,  ipv4 = module.lxc_media_deb13_01.ipv4_address,  ipv6 = module.lxc_media_deb13_01.ipv6_address,  vlan = 2300, distro = "debian-13" }
+    media   = { fqdn = module.lxc_media_deb13_01.fqdn, ipv4 = module.lxc_media_deb13_01.ipv4_address, ipv6 = module.lxc_media_deb13_01.ipv6_address, vlan = 2300, distro = "debian-13" }
     gaming  = { fqdn = module.lxc_gaming_deb13_01.fqdn, ipv4 = module.lxc_gaming_deb13_01.ipv4_address, ipv6 = module.lxc_gaming_deb13_01.ipv6_address, vlan = 2320, distro = "debian-13" }
-    cctv    = { fqdn = module.lxc_cctv_deb13_01.fqdn,   ipv4 = module.lxc_cctv_deb13_01.ipv4_address,   ipv6 = module.lxc_cctv_deb13_01.ipv6_address,   vlan = 2400, distro = "debian-13" }
+    cctv    = { fqdn = module.lxc_cctv_deb13_01.fqdn, ipv4 = module.lxc_cctv_deb13_01.ipv4_address, ipv6 = module.lxc_cctv_deb13_01.ipv6_address, vlan = 2400, distro = "debian-13" }
   }
 }

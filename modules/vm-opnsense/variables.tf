@@ -62,5 +62,5 @@ variable "lan_bridge" {
 variable "tags" {
   description = "Proxmox tags"
   type        = list(string)
-  default     = ["layer0", "env-poc", "opnsense"]  # Proxmox tags: no colons, use hyphens
+  default     = ["layer0", "env-poc", "opnsense"] # Proxmox tags: no colons, use hyphens
 }

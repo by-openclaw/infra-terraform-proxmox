@@ -152,7 +152,7 @@ variable "features" {
     keyctl  = bool
   })
   default = {
-    nesting = true   # required for systemd 255+
+    nesting = true # required for systemd 255+
     fuse    = false
     keyctl  = false
   }

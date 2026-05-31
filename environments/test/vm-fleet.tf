@@ -22,7 +22,7 @@ module "vm_adguard_test_01" {
   env         = "test"
   tags        = ["service", "vlan2030", "zone-svc", "role-adguard"]
 
-  clone     = "debian-12-cloud"  # template VMID 9000 (per repo CLAUDE.md)
+  clone     = "debian-12-cloud" # template VMID 9000 (per repo CLAUDE.md)
   cores     = 1
   memory    = 1024
   disk_size = "5G"

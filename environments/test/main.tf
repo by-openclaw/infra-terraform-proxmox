@@ -58,141 +58,141 @@ resource "proxmox_sdn_zone_vlan" "test" {
 # --- Core segments ---
 
 resource "proxmox_sdn_vnet" "tmgmt" {
-  id    = "tmgmt"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test Management"
-  tag   = 2010
+  id         = "tmgmt"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test Management"
+  tag        = 2010
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tdmz" {
-  id    = "tdmz"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test DMZ"
-  tag   = 2020
+  id         = "tdmz"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test DMZ"
+  tag        = 2020
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tsvc" {
-  id    = "tsvc"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test Services"
-  tag   = 2030
+  id         = "tsvc"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test Services"
+  tag        = 2030
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tvpn" {
-  id    = "tvpn"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test VPN Clients"
-  tag   = 2040
+  id         = "tvpn"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test VPN Clients"
+  tag        = 2040
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 # --- Extended segments ---
 
 resource "proxmox_sdn_vnet" "tiot" {
-  id    = "tiot"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test IoT"
-  tag   = 2100
+  id         = "tiot"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test IoT"
+  tag        = 2100
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tvoip" {
-  id    = "tvoip"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test VoIP"
-  tag   = 2110
+  id         = "tvoip"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test VoIP"
+  tag        = 2110
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tstor" {
-  id    = "tstor"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test Storage"
-  tag   = 2200
+  id         = "tstor"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test Storage"
+  tag        = 2200
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tmedia" {
-  id    = "tmedia"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test Media"
-  tag   = 2300
+  id         = "tmedia"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test Media"
+  tag        = 2300
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tcctv" {
-  id    = "tcctv"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test CCTV"
-  tag   = 2400
+  id         = "tcctv"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test CCTV"
+  tag        = 2400
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 # --- Subnets (all dual-stack, IPv6 configured on OPNsense) ---
 
 resource "proxmox_sdn_subnet" "tmgmt" {
-  vnet    = proxmox_sdn_vnet.tmgmt.id
-  cidr    = "10.11.1.0/24"
-  gateway = "10.11.1.1"
+  vnet       = proxmox_sdn_vnet.tmgmt.id
+  cidr       = "10.11.1.0/24"
+  gateway    = "10.11.1.1"
   depends_on = [proxmox_sdn_vnet.tmgmt]
 }
 
 resource "proxmox_sdn_subnet" "tdmz" {
-  vnet    = proxmox_sdn_vnet.tdmz.id
-  cidr    = "10.11.2.0/24"
-  gateway = "10.11.2.1"
+  vnet       = proxmox_sdn_vnet.tdmz.id
+  cidr       = "10.11.2.0/24"
+  gateway    = "10.11.2.1"
   depends_on = [proxmox_sdn_vnet.tdmz]
 }
 
 resource "proxmox_sdn_subnet" "tsvc" {
-  vnet    = proxmox_sdn_vnet.tsvc.id
-  cidr    = "10.11.3.0/24"
-  gateway = "10.11.3.1"
+  vnet       = proxmox_sdn_vnet.tsvc.id
+  cidr       = "10.11.3.0/24"
+  gateway    = "10.11.3.1"
   depends_on = [proxmox_sdn_vnet.tsvc]
 }
 
 resource "proxmox_sdn_subnet" "tvpn" {
-  vnet    = proxmox_sdn_vnet.tvpn.id
-  cidr    = "10.11.4.0/24"
-  gateway = "10.11.4.1"
+  vnet       = proxmox_sdn_vnet.tvpn.id
+  cidr       = "10.11.4.0/24"
+  gateway    = "10.11.4.1"
   depends_on = [proxmox_sdn_vnet.tvpn]
 }
 
 resource "proxmox_sdn_subnet" "tiot" {
-  vnet    = proxmox_sdn_vnet.tiot.id
-  cidr    = "10.11.10.0/24"
-  gateway = "10.11.10.1"
+  vnet       = proxmox_sdn_vnet.tiot.id
+  cidr       = "10.11.10.0/24"
+  gateway    = "10.11.10.1"
   depends_on = [proxmox_sdn_vnet.tiot]
 }
 
 resource "proxmox_sdn_subnet" "tvoip" {
-  vnet    = proxmox_sdn_vnet.tvoip.id
-  cidr    = "10.11.11.0/24"
-  gateway = "10.11.11.1"
+  vnet       = proxmox_sdn_vnet.tvoip.id
+  cidr       = "10.11.11.0/24"
+  gateway    = "10.11.11.1"
   depends_on = [proxmox_sdn_vnet.tvoip]
 }
 
 resource "proxmox_sdn_subnet" "tstor" {
-  vnet    = proxmox_sdn_vnet.tstor.id
-  cidr    = "10.11.20.0/24"
-  gateway = "10.11.20.1"
+  vnet       = proxmox_sdn_vnet.tstor.id
+  cidr       = "10.11.20.0/24"
+  gateway    = "10.11.20.1"
   depends_on = [proxmox_sdn_vnet.tstor]
 }
 
 resource "proxmox_sdn_subnet" "tmedia" {
-  vnet    = proxmox_sdn_vnet.tmedia.id
-  cidr    = "10.11.30.0/24"
-  gateway = "10.11.30.1"
+  vnet       = proxmox_sdn_vnet.tmedia.id
+  cidr       = "10.11.30.0/24"
+  gateway    = "10.11.30.1"
   depends_on = [proxmox_sdn_vnet.tmedia]
 }
 
 resource "proxmox_sdn_subnet" "tcctv" {
-  vnet    = proxmox_sdn_vnet.tcctv.id
-  cidr    = "10.11.40.0/24"
-  gateway = "10.11.40.1"
+  vnet       = proxmox_sdn_vnet.tcctv.id
+  cidr       = "10.11.40.0/24"
+  gateway    = "10.11.40.1"
   depends_on = [proxmox_sdn_vnet.tcctv]
 }
 

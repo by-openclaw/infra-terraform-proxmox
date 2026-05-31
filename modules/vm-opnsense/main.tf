@@ -22,9 +22,9 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   # OPNsense requires UEFI/BIOS + VirtIO SCSI
   bios          = "seabios"
-  machine       = "q35"                 # matches Proxmox default for this VM
-  scsi_hardware = "virtio-scsi-pci"     # matches Proxmox default for this VM
-  tablet_device = false                 # not needed for firewall appliance
+  machine       = "q35"             # matches Proxmox default for this VM
+  scsi_hardware = "virtio-scsi-pci" # matches Proxmox default for this VM
+  tablet_device = false             # not needed for firewall appliance
 
   on_boot = true
   started = true
@@ -53,7 +53,7 @@ resource "proxmox_virtual_environment_vm" "this" {
   # ISO attached for installation — detach after first install
   cdrom {
     file_id   = "${var.iso_storage}:iso/${var.iso_file}"
-    interface = "ide2"  # Proxmox default CDROM slot
+    interface = "ide2" # Proxmox default CDROM slot
   }
 
   boot_order = ["scsi0", "ide2"]

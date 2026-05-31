@@ -38,7 +38,7 @@ resource "proxmox_virtual_environment_container" "this" {
 
   description = "Managed by Terraform — BY-SYSTEMS infra-terraform-proxmox / lxc-cloudinit"
 
-  unprivileged = var.unprivileged
+  unprivileged  = var.unprivileged
   start_on_boot = var.start_on_boot
   started       = var.started
 
@@ -64,15 +64,15 @@ resource "proxmox_virtual_environment_container" "this" {
 
   operating_system {
     template_file_id = var.ostemplate_file_id
-    type             = var.os_type              # required for Proxmox to write /etc/network/interfaces, /etc/hostname, ~/.ssh/authorized_keys natively
+    type             = var.os_type # required for Proxmox to write /etc/network/interfaces, /etc/hostname, ~/.ssh/authorized_keys natively
   }
 
   network_interface {
-    name        = "eth0"                        # NIC name AS SEEN inside the container — Proxmox managed setup expects eth0
-    bridge      = var.network_bridge
-    vlan_id     = var.vlan_tag > 0 ? var.vlan_tag : null
-    firewall    = false
-    enabled     = true
+    name     = "eth0" # NIC name AS SEEN inside the container — Proxmox managed setup expects eth0
+    bridge   = var.network_bridge
+    vlan_id  = var.vlan_tag > 0 ? var.vlan_tag : null
+    firewall = false
+    enabled  = true
   }
 
   initialization {
