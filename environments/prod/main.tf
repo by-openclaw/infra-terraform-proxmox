@@ -109,7 +109,7 @@ output "opnsense_vm_id" {
 module "opnsense" {
   source = "../../modules/vm-opnsense"
 
-  name        = "vm-opnsense-01"   # prod omits env; non-prod carries it (ADR-0010 amended 2026-04-03)
+  name        = "vm-opnsense-01"   # no env in the name for any tier (naming/0001 §7/§10); env = NetBox field + DNS zone
   vm_id       = 100
   target_node = "srv-proxmox-poc-01"
 

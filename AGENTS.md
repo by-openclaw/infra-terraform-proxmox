@@ -22,10 +22,11 @@ Before touching anything in this repo:
 
   | Resource | Pattern | Example |
   |---|---|---|
-  | VM | `vm-{service}-{seq:02d}` for `env=prod`; `vm-{service}-{env}-{seq:02d}` for non-prod | `vm-netbox-01`, `vm-netbox-dev-01` |
-  | LXC | `lxc-{service}-{seq:02d}` for `env=prod`; `lxc-{service}-{env}-{seq:02d}` for non-prod | `lxc-pihole-01`, `lxc-pihole-test-01` |
+  | VM | `vm-{service}-{seq:02d}` — **same for ALL envs, no env in the name** | `vm-nbox-01`, `vm-opns-01` |
+  | LXC | `lxc-{service}-{seq:02d}` — **same for ALL envs, no env in the name** | `lxc-phole-01`, `lxc-mgmt-01` |
   | Module call | matches resource name | `module "netbox"` |
 
+- **Env is NEVER in the hostname** (`naming/0001-infra §7` + `§10`). The NetBox `name` is identical across every tier; env lives in the NetBox `env` custom field **and** the DNS zone: `{host}.{env}.by-research.be` (non-prod), `{host}.by-research.be` (prod, clean). Env migration = change the field + move DNS records — **no rename**. Never embed `-test-`/`-prod-`/role/`-a`/`-b` in a hostname.
 - **Critical env rule (2026-04-03):** `env` is per VM/LXC, not per Proxmox node. `srv-proxmox-poc-01` is a node name (hardware label), not an environment tier.
 - **Branch naming:** `feat/{issue-id}-{description}` or `fix/{issue-id}-{description}`
 - **No merge commits** -- rebase only

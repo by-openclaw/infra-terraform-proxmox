@@ -221,7 +221,9 @@ resource "proxmox_sdn_applier" "test" {
 }
 
 ################################################################################
-# OPNsense test VM — vm-fw-test-01, VMID 1100
+# OPNsense FW VM — target name vm-opns-01 (VMID 1100). Hostname carries NO env
+# (naming/0001 §10); the live resource is still vm-opns-test-01 pending the
+# naming-realign rename. Env = NetBox field + DNS zone.
 #
 # NIC order: LAN first (vtnet0), then 3x WAN
 #   vtnet0 (LAN)  → vmbrAPPS (trunk: VLANs 2010-2400)

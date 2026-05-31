@@ -117,7 +117,7 @@ variable "dns_servers" {
 }
 
 variable "dns_domain" {
-  description = "DNS search domain — combined with var.name to form the FQDN (e.g. name=lxc-test-mgmt-01 + dns_domain=test.by-research.be → FQDN lxc-test-mgmt-01.test.by-research.be). Mandatory for any internal host per naming/0001 §9; default empty is only for the rare hostname-only edge case."
+  description = "DNS search domain — combined with var.name to form the FQDN (e.g. name=lxc-mgmt-01 + dns_domain=test.by-research.be → FQDN lxc-mgmt-01.test.by-research.be; env is the DNS zone, never the hostname, per naming/0001 §7/§10). Mandatory for any internal host per naming/0001 §9; default empty is only for the rare hostname-only edge case."
   type        = string
   default     = ""
 }
