@@ -185,6 +185,103 @@ def grow_root_filesystem():
     return ex == 0
 
 
+# OPNsense API credentials are baked into the seed via templates/baseline.xml.
+# After reseed, the same key/secret authenticate to https://<FW-OOB>/api.
+# We read them from the same secret store the seed builder uses.
+_FW_API_SECRET_PATH = Path.home() / ".openclaw/workspace/infra/secrets/OPNsense.prod_root_password.json"
+
+
+def apply_security_baseline(fw_oob_ip: str = "10.6.239.195") -> bool:
+    """Post-reseed hardening: enable the monitoring/reporting features that make
+    the FW immediately usable for incident response and traffic visibility.
+
+    Idempotent — re-running re-asserts the same settings. Run order matters:
+    Unbound stats first (it's the heaviest reconfigure), then NetFlow + Insight.
+
+    What this turns on (and why each matters for "ready to secure the network"):
+
+      1) Unbound DNS reporting (general.stats=1) — Reporting > Unbound DNS
+         shows per-client query volume, top blocked domains, cache hit rate.
+         Without it, the DNS chain is a black box and DNSBL bypass attempts
+         are invisible.
+
+      2) NetFlow v9 capture on every internal VLAN + LAN_TRUNK + WAN egress
+         — populates the kernel flow exporter. Required for Insight.
+
+      3) Insight local aggregator (collect.enable=1) — Reporting > Insight
+         shows per-host bandwidth, top talkers, top destinations, geo. This
+         is the OPNsense equivalent of nProbe; pfSense has nothing native.
+
+    Not yet baked in (follow-ups in this same function): WireGuard reporting,
+    Suricata IDS event log, AdGuard log forwarding, CrowdSec LAPI registration.
+    """
+    try:
+        import requests, urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    except ImportError:
+        print("[h] requests not available — skipping security baseline")
+        return False
+    if not _FW_API_SECRET_PATH.exists():
+        print(f"[h] {_FW_API_SECRET_PATH.name} not found — skipping security baseline")
+        return False
+    d = json.loads(_FW_API_SECRET_PATH.read_text())["fields"]
+    auth = (d["key"], d["secret"])
+    B = f"https://{fw_oob_ip}/api"
+
+    def post(path, body=None, t=30):
+        r = requests.post(f"{B}{path}", auth=auth, verify=False, timeout=t,
+                          json=body) if body else \
+            requests.post(f"{B}{path}", auth=auth, verify=False, timeout=t)
+        return r.status_code, r.text[:160]
+
+    # Wait for the WebUI/API to come up — Unbound restart is the slowest leg
+    print("[h] applying security/reporting baseline...")
+    deadline = time.time() + 120
+    while time.time() < deadline:
+        try:
+            r = requests.get(f"{B}/diagnostics/system/systemTime",
+                             auth=auth, verify=False, timeout=8)
+            if r.status_code == 200:
+                break
+        except Exception:
+            pass
+        time.sleep(5)
+    else:
+        print("    API never became reachable")
+        return False
+
+    # 1) Unbound DNS stats — Reporting > Unbound DNS
+    sc, txt = post("/unbound/settings/set", {"unbound": {"general": {"stats": "1"}}})
+    print(f"    unbound stats=1: {sc}")
+    sc, txt = post("/unbound/service/reconfigure", t=90)
+    print(f"    unbound reconfigure: {sc}")
+
+    # 2)+3) NetFlow capture (all internal + WAN egress) + Insight local
+    ifaces = ",".join([
+        "lan",   "opt1",  "opt2",  "opt3",  "opt4",  "opt5",
+        "opt6",  "opt7",  "opt8",  "opt9",  "opt10", "opt11", "opt12",
+    ])
+    body = {"netflow": {
+        "capture": {"interfaces": ifaces, "egress_only": "opt12",
+                    "version": "v9", "targets": ""},
+        "collect": {"enable": "1"},
+        "activeTimeout": "1800", "inactiveTimeout": "15",
+    }}
+    sc, txt = post("/diagnostics/netflow/setconfig", body)
+    print(f"    netflow setconfig: {sc}")
+    sc, txt = post("/diagnostics/netflow/reconfigure", t=30)
+    print(f"    netflow reconfigure: {sc}")
+
+    # Verify
+    try:
+        v = requests.get(f"{B}/diagnostics/netflow/isEnabled",
+                         auth=auth, verify=False, timeout=10).json()
+        print(f"    netflow_capture={v.get('netflow')} insight_local={v.get('local')}")
+    except Exception as e:
+        print(f"    verify err: {e}")
+    return True
+
+
 def start_vm_and_drive():
     print("[d] starting VM + opening termproxy...")
     api("POST", f"/nodes/{NODE}/qemu/{VMID}/status/start")
@@ -294,6 +391,11 @@ def main():
     # After the importer + first reboot, qemu-agent comes up — grow root.
     if rc == 0 and "--no-growfs" not in sys.argv:
         grow_root_filesystem()
+    # Then turn on the monitoring/reporting features so the FW is usable for
+    # incident response from the first second post-reseed (no manual WebUI
+    # clicks required for "is the chain even working").
+    if rc == 0 and "--no-baseline" not in sys.argv:
+        apply_security_baseline()
     return rc
 
 
