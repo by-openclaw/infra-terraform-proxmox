@@ -15,8 +15,9 @@ jobs:
 
     strategy:
       matrix:
-        # Validate all environments
-        environment: [poc]
+        # Validate all live environments. `poc` was retired (renamed to prod/test
+        # during the SDN refactor); `prod` is re-added once its module refs are fixed.
+        environment: [test]
 
     steps:
       - name: Checkout

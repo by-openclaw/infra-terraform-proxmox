@@ -32,9 +32,14 @@
 ################################################################################
 
 locals {
-  # One key per user. Passphrase mandatory (ADR-0033). Loaded via ssh-agent.
+  # SSH keys injected into every LXC's root authorized_keys via cloud-init.
+  # First key = svc-rune (passphrase-protected — ADR-0033 — used by humans via agent).
+  # Second key = opnsense — the SAME key that authenticates by-rune@vm-opns-test-01,
+  # so SSH from Rune can use vm-opns-test-01 as a ProxyJump host into the LXCs
+  # (no Rune→LXC route needed until ansible-platform#10 is resolved).
   standard_ssh_keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbkOZYUkqJ9pdmDWDm87MBI1Rf4x7fZV3IMuitG+qlu svc-rune@by-systems.be",
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF8wby/zI+Mx0CEtG6rvpAz9ijK9xu+GtuMR8ssAH23t rune@opnsense-test",
   ]
 }
 
@@ -53,141 +58,141 @@ resource "proxmox_sdn_zone_vlan" "test" {
 # --- Core segments ---
 
 resource "proxmox_sdn_vnet" "tmgmt" {
-  id    = "tmgmt"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test Management"
-  tag   = 2010
+  id         = "tmgmt"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test Management"
+  tag        = 2010
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tdmz" {
-  id    = "tdmz"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test DMZ"
-  tag   = 2020
+  id         = "tdmz"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test DMZ"
+  tag        = 2020
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tsvc" {
-  id    = "tsvc"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test Services"
-  tag   = 2030
+  id         = "tsvc"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test Services"
+  tag        = 2030
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tvpn" {
-  id    = "tvpn"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test VPN Clients"
-  tag   = 2040
+  id         = "tvpn"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test VPN Clients"
+  tag        = 2040
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 # --- Extended segments ---
 
 resource "proxmox_sdn_vnet" "tiot" {
-  id    = "tiot"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test IoT"
-  tag   = 2100
+  id         = "tiot"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test IoT"
+  tag        = 2100
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tvoip" {
-  id    = "tvoip"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test VoIP"
-  tag   = 2110
+  id         = "tvoip"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test VoIP"
+  tag        = 2110
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tstor" {
-  id    = "tstor"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test Storage"
-  tag   = 2200
+  id         = "tstor"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test Storage"
+  tag        = 2200
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tmedia" {
-  id    = "tmedia"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test Media"
-  tag   = 2300
+  id         = "tmedia"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test Media"
+  tag        = 2300
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 resource "proxmox_sdn_vnet" "tcctv" {
-  id    = "tcctv"
-  zone  = proxmox_sdn_zone_vlan.test.id
-  alias = "Test CCTV"
-  tag   = 2400
+  id         = "tcctv"
+  zone       = proxmox_sdn_zone_vlan.test.id
+  alias      = "Test CCTV"
+  tag        = 2400
   depends_on = [proxmox_sdn_zone_vlan.test]
 }
 
 # --- Subnets (all dual-stack, IPv6 configured on OPNsense) ---
 
 resource "proxmox_sdn_subnet" "tmgmt" {
-  vnet    = proxmox_sdn_vnet.tmgmt.id
-  cidr    = "10.11.1.0/24"
-  gateway = "10.11.1.1"
+  vnet       = proxmox_sdn_vnet.tmgmt.id
+  cidr       = "10.11.1.0/24"
+  gateway    = "10.11.1.1"
   depends_on = [proxmox_sdn_vnet.tmgmt]
 }
 
 resource "proxmox_sdn_subnet" "tdmz" {
-  vnet    = proxmox_sdn_vnet.tdmz.id
-  cidr    = "10.11.2.0/24"
-  gateway = "10.11.2.1"
+  vnet       = proxmox_sdn_vnet.tdmz.id
+  cidr       = "10.11.2.0/24"
+  gateway    = "10.11.2.1"
   depends_on = [proxmox_sdn_vnet.tdmz]
 }
 
 resource "proxmox_sdn_subnet" "tsvc" {
-  vnet    = proxmox_sdn_vnet.tsvc.id
-  cidr    = "10.11.3.0/24"
-  gateway = "10.11.3.1"
+  vnet       = proxmox_sdn_vnet.tsvc.id
+  cidr       = "10.11.3.0/24"
+  gateway    = "10.11.3.1"
   depends_on = [proxmox_sdn_vnet.tsvc]
 }
 
 resource "proxmox_sdn_subnet" "tvpn" {
-  vnet    = proxmox_sdn_vnet.tvpn.id
-  cidr    = "10.11.4.0/24"
-  gateway = "10.11.4.1"
+  vnet       = proxmox_sdn_vnet.tvpn.id
+  cidr       = "10.11.4.0/24"
+  gateway    = "10.11.4.1"
   depends_on = [proxmox_sdn_vnet.tvpn]
 }
 
 resource "proxmox_sdn_subnet" "tiot" {
-  vnet    = proxmox_sdn_vnet.tiot.id
-  cidr    = "10.11.10.0/24"
-  gateway = "10.11.10.1"
+  vnet       = proxmox_sdn_vnet.tiot.id
+  cidr       = "10.11.10.0/24"
+  gateway    = "10.11.10.1"
   depends_on = [proxmox_sdn_vnet.tiot]
 }
 
 resource "proxmox_sdn_subnet" "tvoip" {
-  vnet    = proxmox_sdn_vnet.tvoip.id
-  cidr    = "10.11.11.0/24"
-  gateway = "10.11.11.1"
+  vnet       = proxmox_sdn_vnet.tvoip.id
+  cidr       = "10.11.11.0/24"
+  gateway    = "10.11.11.1"
   depends_on = [proxmox_sdn_vnet.tvoip]
 }
 
 resource "proxmox_sdn_subnet" "tstor" {
-  vnet    = proxmox_sdn_vnet.tstor.id
-  cidr    = "10.11.20.0/24"
-  gateway = "10.11.20.1"
+  vnet       = proxmox_sdn_vnet.tstor.id
+  cidr       = "10.11.20.0/24"
+  gateway    = "10.11.20.1"
   depends_on = [proxmox_sdn_vnet.tstor]
 }
 
 resource "proxmox_sdn_subnet" "tmedia" {
-  vnet    = proxmox_sdn_vnet.tmedia.id
-  cidr    = "10.11.30.0/24"
-  gateway = "10.11.30.1"
+  vnet       = proxmox_sdn_vnet.tmedia.id
+  cidr       = "10.11.30.0/24"
+  gateway    = "10.11.30.1"
   depends_on = [proxmox_sdn_vnet.tmedia]
 }
 
 resource "proxmox_sdn_subnet" "tcctv" {
-  vnet    = proxmox_sdn_vnet.tcctv.id
-  cidr    = "10.11.40.0/24"
-  gateway = "10.11.40.1"
+  vnet       = proxmox_sdn_vnet.tcctv.id
+  cidr       = "10.11.40.0/24"
+  gateway    = "10.11.40.1"
   depends_on = [proxmox_sdn_vnet.tcctv]
 }
 
@@ -236,108 +241,108 @@ resource "proxmox_sdn_applier" "test" {
 #   6. Verify: API + SSH from Rune VM
 ################################################################################
 
-resource "proxmox_virtual_environment_vm" "fw_test_01" {
-  name      = "vm-fw-test-01"
-  vm_id     = 1100
-  node_name = "srv-proxmox-01"
-
-  tags = ["layer0", "opnsense", "env-test"]
-
-  bios          = "ovmf"
-  machine       = "q35"
-  scsi_hardware = "virtio-scsi-single"
-  tablet_device = false
-
-  on_boot    = true
-  started    = true
-  protection = false
-
-  agent {
-    enabled = false
-  }
-
-  cpu {
-    cores      = 2
-    sockets    = 1
-    type       = "host"
-    hotplugged = 0
-    flags      = ["+aes"]
-  }
-
-  memory {
-    dedicated = 4096
-    floating  = 0
-  }
-
-  # Boot disk
-  disk {
-    datastore_id = "poc-data"
-    interface    = "scsi0"
-    size         = 20
-    file_format  = "raw"
-    iothread     = true
-    discard      = "on"
-    cache        = "none"
-    ssd          = true
-  }
-
-  # EFI disk (UEFI)
-  efi_disk {
-    datastore_id      = "poc-data"
-    file_format       = "raw"
-    type              = "4m"
-    pre_enrolled_keys = false
-  }
-
-  # ISO for installation
-  cdrom {
-    file_id   = "poc-iso:iso/OPNsense-26.1.2-dvd-amd64.iso"
-    interface = "ide0"
-  }
-
-  boot_order = ["scsi0", "ide0"]
-
-  # vtnet0 — LAN (VLAN trunk, first NIC = OPNsense default LAN)
-  network_device {
-    bridge   = "vmbrAPPS"
-    model    = "virtio"
-    firewall = false
-    queues   = 2
-  }
-
-  # vtnet1 — WAN1 (future Proximus)
-  network_device {
-    bridge   = "vmbrWAN1"
-    model    = "virtio"
-    firewall = false
-    queues   = 2
-  }
-
-  # vtnet2 — WAN2 (future Telenet)
-  network_device {
-    bridge   = "vmbrWAN2"
-    model    = "virtio"
-    firewall = false
-    queues   = 2
-  }
-
-  # vtnet3 — WAN3 (current internet via pfSense OOB)
-  network_device {
-    bridge   = "vmbrWAN3"
-    model    = "virtio"
-    firewall = false
-    queues   = 2
-  }
-
-  vga {
-    type   = "std"
-    memory = 16
-  }
-
-  serial_device {}
-
-  depends_on = [proxmox_sdn_applier.test]
-}
+# resource "proxmox_virtual_environment_vm" "fw_test_01" {
+#   name      = "vm-fw-test-01"
+#   vm_id     = 1100
+#   node_name = "srv-proxmox-01"
+# 
+#   tags = ["layer0", "opnsense", "env-test"]
+# 
+#   bios          = "ovmf"
+#   machine       = "q35"
+#   scsi_hardware = "virtio-scsi-single"
+#   tablet_device = false
+# 
+#   on_boot    = true
+#   started    = true
+#   protection = false
+# 
+#   agent {
+#     enabled = false
+#   }
+# 
+#   cpu {
+#     cores      = 2
+#     sockets    = 1
+#     type       = "host"
+#     hotplugged = 0
+#     flags      = ["+aes"]
+#   }
+# 
+#   memory {
+#     dedicated = 4096
+#     floating  = 0
+#   }
+# 
+#   # Boot disk
+#   disk {
+#     datastore_id = "poc-data"
+#     interface    = "scsi0"
+#     size         = 20
+#     file_format  = "raw"
+#     iothread     = true
+#     discard      = "on"
+#     cache        = "none"
+#     ssd          = true
+#   }
+# 
+#   # EFI disk (UEFI)
+#   efi_disk {
+#     datastore_id      = "poc-data"
+#     file_format       = "raw"
+#     type              = "4m"
+#     pre_enrolled_keys = false
+#   }
+# 
+#   # ISO for installation
+#   cdrom {
+#     file_id   = "poc-iso:iso/OPNsense-26.1.2-dvd-amd64.iso"
+#     interface = "ide0"
+#   }
+# 
+#   boot_order = ["scsi0", "ide0"]
+# 
+#   # vtnet0 — LAN (VLAN trunk, first NIC = OPNsense default LAN)
+#   network_device {
+#     bridge   = "vmbrAPPS"
+#     model    = "virtio"
+#     firewall = false
+#     queues   = 2
+#   }
+# 
+#   # vtnet1 — WAN1 (future Proximus)
+#   network_device {
+#     bridge   = "vmbrWAN1"
+#     model    = "virtio"
+#     firewall = false
+#     queues   = 2
+#   }
+# 
+#   # vtnet2 — WAN2 (future Telenet)
+#   network_device {
+#     bridge   = "vmbrWAN2"
+#     model    = "virtio"
+#     firewall = false
+#     queues   = 2
+#   }
+# 
+#   # vtnet3 — WAN3 (current internet via pfSense OOB)
+#   network_device {
+#     bridge   = "vmbrWAN3"
+#     model    = "virtio"
+#     firewall = false
+#     queues   = 2
+#   }
+# 
+#   vga {
+#     type   = "std"
+#     memory = 16
+#   }
+# 
+#   serial_device {}
+# 
+#   depends_on = [proxmox_sdn_applier.test]
+# }
 
 ################################################################################
 # Test LXCs — created after OPNsense is configured with VLANs + DHCP + FW
@@ -410,6 +415,6 @@ resource "proxmox_virtual_environment_vm" "fw_test_01" {
 # Outputs
 ################################################################################
 
-output "fw_test_01_vm_id" {
-  value = proxmox_virtual_environment_vm.fw_test_01.vm_id
-}
+# output "fw_test_01_vm_id" {
+#   value = proxmox_virtual_environment_vm.fw_test_01.vm_id
+# }

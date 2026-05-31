@@ -9,7 +9,15 @@ data "proxmox_virtual_environment_vms" "template" {
 
 # Vendor-data snippet — locale, timezone, keyboard, sudo, packages
 # User + SSH keys handled by native Proxmox CI (visible in UI)
+#
+# NOTE: This resource uses the BPG proxmox_virtual_environment_file resource,
+# which uploads snippets via SSH to the PVE node (PVE REST API does not allow
+# snippets uploads). When SSH to the PVE node is unavailable, set
+# var.use_vendor_data = false to skip this resource — the bare-bones cloud-init
+# inside the initialization block (IP, ssh-key, hostname) still applies.
 resource "proxmox_virtual_environment_file" "vendor_data" {
+  count = var.use_vendor_data ? 1 : 0
+
   content_type = "snippets"
   datastore_id = "local"
   node_name    = var.target_node
@@ -70,6 +78,7 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
 resource "proxmox_virtual_environment_vm" "this" {
   name      = var.name
   node_name = var.target_node
+  vm_id     = var.vmid > 0 ? var.vmid : null
   tags      = concat(var.tags, ["env-${var.env}"])
 
   clone {
@@ -98,8 +107,9 @@ resource "proxmox_virtual_environment_vm" "this" {
   }
 
   network_device {
-    model  = "virtio"
-    bridge = var.network_bridge
+    model   = "virtio"
+    bridge  = var.network_bridge
+    vlan_id = var.vlan_id > 0 ? var.vlan_id : null
   }
 
   vga {
@@ -117,16 +127,24 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   initialization {
     datastore_id        = var.storage
-    vendor_data_file_id = proxmox_virtual_environment_file.vendor_data.id
+    vendor_data_file_id = var.use_vendor_data ? proxmox_virtual_environment_file.vendor_data[0].id : null
 
     dns {
-      servers = [var.dns]
+      domain  = var.domain
+      servers = length(var.dns_servers) > 0 ? var.dns_servers : [var.dns]
     }
 
     ip_config {
       ipv4 {
         address = var.ip
         gateway = var.gateway
+      }
+      dynamic "ipv6" {
+        for_each = var.ipv6_address != "" ? [1] : []
+        content {
+          address = var.ipv6_address
+          gateway = var.ipv6_gateway
+        }
       }
     }
 
