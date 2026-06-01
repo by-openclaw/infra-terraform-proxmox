@@ -1,0 +1,48 @@
+{
+  "_doc": "MINIMAL bootstrap seed (issue #17). Only: 4 physical iface assignments + OOB mgmt IP + SSH + Proximus PPPoE (WAN1). VLANs, WAN2-Telenet, gateways, rules, unbound/dnscrypt/kea/crowdsec → ansible MVC lib (by_systems.opnsense).",
+  "hostname": "vm-opns-01",
+  "domain": "by-research.be",
+  "timezone": "Europe/Brussels",
+  "physical_interfaces": {
+    "trunk": "vtnet0",
+    "oob_mgmt": "vtnet1",
+    "wan_parent": "vtnet2",
+    "wan2_parent": "vtnet3"
+  },
+  "lan": {
+    "if": "vtnet1",
+    "descr": "OOB",
+    "ipv4": "10.6.239.196",
+    "ipv4_prefix": 20,
+    "ipv4_gateway": "10.6.224.1",
+    "ipv6": "dhcp6",
+    "ipv6_prefix": 64
+  },
+  "trunk": {
+    "if": "vtnet0",
+    "descr": "LAN_TRUNK"
+  },
+  "wan": {
+    "if": "pppoe0",
+    "descr": "WAN_PROXIMUS",
+    "ipv4": "pppoe",
+    "ipv6": "dhcp6",
+    "mtu": 1492,
+    "block_private": true,
+    "block_bogons": true,
+    "ipv6_dhcp6_ia_pd_only": true,
+    "ipv6_prefix_hint": 56,
+    "ipv6_send_rapid_commit": false,
+    "ipv6_request_dns": true,
+    "pppoe_link_interface": "vtnet2",
+    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json"
+  },
+  "wan_parent": {
+    "if": "vtnet2",
+    "descr": "WAN_PROXIMUS_Parent",
+    "block_private": true,
+    "block_bogons": true
+  },
+  "ipv4_prefix": 24,
+  "ipv6_prefix": 64
+}
