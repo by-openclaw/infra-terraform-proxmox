@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<opnsense>
+  <theme>opnsense</theme>
+  <sysctl version="1.0.2" persisted_at="1779321914.64" description="System Tunables">
+    <item />
+  </sysctl>
+  <system>
+    <optimization>normal</optimization>
+    <hostname>vm-opns-01</hostname>
+    <domain>by-research.be</domain>
+    <dnsallowoverride>0</dnsallowoverride>
+    <dnsallowoverride_exclude />
+    <group uuid="f18c26a6-094e-4f91-b784-dc4d0bc55884">
+      <gid>1999</gid>
+      <name>admins</name>
+      <scope>system</scope>
+      <description>System Administrators</description>
+      <priv>page-all</priv>
+      <member>0,2000</member>
+      <source_networks />
+    </group>
+    <user uuid="22c2bfb8-0734-4439-b2b9-7816f7017363">
+      <uid>0</uid>
+      <name>root</name>
+      <disabled>0</disabled>
+      <scope>system</scope>
+      <expires />
+      <authorizedkeys />
+      <otp_seed />
+      <shell />
+      <password>__ROOT_PASSWORD_HASH__</password>
+      <pwd_changed_at />
+      <landing_page />
+      <comment />
+      <email />
+      <apikeys />
+      <priv />
+      <language />
+      <descr>System Administrator</descr>
+      <dashboard />
+    </user>
+    <user uuid="ff747b04-b09d-440d-b6ca-28c17db3712f">
+      <uid>2000</uid>
+      <name>by-rune</name>
+      <disabled>0</disabled>
+      <scope>user</scope>
+      <expires />
+      <authorizedkeys>__BYRUNE_AUTHORIZEDKEYS__</authorizedkeys>
+      <otp_seed />
+      <shell>/bin/sh</shell>
+      <password>__BYRUNE_PASSWORD__</password>
+      <pwd_changed_at>1779324526.9667</pwd_changed_at>
+      <landing_page />
+      <comment />
+      <email />
+      <apikeys>__BYRUNE_APIKEYS__</apikeys>
+      <priv>page-all</priv>
+      <language />
+      <descr />
+      <dashboard />
+    </user>
+    <timezone>Etc/UTC</timezone>
+    <timeservers>0.opnsense.pool.ntp.org 1.opnsense.pool.ntp.org 2.opnsense.pool.ntp.org 3.opnsense.pool.ntp.org</timeservers>
+    <webgui>
+      <protocol>https</protocol>
+      <ssl-certref />
+      <port />
+      <ssl-ciphers />
+      <interfaces />
+      <compression />
+    </webgui>
+    <disablenatreflection>yes</disablenatreflection>
+    <usevirtualterminal>1</usevirtualterminal>
+    <disableconsolemenu>1</disableconsolemenu>
+    <powerd_ac_mode>hadp</powerd_ac_mode>
+    <powerd_battery_mode>hadp</powerd_battery_mode>
+    <powerd_normal_mode>hadp</powerd_normal_mode>
+    <bogons>
+      <interval>monthly</interval>
+    </bogons>
+    <pf_share_forward>1</pf_share_forward>
+    <lb_use_sticky>1</lb_use_sticky>
+    <ssh>
+      <group>admins</group>
+      <noauto>1</noauto>
+      <interfaces />
+      <kex />
+      <ciphers />
+      <macs />
+      <keys />
+      <keysig />
+      <rekeylimit />
+      <enabled>enabled</enabled>
+    </ssh>
+    <rrdbackup>-1</rrdbackup>
+    <netflowbackup>-1</netflowbackup>
+    <firmware version="1.0.1" persisted_at="1779321913.37" description="Firmware settings">
+      <mirror />
+      <flavour />
+      <plugins>os-acme-client,os-chrony,os-crowdsec,os-dnscrypt-proxy,os-lldpd,os-qemu-guest-agent</plugins>
+      <type />
+      <subscription />
+      <reboot>0</reboot>
+      <aux>0</aux>
+    </firmware>
+    <dnsserver>9.9.9.9</dnsserver>
+    <language>en_US</language>
+    <serialspeed>115200</serialspeed>
+    <primaryconsole>video</primaryconsole>
+  </system>
+</opnsense>
