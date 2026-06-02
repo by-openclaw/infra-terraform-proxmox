@@ -1,5 +1,5 @@
 {
-  "_doc": "MINIMAL bootstrap seed (issue #17). Only: 4 physical iface assignments + OOB mgmt IP + SSH + Proximus PPPoE (WAN1). VLANs, WAN2-Telenet, gateways, rules, unbound/dnscrypt/kea/crowdsec → ansible MVC lib (by_systems.opnsense).",
+  "_doc": "Base seed (issue #21, supersedes minimal #17). Per ADR services/0008 the SEED owns all non-API-able L2/L3: physical iface assignments + OOB mgmt IP + SSH + WAN1 Proximus PPPoE + WAN2 Telenet static (interface assignment + static IP have NO OPNsense API — settled since April / PR #8436). VLANs/Kea/rules/unbound/dnscrypt/crowdsec/netflow = ansible MVC lib (by_systems.opnsense), applied after reseed + 26.1.8 upgrade.",
   "hostname": "vm-opns-01",
   "domain": "by-research.be",
   "timezone": "Europe/Brussels",
@@ -42,6 +42,20 @@
     "descr": "WAN_PROXIMUS_Parent",
     "block_private": true,
     "block_bogons": true
+  },
+  "wan2": {
+    "if": "vtnet3",
+    "descr": "WAN_TELENET",
+    "ipv4": "static",
+    "ipv6": "static",
+    "block_private": true,
+    "block_bogons": true,
+    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-telenet.json",
+    "default_gateway_v4": false,
+    "default_gateway_v6": false,
+    "gateway_descr": "ISP TELENET 500/50",
+    "monitor_ip_v4": "ipv4_gateway",
+    "monitor_ip_v6": "ipv6_gateway"
   },
   "ipv4_prefix": 24,
   "ipv6_prefix": 64
