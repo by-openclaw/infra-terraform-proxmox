@@ -14,8 +14,9 @@
     "descr": "OOB",
     "ipv4": "10.6.239.196",
     "ipv4_prefix": 20,
-    "ipv6": "none",
-    "_note": "IPv4-only break-glass plane — no gateway (mirrors pfSense01). Only WAN1/WAN2 are gateways; dhcp6 here would auto-create a spurious OOB_*_DHCP6 gateway."
+    "ipv6": "fd06:224::1",
+    "_note": "OOB break-glass: dual-stack, STATIC IPv6 ULA (not dhcp6) so it is NOT a gateway. Only WAN1/WAN2 are gateways. 10.6.224 is the OOB plane for now.",
+    "ipv6_prefix": 64
   },
   "trunk": {
     "if": "vtnet0",
@@ -34,7 +35,8 @@
     "ipv6_send_rapid_commit": false,
     "ipv6_request_dns": true,
     "pppoe_link_interface": "vtnet2",
-    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json"
+    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json",
+    "mss": 1452
   },
   "wan2": {
     "if": "vtnet3",
