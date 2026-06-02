@@ -36,12 +36,6 @@
     "pppoe_link_interface": "vtnet2",
     "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json"
   },
-  "wan_parent": {
-    "if": "vtnet2",
-    "descr": "WAN_PROXIMUS_Parent",
-    "block_private": true,
-    "block_bogons": true
-  },
   "wan2": {
     "if": "vtnet3",
     "descr": "WAN_TELENET",
