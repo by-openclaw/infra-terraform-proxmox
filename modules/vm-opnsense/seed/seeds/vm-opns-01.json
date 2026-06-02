@@ -14,9 +14,8 @@
     "descr": "OOB",
     "ipv4": "10.6.239.196",
     "ipv4_prefix": 20,
-    "ipv4_gateway": "10.6.224.1",
-    "ipv6": "dhcp6",
-    "ipv6_prefix": 64
+    "ipv6": "none",
+    "_note": "IPv4-only break-glass plane — no gateway (mirrors pfSense01). Only WAN1/WAN2 are gateways; dhcp6 here would auto-create a spurious OOB_*_DHCP6 gateway."
   },
   "trunk": {
     "if": "vtnet0",
