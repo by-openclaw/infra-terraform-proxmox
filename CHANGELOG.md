@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.1.0...v1.2.0) (2026-06-02)
+
+
+### Features
+
+* **prod:** AdGuard VM + automation SSH key ([#19](https://github.com/by-openclaw/infra-terraform-proxmox/issues/19)) ([0340019](https://github.com/by-openclaw/infra-terraform-proxmox/commit/03400190867d075aa07561cf25bb462bed881e0e))
+* **prod:** AdGuard VM + automation SSH key ([#19](https://github.com/by-openclaw/infra-terraform-proxmox/issues/19)) ([c3fad08](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c3fad08c7a554a6b0243d8e229ddd37320d5b569))
+* **prod:** shared DB/cache cluster + NetBox as LXC fleet (Phase A) ([19d9d9d](https://github.com/by-openclaw/infra-terraform-proxmox/commit/19d9d9d7a9f3b962cbecc7c0b4816bdca3a6a2dc))
+* **prod:** shared DB/cache cluster + NetBox as LXC fleet (Phase A) ([cc9c124](https://github.com/by-openclaw/infra-terraform-proxmox/commit/cc9c124020b3e1450916142dec1c95d7c1a43ffe))
+* **seed:** minimal bootstrap seed — 4 interfaces + SSH only ([#17](https://github.com/by-openclaw/infra-terraform-proxmox/issues/17)) ([3c56b64](https://github.com/by-openclaw/infra-terraform-proxmox/commit/3c56b649ab869baf60a7b0c298e28ccf213410db))
+* **seed:** minimal bootstrap seed — 4 interfaces + SSH only ([#17](https://github.com/by-openclaw/infra-terraform-proxmox/issues/17)) ([34b47df](https://github.com/by-openclaw/infra-terraform-proxmox/commit/34b47df4cf94ea1aee6d061a5c309117acc964e7))
+* **seed:** post-reseed security baseline — Unbound stats + NetFlow + Insight ([6f8a967](https://github.com/by-openclaw/infra-terraform-proxmox/commit/6f8a967e8337c432f16bdb10be0efac420f2d946))
+* **seed:** setup-adguard-tls.sh — full TLS + DoT/DoH/DoQ + per-VLAN clients ([a587104](https://github.com/by-openclaw/infra-terraform-proxmox/commit/a587104fb67a8c374aba4ed988f90efde3d9abe0))
+* **test:** AdGuard Home LXC scaffold (DNS chain Phase 2) — BLOCKED on cloud-init ([34ed907](https://github.com/by-openclaw/infra-terraform-proxmox/commit/34ed907f3173bf9f959f7862ca6679bac047806b))
+* **test:** AdGuard Home VM (DNS chain Phase 2) — LIVE & verified ([ab9868b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/ab9868b43b1be391d4db31a66cef5e6e9233a69c))
+* **test:** re-address LXCs + AdGuard to ADR; static OOB IP in seed JSON ([ad255e7](https://github.com/by-openclaw/infra-terraform-proxmox/commit/ad255e765c49492544d63d5f7db37d1412addf63))
+* **test:** replace AdGuard LXC scaffold with AdGuard VM — LIVE ([71d5ac9](https://github.com/by-openclaw/infra-terraform-proxmox/commit/71d5ac924901df12927624c76f32869799a3e8cc))
+* **test:** switch LXCs to Proxmox-standard tarballs + AdGuard VM via terraform ([1f3a9bc](https://github.com/by-openclaw/infra-terraform-proxmox/commit/1f3a9bc2494130ea75ffa1ac61f6280875e3d2d1))
+
+
+### Bug Fixes
+
+* **agents:** link to doc-platform-core for agent contract files ([796433e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/796433e584f52cc66056c68a4811925ede5cb64f))
+* **agents:** remove unreachable OPERATING-STANDARD.md link ([c4813e1](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c4813e14c253204f4855a9abb039fe1028fa5967))
+* **agents:** restore OPERATING-STANDARD reference as plain text ([7d1b7bd](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7d1b7bd248237998a255b0519a830563c988b463))
+* **prod:** repair SDN module ref + align vm-opnsense bridges; re-enable prod CI ([880f498](https://github.com/by-openclaw/infra-terraform-proxmox/commit/880f498ad6f562587cf0bbcbb713f7a203f239b0))
+* **prod:** repair SDN module ref + align vm-opnsense bridges; re-enable prod CI ([b6aa1a5](https://github.com/by-openclaw/infra-terraform-proxmox/commit/b6aa1a592a387479b6af86f699f422504304fc38))
+* **seed:** disable dnsmasq + restart Kea in apply_security_baseline() ([e0fd4d8](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e0fd4d8ec6eb339771736d6b60176a80ee24ff11))
+* **seed:** provision FW disk at 20G + add WAN NICs + auto growfs ([c1791bf](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c1791bf90c1b0bd64d7957f36166256f09ad0e6d))
+
 ## [1.1.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.0.0...v1.1.0) (2026-04-12)
 
 
