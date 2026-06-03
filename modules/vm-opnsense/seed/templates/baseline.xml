@@ -7,7 +7,7 @@
   <system>
     <optimization>normal</optimization>
     <hostname>vm-opns-01</hostname>
-    <domain>by-research.be</domain>
+    <domain>example.local</domain>
     <dnsallowoverride>0</dnsallowoverride>
     <dnsallowoverride_exclude />
     <group uuid="f18c26a6-094e-4f91-b784-dc4d0bc55884">

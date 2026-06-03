@@ -390,6 +390,26 @@ def _read_wan_creds(secret_path: str) -> dict:
     return f
 
 
+def _resolve_domain(seed: dict) -> str:
+    """Resolve the DNS search domain at build time.
+
+    Prefer `domain_secret` (path to a JSON secret with fields.domain) so the real
+    internal domain never lands in the committed seed (no-real-domains rule). Fall
+    back to the literal `domain` (placeholder) if no secret is configured.
+    """
+    secret_path = seed.get("domain_secret")
+    if secret_path:
+        p = Path(secret_path)
+        if not p.exists():
+            raise SystemExit(f"domain secret file not found: {secret_path}")
+        f = json.loads(p.read_text()).get("fields", {})
+        domain = f.get("domain")
+        if not domain:
+            raise SystemExit(f"{secret_path}: missing/empty fields.domain")
+        return domain
+    return seed["domain"]
+
+
 def build_vlans(seed: dict) -> ET.Element:
     """Emit <vlans> with one <vlan> child per seed entry. PCP per IEEE 802.1p."""
     parent_if = seed["physical_interfaces"]["trunk"]
@@ -468,7 +488,7 @@ def render(seed_name: str) -> Path:
     # Hostname / domain
     sys_node = root.find("system")
     if sys_node is not None:
-        for tag, val in (("hostname", seed["hostname"]), ("domain", seed["domain"]), ("timezone", seed["timezone"])):
+        for tag, val in (("hostname", seed["hostname"]), ("domain", _resolve_domain(seed)), ("timezone", seed["timezone"])):
             el = sys_node.find(tag)
             if el is None:
                 el = ET.SubElement(sys_node, tag)

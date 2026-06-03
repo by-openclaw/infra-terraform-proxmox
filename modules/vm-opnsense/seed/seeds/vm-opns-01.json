@@ -1,7 +1,8 @@
 {
   "_doc": "Base seed (issue #21, supersedes minimal #17). Per ADR services/0008 the SEED owns all non-API-able L2/L3: physical iface assignments + OOB mgmt IP + SSH + WAN1 Proximus PPPoE + WAN2 Telenet static (interface assignment + static IP have NO OPNsense API \u2014 settled since April / PR #8436). VLANs/Kea/rules/unbound/dnscrypt/crowdsec/netflow = ansible MVC lib (by_systems.opnsense), applied after reseed + 26.1.8 upgrade.",
   "hostname": "vm-opns-01",
-  "domain": "by-research.be",
+  "domain": "example.local",
+  "domain_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-internal-domain.json",
   "timezone": "Europe/Brussels",
   "physical_interfaces": {
     "trunk": "vtnet0",
