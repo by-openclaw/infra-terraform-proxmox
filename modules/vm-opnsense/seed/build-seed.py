@@ -371,6 +371,51 @@ def build_gateways(seed: dict, slot_map: dict) -> ET.Element | None:
     return gws
 
 
+def build_netflow(slot_map: dict) -> ET.Element:
+    """Emit <OPNsense><Netflow> so a fresh seed boots with NetFlow/Insight active.
+
+    The capture interface list MUST be rendered from THIS seed's slot idents
+    (compute_slot_map), not the live FW's: the seed numbers wan2 before the VLANs,
+    so VLANs land on opt3-opt12 here vs opt2-opt11 on the pre-wan2 live layout. A
+    hardcoded block would therefore capture the wrong interfaces. Rendering from
+    slot_map keeps capture = every internal + WAN ident and egress_only = the WAN
+    idents correct no matter how many VLANs the seed defines.
+
+    Why the seed and not Ansible MVC: the OPNsense diagnostics/netflow/setconfig
+    endpoint is broken (returns {"result":"failed"} for every body shape) and root
+    SSH is blocked, so the capture config cannot be asserted over the API. The seed
+    writes config.xml directly, so it is the only reproducible home for it. On a
+    fresh boot OPNsense reads this block; collect.enable=1 starts the local Insight
+    aggregator (flowd_aggregate). Fields mirror the live getconfig model on
+    vm-opns-01: NetFlow v9 -> 127.0.0.1:2056. Tracks ansible-platform #31.
+    """
+    def _order(ident: str) -> tuple:
+        # Deterministic: OOB first, then optN by number, WAN/pppoe last.
+        if ident == "lan":
+            return (0, 0)
+        if ident.startswith("opt"):
+            return (1, int(ident[3:]))
+        return (2, 0)
+
+    wan_idents = [v for k, v in slot_map.items() if k in ("wan", "wan2", "wan_parent")]
+    capture = sorted(slot_map.values(), key=_order)
+    egress = sorted(wan_idents, key=_order)
+
+    opnsense = ET.Element("OPNsense")
+    nf = ET.SubElement(opnsense, "Netflow")
+    cap = ET.SubElement(nf, "capture")
+    ET.SubElement(cap, "interfaces").text = ",".join(capture)
+    ET.SubElement(cap, "egress_only").text = ",".join(egress)
+    ET.SubElement(cap, "version").text = "v9"
+    ET.SubElement(cap, "targets").text = "127.0.0.1:2056"
+    collect = ET.SubElement(nf, "collect")
+    ET.SubElement(collect, "enable").text = "1"
+    # OPNsense Netflow model defaults (live leaves them unset → these apply).
+    ET.SubElement(nf, "activeTimeout").text = "1800"
+    ET.SubElement(nf, "inactiveTimeout").text = "15"
+    return opnsense
+
+
 def _read_wan_creds(secret_path: str) -> dict:
     """Read static WAN credentials from a JSON secret file.
 
@@ -388,6 +433,26 @@ def _read_wan_creds(secret_path: str) -> dict:
     if missing:
         raise SystemExit(f"{secret_path}: missing/empty fields: {missing}")
     return f
+
+
+def _resolve_domain(seed: dict) -> str:
+    """Resolve the DNS search domain at build time.
+
+    Prefer `domain_secret` (path to a JSON secret with fields.domain) so the real
+    internal domain never lands in the committed seed (no-real-domains rule). Fall
+    back to the literal `domain` (placeholder) if no secret is configured.
+    """
+    secret_path = seed.get("domain_secret")
+    if secret_path:
+        p = Path(secret_path)
+        if not p.exists():
+            raise SystemExit(f"domain secret file not found: {secret_path}")
+        f = json.loads(p.read_text()).get("fields", {})
+        domain = f.get("domain")
+        if not domain:
+            raise SystemExit(f"{secret_path}: missing/empty fields.domain")
+        return domain
+    return seed["domain"]
 
 
 def build_vlans(seed: dict) -> ET.Element:
@@ -468,7 +533,7 @@ def render(seed_name: str) -> Path:
     # Hostname / domain
     sys_node = root.find("system")
     if sys_node is not None:
-        for tag, val in (("hostname", seed["hostname"]), ("domain", seed["domain"]), ("timezone", seed["timezone"])):
+        for tag, val in (("hostname", seed["hostname"]), ("domain", _resolve_domain(seed)), ("timezone", seed["timezone"])):
             el = sys_node.find(tag)
             if el is None:
                 el = ET.SubElement(sys_node, tag)
@@ -488,6 +553,19 @@ def render(seed_name: str) -> Path:
     gws = build_gateways(seed, slot_map)
     if gws is not None:
         root.append(gws)
+
+    # NetFlow/Insight capture block (plugin config lives under <OPNsense>).
+    # Idempotent: drop any prior <Netflow>, (re)attach the slot-map-rendered one,
+    # reusing an existing <OPNsense> parent if the baseline ever grows one.
+    netflow_parent = build_netflow(slot_map)
+    opnsense_node = root.find("OPNsense")
+    if opnsense_node is None:
+        root.append(netflow_parent)
+    else:
+        old_nf = opnsense_node.find("Netflow")
+        if old_nf is not None:
+            opnsense_node.remove(old_nf)
+        opnsense_node.append(netflow_parent.find("Netflow"))
 
     ET.indent(tree, space="  ")
     out_dir = OUT / seed_name / "conf"

@@ -1,7 +1,8 @@
 {
-  "_doc": "MINIMAL bootstrap seed (issue #17). Only: 4 physical iface assignments + OOB mgmt IP + SSH + Proximus PPPoE (WAN1). VLANs, WAN2-Telenet, gateways, rules, unbound/dnscrypt/kea/crowdsec → ansible MVC lib (by_systems.opnsense).",
+  "_doc": "Base seed (issue #21, supersedes minimal #17). Per ADR services/0008 the SEED owns all non-API-able L2/L3: physical iface assignments + OOB mgmt IP + SSH + WAN1 Proximus PPPoE + WAN2 Telenet static (interface assignment + static IP have NO OPNsense API \u2014 settled since April / PR #8436). VLANs/Kea/rules/unbound/dnscrypt/crowdsec/netflow = ansible MVC lib (by_systems.opnsense), applied after reseed + 26.1.8 upgrade.",
   "hostname": "vm-opns-01",
-  "domain": "by-research.be",
+  "domain": "example.local",
+  "domain_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-internal-domain.json",
   "timezone": "Europe/Brussels",
   "physical_interfaces": {
     "trunk": "vtnet0",
@@ -14,8 +15,8 @@
     "descr": "OOB",
     "ipv4": "10.6.239.196",
     "ipv4_prefix": 20,
-    "ipv4_gateway": "10.6.224.1",
-    "ipv6": "dhcp6",
+    "ipv6": "fd06:224::1",
+    "_note": "OOB break-glass: dual-stack, STATIC IPv6 ULA (not dhcp6) so it is NOT a gateway. Only WAN1/WAN2 are gateways. 10.6.224 is the OOB plane for now.",
     "ipv6_prefix": 64
   },
   "trunk": {
@@ -35,14 +36,105 @@
     "ipv6_send_rapid_commit": false,
     "ipv6_request_dns": true,
     "pppoe_link_interface": "vtnet2",
-    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json"
+    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json",
+    "mss": 1452
   },
-  "wan_parent": {
-    "if": "vtnet2",
-    "descr": "WAN_PROXIMUS_Parent",
+  "wan2": {
+    "if": "vtnet3",
+    "descr": "WAN_TELENET",
+    "ipv4": "static",
+    "ipv6": "static",
     "block_private": true,
-    "block_bogons": true
+    "block_bogons": true,
+    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-telenet.json",
+    "default_gateway_v4": false,
+    "default_gateway_v6": false,
+    "gateway_descr": "ISP TELENET 500/50",
+    "monitor_ip_v4": "ipv4_gateway",
+    "monitor_ip_v6": "ipv6_gateway"
   },
+  "vlans": [
+    {
+      "vlanif": "vlan1010",
+      "tag": 1010,
+      "pcp": 6,
+      "descr": "MGMT",
+      "ipv4": "10.1.1.1",
+      "ipv6": "fd01:1::1"
+    },
+    {
+      "vlanif": "vlan1020",
+      "tag": 1020,
+      "pcp": 1,
+      "descr": "DMZ",
+      "ipv4": "10.1.2.1",
+      "ipv6": "fd01:2::1"
+    },
+    {
+      "vlanif": "vlan1030",
+      "tag": 1030,
+      "pcp": 3,
+      "descr": "SVC",
+      "ipv4": "10.1.3.1",
+      "ipv6": "fd01:3::1"
+    },
+    {
+      "vlanif": "vlan1040",
+      "tag": 1040,
+      "pcp": 3,
+      "descr": "VPN",
+      "ipv4": "10.1.4.1",
+      "ipv6": "fd01:4::1"
+    },
+    {
+      "vlanif": "vlan1100",
+      "tag": 1100,
+      "pcp": 0,
+      "descr": "IoT",
+      "ipv4": "10.1.10.1",
+      "ipv6": "fd01:10::1"
+    },
+    {
+      "vlanif": "vlan1110",
+      "tag": 1110,
+      "pcp": 5,
+      "descr": "VoIP",
+      "ipv4": "10.1.11.1",
+      "ipv6": "fd01:11::1"
+    },
+    {
+      "vlanif": "vlan1200",
+      "tag": 1200,
+      "pcp": 2,
+      "descr": "Storage",
+      "ipv4": "10.1.20.1",
+      "ipv6": "fd01:20::1"
+    },
+    {
+      "vlanif": "vlan1300",
+      "tag": 1300,
+      "pcp": 4,
+      "descr": "Media",
+      "ipv4": "10.1.30.1",
+      "ipv6": "fd01:30::1"
+    },
+    {
+      "vlanif": "vlan1320",
+      "tag": 1320,
+      "pcp": 5,
+      "descr": "GAMING",
+      "ipv4": "10.1.32.1",
+      "ipv6": "fd01:32::1"
+    },
+    {
+      "vlanif": "vlan1400",
+      "tag": 1400,
+      "pcp": 4,
+      "descr": "CCTV",
+      "ipv4": "10.1.40.1",
+      "ipv6": "fd01:40::1"
+    }
+  ],
   "ipv4_prefix": 24,
   "ipv6_prefix": 64
 }
