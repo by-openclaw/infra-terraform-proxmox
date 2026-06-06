@@ -32,6 +32,13 @@ resource "proxmox_virtual_environment_vm" "this" {
   on_boot = true
   started = true
 
+  # qemu-guest-agent runs in OPNsense (os-qemu-guest-agent) — keep it enabled so
+  # fresh installs match the live FW. Post-install sub-attribute drift is ignored
+  # via the lifecycle block below.
+  agent {
+    enabled = true
+  }
+
   cpu {
     cores   = var.cores
     sockets = 1
@@ -61,6 +68,18 @@ resource "proxmox_virtual_environment_vm" "this" {
   }
 
   boot_order = ["scsi0", "ide2"]
+
+  # Reconcile tf with the evolved running FW (issue #27): the block above models
+  # the Layer-0 ISO INSTALL (disk on scsi0, ISO on ide2). After install OPNsense
+  # boots from its installed disk (live = virtio0, ISO detached). These settings
+  # are still used on a fresh CREATE, but their post-install drift must NOT be
+  # reverted on UPDATE — doing so would re-attach the installer / change the disk
+  # interface and break the running firewall. agent/keyboard/serial sub-attr
+  # drift is benign and likewise ignored. on_boot + tags are intentionally NOT
+  # ignored (they reconcile correctly).
+  lifecycle {
+    ignore_changes = [disk, cdrom, boot_order, agent, serial_device, keyboard_layout]
+  }
 
   # vtnet0 — LAN trunk (vmbrAPPS carries all SDN VLANs 1010-1400)
   # OPNsense creates VLAN sub-interfaces (vtnet0.1010, vtnet0.1020, ...) internally.
