@@ -68,39 +68,20 @@ output "sdn_vnet_ids" {
 # Layer 2 — OPNsense FW (the only router on the platform)
 #   - naming/0001-infra §5: short code "opns", VMID 100 (prod range 100-499)
 #   - infra/0004-network-architecture §6: OPNsense is THE platform router
-#   - services/0001-opnsense: provisioning contract (ISO install + console wizard)
 #
-# WAN: DHCP on vmbrWAN3 = OOB bridge (10.6.224.0/20) — bootstrap mode
-#      ISP WANs (vmbrWAN1/2 = Proximus/Telenet) wired post-install
-# LAN: vmbrAPPS trunk — carries VLANs 1010-1400 (prod SDN zone)
+# NOT terraform-managed (issue #27, 2026-06-06). The prod FW vm-opns-01 (vmid
+# 100) is provisioned by the SEED pipeline (modules/vm-opnsense/seed +
+# recreate-and-seed-prod.py): a 2-disk virtio layout (virtio0 root 20G +
+# virtio1 1M config-import drive) that the `vm-opnsense` terraform module cannot
+# model (the importer drive is sub-GB; bpg disk size is integer GB). The live
+# VM was removed from terraform state — managing it here produced a phantom
+# disk (local-lvm/8G/null-interface) whose drift would, on apply, try to revert
+# the running firewall to installer config. The FW is owned by seed (hardware)
+# + ansible/lib MVC (config, fully reproducible — see ansible drift gate).
+# The `modules/vm-opnsense/` module stays as the seed/reseed reference.
+#
+# on_boot: enforced as a hypervisor provisioning flag (onboot=1) at seed time.
 ################################################################################
-
-module "opnsense" {
-  source = "../../modules/vm-opnsense"
-
-  name        = "vm-opns-01"
-  vm_id       = 100
-  target_node = "srv-proxmox-poc-01"
-
-  cores        = 2
-  memory       = 3072
-  disk_size    = 20
-  disk_storage = "poc-data"
-
-  iso_storage = "poc-iso"
-  iso_file    = "OPNsense-26.1.6-dvd-amd64.iso"
-
-  wan_bridge  = "vmbrOOB"  # vtnet1 — bootstrap DHCP on OOB (bond0 -> 10.6.224.0/20) (temp)
-  lan_bridge  = "vmbrAPPS" # vtnet0 — SDN trunk (prod zone, VLANs 1010-1400)
-  wan1_bridge = "vmbrWAN1" # vtnet2 — Proximus PPPoE (pre-staged, no carrier yet)
-  wan2_bridge = "vmbrWAN2" # vtnet3 — Telenet (pre-staged, no carrier yet)
-
-  tags = ["layer2", "opnsense", "env-prod"]
-}
-
-output "opnsense_vm_id" {
-  value = module.opnsense.vm_id
-}
 
 ################################################################################
 # Service VMs/LXCs (NetBox, Postgres/Patroni, Redis, Authentik, Vault, …) are
