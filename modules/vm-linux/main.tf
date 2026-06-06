@@ -103,7 +103,7 @@ resource "proxmox_virtual_environment_vm" "this" {
     size         = tonumber(replace(var.disk_size, "G", ""))
     discard      = "on"
     iothread     = true
-    file_format  = "qcow2"
+    file_format  = "raw" # poc-data is ZFS — only raw is supported (qcow2 caused drift vs live; #27)
   }
 
   network_device {
@@ -158,6 +158,8 @@ resource "proxmox_virtual_environment_vm" "this" {
   on_boot = true
 
   lifecycle {
-    ignore_changes = [clone]
+    # clone: template ref drifts post-create. agent: provider fills agent.type
+    # (virtio) on the live VM → benign in-place churn; ignore it (#27).
+    ignore_changes = [clone, agent]
   }
 }
