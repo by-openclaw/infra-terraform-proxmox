@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.2.0...v1.3.0) (2026-06-04)
+
+
+### Features
+
+* **seed:** add full VLAN set to vm-opns-01 base seed ([#21](https://github.com/by-openclaw/infra-terraform-proxmox/issues/21)) ([431e1bb](https://github.com/by-openclaw/infra-terraform-proxmox/commit/431e1bb5c225b6bbbffd6d177b330f39679abe9b))
+* **seed:** render NetFlow/Insight capture block from slot_map ([#23](https://github.com/by-openclaw/infra-terraform-proxmox/issues/23)) ([a62ad0e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/a62ad0e18fbb5cbdb1d11b035e59ea6b2e46d48b))
+* **seed:** render WAN2 Telenet in vm-opns-01 base seed ([#21](https://github.com/by-openclaw/infra-terraform-proxmox/issues/21)) ([a3c1583](https://github.com/by-openclaw/infra-terraform-proxmox/commit/a3c158364ee4383a84795e6cb887ecc513b58908))
+* **seed:** render WAN2 Telenet in vm-opns-01 base seed ([#21](https://github.com/by-openclaw/infra-terraform-proxmox/issues/21)) ([3833a86](https://github.com/by-openclaw/infra-terraform-proxmox/commit/3833a86b078f0e3e9a0b40394887ed820be78f38))
+
+
+### Bug Fixes
+
+* **seed:** DNS search domain from vault secret, not hardcoded ([5bb1411](https://github.com/by-openclaw/infra-terraform-proxmox/commit/5bb141186e799c2088e4af63a1490589104f2799))
+* **seed:** drop WAN_PROXIMUS_Parent — it breaks PPPoE auth ([#21](https://github.com/by-openclaw/infra-terraform-proxmox/issues/21)) ([e760f62](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e760f62f10df6ad39ff4d32aabf831ec5e9eab8e))
+* **seed:** OOB IPv4-only, no gateway — match pfSense01 ([#21](https://github.com/by-openclaw/infra-terraform-proxmox/issues/21)) ([2f781e6](https://github.com/by-openclaw/infra-terraform-proxmox/commit/2f781e66cbd1009b6b9e71d9eb308bcf7b6f64a3))
+* **seed:** WAN mss=1452 + OOB dual-stack static IPv6 (no gateway) ([#21](https://github.com/by-openclaw/infra-terraform-proxmox/issues/21)) ([7812bae](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7812bae9376abef4b3e2c5f8b0ed0a7c75561c34))
+
 ## [1.2.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.1.0...v1.2.0) (2026-06-02)
 
 
