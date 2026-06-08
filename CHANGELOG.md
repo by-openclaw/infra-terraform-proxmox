@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.3.0...v1.4.0) (2026-06-08)
+
+
+### Features
+
+* **prod:** minimal cluster foundation LXCs — Traefik (DMZ) + Postgres + Redis ([26d7bc1](https://github.com/by-openclaw/infra-terraform-proxmox/commit/26d7bc1b1c3397cb71d9dbffdc0afeaadea04812))
+* **svc:** add NetBird CE VPN LXC (lxc-netbird-01, SVC .181) ([de86421](https://github.com/by-openclaw/infra-terraform-proxmox/commit/de864217333f32ddd403ab98d2d40e4203cb748e)), closes [#45](https://github.com/by-openclaw/infra-terraform-proxmox/issues/45)
+* **svc:** add Nextcloud LXC (lxc-nextcloud-01, SVC .170, Contabo S3) ([528c23f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/528c23ff208949a6a7d72ca989e309ee9cc780f2)), closes [#41](https://github.com/by-openclaw/infra-terraform-proxmox/issues/41)
+* **svc:** Authentik nested LXC (lxc-authentik-01, SVC) ([2f560c0](https://github.com/by-openclaw/infra-terraform-proxmox/commit/2f560c0b0ce1442098d6c2dfdc7e8d494af1c3e0))
+* **svc:** Authentik nested LXC (lxc-authentik-01, SVC) for Docker SSO/IdP ([874968e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/874968ebf6e2a5aa62c00f2c89886746ba974218)), closes [#33](https://github.com/by-openclaw/infra-terraform-proxmox/issues/33)
+* **svc:** NetBird CE VPN LXC (lxc-netbird-01, SVC .181) — replaces defguard ([1c30699](https://github.com/by-openclaw/infra-terraform-proxmox/commit/1c3069902163f1a219fca8b0c884fecbdea38879))
+* **svc:** NetBox nested LXC (lxc-nbox-01, SVC) ([f5b9727](https://github.com/by-openclaw/infra-terraform-proxmox/commit/f5b9727f12f7ff44b89b9da52edf2f16ea62e83e))
+* **svc:** NetBox nested LXC (lxc-nbox-01, SVC) for Docker IPAM/SoT ([8d797dd](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8d797dda75b21b93cbf0c7e58cf305f2ce6d3b62)), closes [#37](https://github.com/by-openclaw/infra-terraform-proxmox/issues/37)
+* **svc:** Nextcloud LXC (lxc-nextcloud-01, SVC .170, Contabo S3 primary) ([e167311](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e1673119d3611ce23223d532f1bfcc4d160ffe2f))
+* **svc:** pgAdmin nested LXC (lxc-pgadmin-01, SVC) ([7195346](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7195346fc265536ddcf44907c8f795a3cf3dbcb2))
+* **svc:** pgAdmin nested LXC (lxc-pgadmin-01, SVC) for Docker-hosted DB admin ([166accc](https://github.com/by-openclaw/infra-terraform-proxmox/commit/166accce6ac3b6fac9f8fd09b0381a111c7cc18e)), closes [#31](https://github.com/by-openclaw/infra-terraform-proxmox/issues/31)
+* **svc:** provision lxc-vaultwarden-01 (Vaultwarden password manager) ([d1dc3b8](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d1dc3b8b5d4549dca4cac0fa2024c976561a3ddb)), closes [#39](https://github.com/by-openclaw/infra-terraform-proxmox/issues/39)
+* **svc:** provision lxc-vaultwarden-01 (Vaultwarden) ([a36ab8d](https://github.com/by-openclaw/infra-terraform-proxmox/commit/a36ab8d98fcb3d80fa0f56cc75597a80aa7722a3))
+* **svc:** Vault nested LXC (lxc-vault-01, SVC) ([cd611f9](https://github.com/by-openclaw/infra-terraform-proxmox/commit/cd611f9c72980d0bca724324f37483ebdbf4f506))
+* **svc:** Vault nested LXC (lxc-vault-01, SVC) for Docker secrets backend ([94dbf06](https://github.com/by-openclaw/infra-terraform-proxmox/commit/94dbf0681d25e56b4a5d985a24448c39b834e333)), closes [#33](https://github.com/by-openclaw/infra-terraform-proxmox/issues/33)
+
+
+### Bug Fixes
+
+* **prod:** reconcile terraform with live FW + AdGuard (defuse drift landmine) ([88576b3](https://github.com/by-openclaw/infra-terraform-proxmox/commit/88576b37d6f572dad4fd0cc1be93ea2fb5b979c9))
+* **prod:** unmanage seed-provisioned FW VM from terraform ([#27](https://github.com/by-openclaw/infra-terraform-proxmox/issues/27) v2 — defuse drift permanently) ([1e0c39e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/1e0c39e9f452e2e34ac72816f29d8e84e91f9ed5))
+* **prod:** unmanage seed-provisioned FW VM from terraform ([#27](https://github.com/by-openclaw/infra-terraform-proxmox/issues/27) v2) ([c63984e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c63984e4a35afaf4ceef1da53f9e0b77a07dc032))
+
 ## [1.3.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.2.0...v1.3.0) (2026-06-04)
 
 
