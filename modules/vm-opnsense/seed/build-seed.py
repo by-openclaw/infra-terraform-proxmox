@@ -73,25 +73,25 @@ def _ip_network(prefix: int) -> int:
 def build_interfaces(seed: dict) -> ET.Element:
     """Emit <interfaces> matching OPNsense's serialization.
 
-    Layout (per design 2026-05-22, updated 2026-05-23 with PPPoE + WAN2 static):
-      <wan>      = pppoe0 (WAN1 — Proximus PPPoE).         Only if seed has "wan".
+    Layout — matches the LIVE FW + the ansible MVC catalog (verified 2026-06-13):
       <lan>      = OOB management (vtnet1).                Always present.
       <opt1>     = SDN trunk (vtnet0) — VLAN parent.       Always present.
-      <opt2>     = WAN1_Parent raw NIC (vtnet2).            Only if seed has "wan_parent".
-      <opt3>     = WAN2 static (vtnet3 — Telenet).         Only if seed has "wan2".
-      <opt4..>   = VLANs hanging off the trunk.
+      <opt2..>   = VLANs hanging off the trunk (MGMT=opt2 … CCTV=opt11).
       <lo0>      = loopback.
+      <opt12>    = WAN1 Proximus PPPoE (pppoe0).           Only if seed has "wan".
+      <opt13>    = WAN2 Telenet static (vtnet3).           Only if seed has "wan2".
+
+    The WANs are numbered AFTER the VLANs so the slot idents equal the running
+    FW (Proximus=opt12, Telenet=opt13) and the ansible catalog — which assigns
+    every rule/VLAN by these idents — applies correctly after a reseed. The old
+    WAN-first numbering (Telenet=opt2, VLANs on opt3+) did NOT match live and
+    would put every rule on the wrong interface on reseed.
 
     Track-Interface IPv6: when seed has "ipv6_pd_tracking", each internal NIC
     is configured to track WAN1's /56 PD with a unique sub-prefix ID.
     """
     pd = seed.get("ipv6_pd_tracking")
     ifs = ET.Element("interfaces")
-
-    # wan = WAN1 PPPoE (optional)
-    if "wan" in seed:
-        wan = ET.SubElement(ifs, "wan")
-        _wan(wan, seed["wan"])
 
     # lan = OOB management (with optional IPv6 tracking)
     lan = ET.SubElement(ifs, "lan")
@@ -101,28 +101,16 @@ def build_interfaces(seed: dict) -> ET.Element:
     opt1 = ET.SubElement(ifs, "opt1")
     _trunk(opt1, seed["trunk"], track6=_track6_for("trunk", pd))
 
-    opt_idx = 2
-
-    # opt2 = WAN1_Parent (raw NIC under pppoe0)
-    if "wan_parent" in seed:
-        wp_node = ET.SubElement(ifs, f"opt{opt_idx}")
-        _wan_parent(wp_node, seed["wan_parent"])
-        opt_idx += 1
-
-    # opt3 = WAN2 static
-    if "wan2" in seed:
-        wan2_node = ET.SubElement(ifs, f"opt{opt_idx}")
-        _wan2(wan2_node, seed["wan2"])
-        opt_idx += 1
-
-    # opt4..optN = VLANs (offset by 1 for wan_parent + 1 for wan2 if present).
+    # opt2..optN = VLANs FIRST (matches live/ansible: MGMT=opt2 … CCTV=opt11).
     # Minimal seed declares no VLANs — ansible/MVC adds them post-boot.
-    for i, v in enumerate(seed.get("vlans", []), start=opt_idx):
-        opt = ET.SubElement(ifs, f"opt{i}")
+    opt_idx = 2
+    for v in seed.get("vlans", []):
+        opt = ET.SubElement(ifs, f"opt{opt_idx}")
         _opt(opt, v, ipv4_prefix=seed["ipv4_prefix"], ipv6_prefix=seed["ipv6_prefix"],
              track6=_track6_for(v["vlanif"], pd))
+        opt_idx += 1
 
-    # lo0 — loopback, always present
+    # lo0 — loopback (live serializes it between the VLANs and the WANs)
     lo = ET.SubElement(ifs, "lo0")
     ET.SubElement(lo, "internal_dynamic").text = "1"
     ET.SubElement(lo, "descr").text = "Loopback"
@@ -134,6 +122,18 @@ def build_interfaces(seed: dict) -> ET.Element:
     ET.SubElement(lo, "subnetv6").text = "128"
     ET.SubElement(lo, "type").text = "none"
     ET.SubElement(lo, "virtual").text = "1"
+
+    # opt12 = WAN1 Proximus PPPoE — numbered after the VLANs to match the live FW.
+    if "wan" in seed:
+        wan = ET.SubElement(ifs, f"opt{opt_idx}")
+        _wan(wan, seed["wan"])
+        opt_idx += 1
+
+    # opt13 = WAN2 Telenet static.
+    if "wan2" in seed:
+        wan2_node = ET.SubElement(ifs, f"opt{opt_idx}")
+        _wan2(wan2_node, seed["wan2"])
+        opt_idx += 1
 
     return ifs
 
@@ -304,25 +304,28 @@ def _wan2(node: ET.Element, w2: dict) -> None:
 
 
 def compute_slot_map(seed: dict) -> dict:
-    """Return a mapping from logical role → OPNsense slot identifier (wan|lan|optN).
+    """Return a mapping from logical role → OPNsense slot identifier (lan|optN).
 
-    Reflects the same cascade build_interfaces() uses, so other generators
-    (gateways, NAT rules, etc.) can reference the correct slot without duplicating logic.
+    Mirrors build_interfaces() so other generators (gateways, NAT, NetFlow) can
+    reference the correct slot. Layout matches the LIVE FW + ansible catalog
+    (verified 2026-06-13): trunk=opt1, VLANs=opt2..optN, then the WANs last —
+    Proximus=opt12, Telenet=opt13. The ansible MVC catalog assigns rules/VLANs by
+    these idents, so a reseed MUST reproduce them or every rule lands wrong.
     """
     slots = {}
-    if "wan" in seed:
-        slots["wan"] = "wan"
     slots["lan"] = "lan"
     slots["trunk"] = "opt1"
     idx = 2
-    if "wan_parent" in seed:
-        slots["wan_parent"] = f"opt{idx}"
+    # VLANs first → opt2..optN (MGMT=opt2 … CCTV=opt11).
+    for v in seed.get("vlans", []):
+        slots[v["vlanif"]] = f"opt{idx}"
+        idx += 1
+    # WANs last → Proximus=opt12, Telenet=opt13 (the live/ansible idents).
+    if "wan" in seed:
+        slots["wan"] = f"opt{idx}"
         idx += 1
     if "wan2" in seed:
         slots["wan2"] = f"opt{idx}"
-        idx += 1
-    for v in seed.get("vlans", []):
-        slots[v["vlanif"]] = f"opt{idx}"
         idx += 1
     return slots
 
@@ -374,12 +377,11 @@ def build_gateways(seed: dict, slot_map: dict) -> ET.Element | None:
 def build_netflow(slot_map: dict) -> ET.Element:
     """Emit <OPNsense><Netflow> so a fresh seed boots with NetFlow/Insight active.
 
-    The capture interface list MUST be rendered from THIS seed's slot idents
-    (compute_slot_map), not the live FW's: the seed numbers wan2 before the VLANs,
-    so VLANs land on opt3-opt12 here vs opt2-opt11 on the pre-wan2 live layout. A
-    hardcoded block would therefore capture the wrong interfaces. Rendering from
-    slot_map keeps capture = every internal + WAN ident and egress_only = the WAN
-    idents correct no matter how many VLANs the seed defines.
+    The capture interface list is rendered from compute_slot_map (which now
+    matches the live FW + ansible layout: VLANs opt2..opt11, Proximus opt12,
+    Telenet opt13). Rendering from slot_map keeps capture = every internal + WAN
+    ident and egress_only = the WAN idents correct no matter how many VLANs the
+    seed defines, and guarantees the idents equal the running FW after a reseed.
 
     Why the seed and not Ansible MVC: the OPNsense diagnostics/netflow/setconfig
     endpoint is broken (returns {"result":"failed"} for every body shape) and root
