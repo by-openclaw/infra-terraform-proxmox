@@ -68,6 +68,7 @@
       <ssl-ciphers />
       <interfaces />
       <compression />
+      <httpaccesslog>1</httpaccesslog>
     </webgui>
     <disablenatreflection>yes</disablenatreflection>
     <usevirtualterminal>1</usevirtualterminal>
