@@ -30,7 +30,8 @@ module "vm_mailcow_01" {
 
   clone     = "debian-12-cloud" # template VMID 9000
   cores     = 4
-  memory    = 8192 # mailcow needs >=6 GB; 8 GB for rspamd/clamav headroom
+  cpu_type  = "x86-64-v2-AES" # NOT "host": host-passthrough on this Sandy Bridge Xeon E5-2640 v0 panics the multi-core Debian-12 guest ("Attempted to kill init"). v2-AES is fully supported here (SSE4.2/POPCNT/AES-NI) and migration-safe; v3 is N/A (no AVX2).
+  memory    = 8192            # mailcow needs >=6 GB; 8 GB for rspamd/clamav headroom
   disk_size = "60G"
   storage   = "poc-data"
 

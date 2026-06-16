@@ -19,6 +19,19 @@ variable "cores" {
   default     = 2
 }
 
+variable "cpu_type" {
+  description = <<-EOT
+    QEMU CPU model. Default "host" (raw host-flag passthrough) is kept for
+    backwards-compat with existing 1-core VMs. On this old Xeon E5-2640 v0
+    (Sandy Bridge), "host" + SMP causes the Debian-12 guest init to segfault
+    ("Attempted to kill init") — see vm-mailcow-01. Use a stable named model
+    ("x86-64-v2-AES") for multi-core VMs; it is also the migration-safe prod
+    default. v3 is unavailable here (no AVX2 on Sandy Bridge).
+  EOT
+  type        = string
+  default     = "host"
+}
+
 variable "memory" {
   description = "Memory in MB to allocate to the VM"
   type        = number
