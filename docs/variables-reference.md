@@ -17,6 +17,7 @@ For full Linux VMs cloned from a cloud-init template (e.g. `debian-12-cloud`).
 | `target_node` | string | — | ✅ | ✅ | e.g. `srv-proxmox-poc-01` |
 | `clone` | string | — | ✅ | ✅ | Template name e.g. `debian-12-cloud` |
 | `cores` | number | `2` | — | ✅ | CPU cores |
+| `cpu_type` | string | `"host"` | — | ✅ | QEMU CPU model. **Set `"x86-64-v2-AES"` for any VM with `cores > 1`** — `"host"` passthrough panics multi-core Debian guests on this Sandy Bridge host (`Attempted to kill init`). Default kept `"host"` for back-compat with 1-core VMs. |
 | `memory` | number | `2048` | — | ✅ | RAM in MB |
 | `disk_size` | string | `"20G"` | — | ✅ | Primary disk size |
 | `storage` | string | — | ✅ | ✅ | Proxmox storage pool e.g. `poc-data` |
@@ -37,7 +38,6 @@ For full Linux VMs cloned from a cloud-init template (e.g. `debian-12-cloud`).
 | `onboot` | Auto-start on node boot — hardcoded `true`, not exposed |
 | `vlan_tag` | VLAN tagging on NIC — not yet implemented |
 | `extra_disks` | Additional data disks — not yet implemented |
-| `cpu_type` | CPU emulation type — hardcoded `host` |
 | `description` | VM description in Proxmox UI — not yet wired |
 
 ### Not applicable (VM-specific, N/A for LXC)
