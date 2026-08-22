@@ -112,4 +112,11 @@ resource "proxmox_virtual_environment_container" "this" {
   # Lifecycle: do NOT ignore network_interface — that previously swallowed legitimate
   # changes (NIC rename, VLAN re-tag). Proxmox auto-generates MAC only on first create;
   # subsequent applies keep the existing MAC unless Terraform explicitly changes it.
+  lifecycle {
+    # DATA volumes are Ansible-managed ZFS bind-mounts (roles/pve_zfs_mount) added
+    # out-of-band via `pct set`. Terraform owns the LXC, Ansible owns the data mount:
+    # ignore mount_point so an apply never strips it (which forces a container
+    # replacement). LXCs with no data mount have mount_point=[] → no effect.
+    ignore_changes = [mount_point]
+  }
 }
