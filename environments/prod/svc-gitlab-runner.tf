@@ -39,11 +39,12 @@ module "vm_gitlab_runner_01" {
   dns_servers = ["10.1.3.1", "fd01:3::1"] # OPNsense resolver on SVC VLAN
   ssh_keys    = local.standard_ssh_keys
 
-  # Enabled so this VM inherits the vm-linux cloud-init baseline — importantly the
-  # panic=10 auto-reboot (this old Sandy Bridge node intermittently panics a guest
-  # on boot; self-heal in ~10s instead of a manual power-cycle) + qemu-guest-agent.
-  # The gitlab_runner role's apt-lock wait already tolerates the first-boot upgrade.
-  use_vendor_data = true
+  # No vendor_data snippet: like every other VM here, this uses native cloud-init
+  # (user/keys/network via the API). Guest hardening — panic=10 auto-reboot,
+  # persistent journald — is done by the gitlab_runner Ansible role (Terraform
+  # provisions, Ansible configures). Enabling vendor_data would require the bpg
+  # provider to SSH the node for snippet upload (see providers ssh node-name note).
+  use_vendor_data = false
 }
 
 output "vm_gitlab_runner_01" {
