@@ -97,6 +97,12 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   scsi_hardware = "virtio-scsi-single"
 
+  # Boot from the OS disk. bpg/proxmox >= 0.100 no longer defaults the boot order,
+  # so without this a freshly-cloned VM comes up with an EMPTY boot order and hangs
+  # at BIOS (no OS → no qemu-agent, no sshd). VMs created on older providers kept
+  # the implicit order=scsi0. Pin it explicitly here for every VM.
+  boot_order = ["scsi0"]
+
   disk {
     datastore_id = var.storage
     interface    = "scsi0"
