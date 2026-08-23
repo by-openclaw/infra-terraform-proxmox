@@ -57,6 +57,13 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
             kernel.panic = 10
             kernel.panic_on_oops = 1
           permissions: "0644"
+        # Persist the journal so a failed/panicked boot's logs survive the reboot
+        # and are readable with `journalctl -b -1` — real evidence, not guesswork.
+        - path: /etc/systemd/journald.conf.d/99-persistent.conf
+          content: |
+            [Journal]
+            Storage=persistent
+          permissions: "0644"
 
       package_update: true
       package_upgrade: true
@@ -77,6 +84,9 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
       runcmd:
         # Apply the panic=10 auto-reboot cmdline before cloud-init's first reboot.
         - update-grub
+        # Activate persistent journald now (so this boot onward is captured).
+        - mkdir -p /var/log/journal
+        - systemctl restart systemd-journald
         - systemctl enable qemu-guest-agent --now
         - echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
         - sysctl -p
