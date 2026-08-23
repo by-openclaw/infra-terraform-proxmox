@@ -101,6 +101,11 @@ resource "proxmox_virtual_environment_vm" "this" {
   # so without this a freshly-cloned VM comes up with an EMPTY boot order and hangs
   # at BIOS (no OS → no qemu-agent, no sshd). VMs created on older providers kept
   # the implicit order=scsi0. Pin it explicitly here for every VM.
+  #
+  # NOTE (bpg clone limitation): bpg does NOT reliably apply boot_order to a CLONED
+  # VM (the clone inherits the template's boot config). The durable fix is to set it
+  # ON THE TEMPLATE once — `qm set 9000 --boot order=scsi0` on debian-12-cloud — so
+  # every clone inherits order=scsi0. Done 2026-08-23 (runner rebuild surfaced it).
   boot_order = ["scsi0"]
 
   disk {
