@@ -42,6 +42,21 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
         - path: /etc/sudoers.d/${var.ci_user}
           content: "${var.ci_user} ALL=(ALL) NOPASSWD:ALL\n"
           permissions: "0440"
+        # This node is an old Sandy Bridge Xeon (E5-2640) under a very new QEMU;
+        # it intermittently panics a guest on boot ("Attempted to kill init"),
+        # self-clearing on the next boot. Auto-reboot on panic so it self-heals
+        # in seconds instead of hanging until a manual power-cycle. GRUB cmdline
+        # covers early-boot panics; sysctl covers panics after userspace is up.
+        # Debian sources /etc/default/grub.d/*.cfg; cloud-init runs update-grub
+        # (below) before its first reboot — exactly where the panic occurs.
+        - path: /etc/default/grub.d/99-panic-reboot.cfg
+          content: 'GRUB_CMDLINE_LINUX_DEFAULT="$${GRUB_CMDLINE_LINUX_DEFAULT} panic=10"'
+          permissions: "0644"
+        - path: /etc/sysctl.d/99-panic-reboot.conf
+          content: |
+            kernel.panic = 10
+            kernel.panic_on_oops = 1
+          permissions: "0644"
 
       package_update: true
       package_upgrade: true
@@ -60,6 +75,8 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
         - keyboard-configuration
 
       runcmd:
+        # Apply the panic=10 auto-reboot cmdline before cloud-init's first reboot.
+        - update-grub
         - systemctl enable qemu-guest-agent --now
         - echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
         - sysctl -p

@@ -39,7 +39,11 @@ module "vm_gitlab_runner_01" {
   dns_servers = ["10.1.3.1", "fd01:3::1"] # OPNsense resolver on SVC VLAN
   ssh_keys    = local.standard_ssh_keys
 
-  use_vendor_data = false
+  # Enabled so this VM inherits the vm-linux cloud-init baseline — importantly the
+  # panic=10 auto-reboot (this old Sandy Bridge node intermittently panics a guest
+  # on boot; self-heal in ~10s instead of a manual power-cycle) + qemu-guest-agent.
+  # The gitlab_runner role's apt-lock wait already tolerates the first-boot upgrade.
+  use_vendor_data = true
 }
 
 output "vm_gitlab_runner_01" {
