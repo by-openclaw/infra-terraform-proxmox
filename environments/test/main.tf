@@ -247,22 +247,22 @@ resource "proxmox_sdn_applier" "test" {
 #   name      = "vm-fw-test-01"
 #   vm_id     = 1100
 #   node_name = "srv-proxmox-01"
-# 
+#
 #   tags = ["layer0", "opnsense", "env-test"]
-# 
+#
 #   bios          = "ovmf"
 #   machine       = "q35"
 #   scsi_hardware = "virtio-scsi-single"
 #   tablet_device = false
-# 
+#
 #   on_boot    = true
 #   started    = true
 #   protection = false
-# 
+#
 #   agent {
 #     enabled = false
 #   }
-# 
+#
 #   cpu {
 #     cores      = 2
 #     sockets    = 1
@@ -270,12 +270,12 @@ resource "proxmox_sdn_applier" "test" {
 #     hotplugged = 0
 #     flags      = ["+aes"]
 #   }
-# 
+#
 #   memory {
 #     dedicated = 4096
 #     floating  = 0
 #   }
-# 
+#
 #   # Boot disk
 #   disk {
 #     datastore_id = "poc-data"
@@ -287,7 +287,7 @@ resource "proxmox_sdn_applier" "test" {
 #     cache        = "none"
 #     ssd          = true
 #   }
-# 
+#
 #   # EFI disk (UEFI)
 #   efi_disk {
 #     datastore_id      = "poc-data"
@@ -295,15 +295,15 @@ resource "proxmox_sdn_applier" "test" {
 #     type              = "4m"
 #     pre_enrolled_keys = false
 #   }
-# 
+#
 #   # ISO for installation
 #   cdrom {
 #     file_id   = "poc-iso:iso/OPNsense-26.1.2-dvd-amd64.iso"
 #     interface = "ide0"
 #   }
-# 
+#
 #   boot_order = ["scsi0", "ide0"]
-# 
+#
 #   # vtnet0 — LAN (VLAN trunk, first NIC = OPNsense default LAN)
 #   network_device {
 #     bridge   = "vmbrAPPS"
@@ -311,7 +311,7 @@ resource "proxmox_sdn_applier" "test" {
 #     firewall = false
 #     queues   = 2
 #   }
-# 
+#
 #   # vtnet1 — WAN1 (future Proximus)
 #   network_device {
 #     bridge   = "vmbrWAN1"
@@ -319,7 +319,7 @@ resource "proxmox_sdn_applier" "test" {
 #     firewall = false
 #     queues   = 2
 #   }
-# 
+#
 #   # vtnet2 — WAN2 (future Telenet)
 #   network_device {
 #     bridge   = "vmbrWAN2"
@@ -327,7 +327,7 @@ resource "proxmox_sdn_applier" "test" {
 #     firewall = false
 #     queues   = 2
 #   }
-# 
+#
 #   # vtnet3 — WAN3 (current internet via pfSense OOB)
 #   network_device {
 #     bridge   = "vmbrWAN3"
@@ -335,14 +335,14 @@ resource "proxmox_sdn_applier" "test" {
 #     firewall = false
 #     queues   = 2
 #   }
-# 
+#
 #   vga {
 #     type   = "std"
 #     memory = 16
 #   }
-# 
+#
 #   serial_device {}
-# 
+#
 #   depends_on = [proxmox_sdn_applier.test]
 # }
 

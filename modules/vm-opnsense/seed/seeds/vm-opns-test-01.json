@@ -38,7 +38,7 @@
     "ipv6_send_rapid_commit": false,
     "ipv6_request_dns": true,
     "pppoe_link_interface": "vtnet2",
-    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json"
+    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-isp-proximus-pppoe.json"
   },
   "wan_parent": {
     "if": "vtnet2",
@@ -53,7 +53,7 @@
     "ipv6": "static",
     "block_private": true,
     "block_bogons": true,
-    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-telenet.json",
+    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-isp-telenet.json",
     "default_gateway_v4": true,
     "default_gateway_v6": true,
     "gateway_descr": "ISP TELENET 500/50",

@@ -2,7 +2,7 @@
   "_doc": "Base seed (issue #21, supersedes minimal #17). Per ADR services/0008 the SEED owns all non-API-able L2/L3: physical iface assignments + OOB mgmt IP + SSH + WAN1 Proximus PPPoE + WAN2 Telenet static (interface assignment + static IP have NO OPNsense API \u2014 settled since April / PR #8436). VLANs/Kea/rules/unbound/dnscrypt/crowdsec/netflow = ansible MVC lib (by_systems.opnsense), applied after reseed + 26.1.9 upgrade.",
   "hostname": "vm-opns-01",
   "domain": "example.local",
-  "domain_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-internal-domain.json",
+  "domain_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-internal-domain.json",
   "timezone": "Europe/Brussels",
   "physical_interfaces": {
     "trunk": "vtnet0",
@@ -36,7 +36,7 @@
     "ipv6_send_rapid_commit": false,
     "ipv6_request_dns": true,
     "pppoe_link_interface": "vtnet2",
-    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-proximus-pppoe.json",
+    "pppoe_creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-isp-proximus-pppoe.json",
     "mss": 1452
   },
   "wan2": {
@@ -46,7 +46,7 @@
     "ipv6": "static",
     "block_private": true,
     "block_bogons": true,
-    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/net-isp-telenet.json",
+    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-isp-telenet.json",
     "default_gateway_v4": false,
     "default_gateway_v6": false,
     "gateway_descr": "ISP TELENET 500/50",

@@ -16,7 +16,7 @@
       <scope>system</scope>
       <description>System Administrators</description>
       <priv>page-all</priv>
-      <member>0,2000</member>
+      <member>0,2001,2002</member>
       <source_networks />
     </group>
     <user uuid="22c2bfb8-0734-4439-b2b9-7816f7017363">
@@ -39,25 +39,35 @@
       <descr>System Administrator</descr>
       <dashboard />
     </user>
-    <user uuid="ff747b04-b09d-440d-b6ca-28c17db3712f">
-      <uid>2000</uid>
-      <name>by-rune</name>
+    <user uuid="c3a1b2d4-9e8f-4a6b-8c7d-5e4f3a2b1c0d">
+      <uid>2001</uid>
+      <name>by-research</name>
+      <descr>Break-glass local admin (identity/0004) — works with LDAP/Authentik down</descr>
       <disabled>0</disabled>
       <scope>user</scope>
       <expires />
-      <authorizedkeys>__BYRUNE_AUTHORIZEDKEYS__</authorizedkeys>
+      <authorizedkeys>__BYRESEARCH_AUTHORIZEDKEYS__</authorizedkeys>
       <otp_seed />
       <shell>/bin/sh</shell>
-      <password>__BYRUNE_PASSWORD__</password>
-      <pwd_changed_at>1779324526.9667</pwd_changed_at>
+      <password>__BYRESEARCH_PASSWORD_HASH__</password>
       <landing_page />
       <comment />
       <email />
-      <apikeys>__BYRUNE_APIKEYS__</apikeys>
-      <priv>page-all</priv>
-      <language />
-      <descr />
-      <dashboard />
+    </user>
+    <user uuid="7d2e9f10-3b4c-4d5e-8f6a-1b2c3d4e5f60">
+      <uid>2002</uid>
+      <name>svc-ansible-prod</name>
+      <descr>Automation (Ansible jump + API) — naming/0002 §3; key-only</descr>
+      <disabled>0</disabled>
+      <scope>user</scope>
+      <expires />
+      <authorizedkeys>__SVCANSIBLE_AUTHORIZEDKEYS__</authorizedkeys>
+      <otp_seed />
+      <shell>/bin/sh</shell>
+      <password>*</password>
+      <landing_page />
+      <comment />
+      <email />
     </user>
     <timezone>Etc/UTC</timezone>
     <timeservers>0.opnsense.pool.ntp.org 1.opnsense.pool.ntp.org 2.opnsense.pool.ntp.org 3.opnsense.pool.ntp.org</timeservers>

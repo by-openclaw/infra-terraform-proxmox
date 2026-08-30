@@ -19,7 +19,7 @@ import websocket
 
 
 def load():
-    p = Path("/home/by-systems/.openclaw/workspace/infra/secrets/infra-proxmox-poc.json")
+    p = Path("/home/by-systems/.openclaw/workspace/infra/secrets/fabric/infra-proxmox-poc.json")
     f = json.loads(p.read_text())["fields"]
     return f["host"], f["admin_token_id"], f["admin_token_secret"]
 
