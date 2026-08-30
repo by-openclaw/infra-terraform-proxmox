@@ -1,6 +1,6 @@
 # Terraform Module Variables Reference
 
-> BY-SYSTEMS PoC — infra-terraform-proxmox  
+> BY-SYSTEMS PoC — infra-terraform-proxmox
 > Last updated: 2026-03-28
 
 This document lists all variables per module, their defaults, and notes on what is/isn't supported for each deployment type.
@@ -92,7 +92,7 @@ For lightweight LXC containers (no cloud-init, no full OS install).
 
 ## Synology DSM — Not a Terraform target
 
-Synology NAS (e.g. DS1621+) is **not managed via Terraform/Proxmox**.  
+Synology NAS (e.g. DS1621+) is **not managed via Terraform/Proxmox**.
 It is managed via:
 - **lib-synology-dsm** (Python library, repo: `by-openclaw/lib-synology-dsm`)
 - Direct DSM web UI
