@@ -39,11 +39,9 @@ BOOTSTRAP_SECRET = Path(
 )
 _PLACEHOLDERS = {
     "__ROOT_PASSWORD_HASH__": "root_password_hash",
-    "__BYRUNE_PASSWORD__": "byrune_password",
-    "__BYRUNE_APIKEYS__": "byrune_apikeys",
-    "__BYRUNE_AUTHORIZEDKEYS__": "byrune_authorizedkeys",
     "__BYRESEARCH_PASSWORD_HASH__": "byresearch_password_hash",  # pragma: allowlist secret
     "__BYRESEARCH_AUTHORIZEDKEYS__": "byresearch_authorizedkeys",
+    "__SVCANSIBLE_AUTHORIZEDKEYS__": "svcansible_authorizedkeys",
 }
 
 
