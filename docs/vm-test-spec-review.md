@@ -1,7 +1,7 @@
 # VM Test — Spec Review
 
-**Purpose:** Review and approve all parameters before provisioning next VMs after bootstrap test validation.  
-**Date:** 2026-03-29  
+**Purpose:** Review and approve all parameters before provisioning next VMs after bootstrap test validation.
+**Date:** 2026-03-29
 **Status:** 🔲 Pending approval — do not apply until approved
 
 ---
