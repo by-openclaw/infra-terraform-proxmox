@@ -16,7 +16,7 @@
       <scope>system</scope>
       <description>System Administrators</description>
       <priv>page-all</priv>
-      <member>0,2000</member>
+      <member>0,2000,2001</member>
       <source_networks />
     </group>
     <user uuid="22c2bfb8-0734-4439-b2b9-7816f7017363">
@@ -58,6 +58,21 @@
       <language />
       <descr />
       <dashboard />
+    </user>
+    <user uuid="c3a1b2d4-9e8f-4a6b-8c7d-5e4f3a2b1c0d">
+      <uid>2001</uid>
+      <name>by-research</name>
+      <descr>Break-glass local admin (identity/0004) — works with LDAP/Authentik down</descr>
+      <disabled>0</disabled>
+      <scope>user</scope>
+      <expires />
+      <authorizedkeys>__BYRESEARCH_AUTHORIZEDKEYS__</authorizedkeys>
+      <otp_seed />
+      <shell>/bin/sh</shell>
+      <password>__BYRESEARCH_PASSWORD_HASH__</password>
+      <landing_page />
+      <comment />
+      <email />
     </user>
     <timezone>Etc/UTC</timezone>
     <timeservers>0.opnsense.pool.ntp.org 1.opnsense.pool.ntp.org 2.opnsense.pool.ntp.org 3.opnsense.pool.ntp.org</timeservers>
