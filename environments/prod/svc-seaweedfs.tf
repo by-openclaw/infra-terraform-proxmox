@@ -28,9 +28,12 @@ module "svc_seaweedfs" {
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores              = 2
-  memory             = 2048
-  disk_gb            = 12 # OS + weed binary ONLY — S3 data is the Ansible ZFS bind-mount at /data
-  storage            = "poc-data"
+  # 4096: the 2048 limit OOM-killed weed TWICE during the nightly PBS->S3 backup
+  # burst (Aug 30 + Sep 1 01:35, systemd oom-kill; 10 LXC backups 502'd until the
+  # auto-restart). Raised live via pct set 2026-09-01; codified here.
+  memory  = 4096
+  disk_gb = 12 # OS + weed binary ONLY — S3 data is the Ansible ZFS bind-mount at /data
+  storage = "poc-data"
 
   network_bridge = local.svc_bridge
   vlan_tag       = 1030
