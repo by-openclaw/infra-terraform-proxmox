@@ -43,6 +43,11 @@ _PLACEHOLDERS = {
     "__BYRESEARCH_AUTHORIZEDKEYS__": "byresearch_authorizedkeys",
     "__SVCANSIBLE_AUTHORIZEDKEYS__": "svcansible_authorizedkeys",
 }
+# Secrets that live in OTHER fabric files: placeholder -> (file, field). The LDAP
+# bind password is the Authentik LDAP outpost service account (svc-ldap-prod).
+_EXTRA_PLACEHOLDERS = {
+    "__LDAP_BIND_PASSWORD__": ("app-ldap-bind.json", "password"),  # pragma: allowlist secret
+}
 
 
 def _inject_bootstrap_secrets(text: str) -> str:
@@ -51,7 +56,7 @@ def _inject_bootstrap_secrets(text: str) -> str:
     Fail loud if a placeholder is present but its secret is missing — never ship a
     seed with an empty admin credential.
     """
-    if not any(p in text for p in _PLACEHOLDERS):
+    if not any(p in text for p in list(_PLACEHOLDERS) + list(_EXTRA_PLACEHOLDERS)):
         return text
     if not BOOTSTRAP_SECRET.exists():
         raise SystemExit(f"bootstrap secret not found: {BOOTSTRAP_SECRET}")
@@ -61,6 +66,15 @@ def _inject_bootstrap_secrets(text: str) -> str:
             val = fields.get(key, "").strip()
             if not val:
                 raise SystemExit(f"{BOOTSTRAP_SECRET}: missing/empty field '{key}' for {ph}")
+            text = text.replace(ph, val)
+    for ph, (fname, key) in _EXTRA_PLACEHOLDERS.items():
+        if ph in text:
+            fpath = BOOTSTRAP_SECRET.parent / fname
+            if not fpath.exists():
+                raise SystemExit(f"secret file not found: {fpath} (for {ph})")
+            val = json.loads(fpath.read_text()).get("fields", {}).get(key, "").strip()
+            if not val:
+                raise SystemExit(f"{fpath}: missing/empty field '{key}' for {ph}")
             text = text.replace(ph, val)
     return text
 

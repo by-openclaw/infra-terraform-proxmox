@@ -19,6 +19,14 @@
       <member>0,2001,2002</member>
       <source_networks />
     </group>
+    <group>
+      <gid>2000</gid>
+      <name>platform-admins</name>
+      <scope>local</scope>
+      <description>Platform admins — populated by the Authentik LDAP memberOf sync (identity/0004)</description>
+      <priv>page-all</priv>
+      <source_networks/>
+    </group>
     <user uuid="22c2bfb8-0734-4439-b2b9-7816f7017363">
       <uid>0</uid>
       <name>root</name>
@@ -79,6 +87,7 @@
       <interfaces />
       <compression />
       <httpaccesslog>1</httpaccesslog>
+      <authmode>Local Database,Authentik LDAP</authmode>
     </webgui>
     <disablenatreflection>yes</disablenatreflection>
     <usevirtualterminal>1</usevirtualterminal>
@@ -118,5 +127,30 @@
     <language>en_US</language>
     <serialspeed>115200</serialspeed>
     <primaryconsole>video</primaryconsole>
+
+    <authserver>
+      <refid>6a2dc6c508a2e</refid>
+      <type>ldap</type>
+      <name>Authentik LDAP</name>
+      <host>ldap.by-research.be</host>
+      <ldap_port>636</ldap_port>
+      <ldap_urltype>SSL - Encrypted</ldap_urltype>
+      <ldap_protver>3</ldap_protver>
+      <ldap_scope>subtree</ldap_scope>
+      <ldap_basedn>dc=ldap,dc=by-research,dc=be</ldap_basedn>
+      <ldap_authcn>ou=users,dc=ldap,dc=by-research,dc=be;ou=groups,dc=ldap,dc=by-research,dc=be</ldap_authcn>
+      <ldap_extended_query/>
+      <ldap_binddn>cn=svc-ldap-prod,ou=users,dc=ldap,dc=by-research,dc=be</ldap_binddn>
+      <ldap_bindpw>__LDAP_BIND_PASSWORD__</ldap_bindpw>
+      <ldap_attr_user>cn</ldap_attr_user>
+      <ldap_attr_member>memberOf</ldap_attr_member>
+      <ldap_attr_group>cn</ldap_attr_group>
+      <ldap_attr_groupobj>group</ldap_attr_groupobj>
+      <ldap_rfc2307>0</ldap_rfc2307>
+      <ldap_read_properties>1</ldap_read_properties>
+      <ldap_sync_memberof>1</ldap_sync_memberof>
+      <ldap_attr_memberof>memberOf</ldap_attr_memberof>
+      <ldap_sync_memberof_groups>platform-admins</ldap_sync_memberof_groups>
+    </authserver>
   </system>
 </opnsense>
