@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.4.0...v1.5.0) (2026-09-04)
+
+
+### Features
+
+* **crowdsec:** provision lxc-crowdsec-01 (central LAPI/engine) ([47e45bd](https://github.com/by-openclaw/infra-terraform-proxmox/commit/47e45bda5c7582171bbccbade87ecd8c85daaec9))
+* **crowdsec:** provision lxc-crowdsec-01 (central LAPI/engine) ([e85b285](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e85b2851fea5672911db767e9f4dd5ab12fadd11))
+* **gitlab-runner:** provision runner VM + fix vm-linux boot_order ([176ed58](https://github.com/by-openclaw/infra-terraform-proxmox/commit/176ed580d0a7b93f740530ee04289c946ef0303f)), closes [#8](https://github.com/by-openclaw/infra-terraform-proxmox/issues/8)
+* **gitlab:** GitLab CE server LXC + CI runner VM + reliable VM boot ([#8](https://github.com/by-openclaw/infra-terraform-proxmox/issues/8)) ([edbf008](https://github.com/by-openclaw/infra-terraform-proxmox/commit/edbf008fcb4ffaf2961b151754fc6e3e0f70725d))
+* **gitlab:** provision lxc-gitlab-01 (vmid 560, SVC 10.1.3.210) ([73beab0](https://github.com/by-openclaw/infra-terraform-proxmox/commit/73beab08f31383f9e1678f8594c3a9fc2e9d3a59)), closes [#8](https://github.com/by-openclaw/infra-terraform-proxmox/issues/8)
+* **harbor:** lxc-harbor-01 guest — OCI registry (VMID 590, SVC .240) ([8a4691f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8a4691f48124a7258646e6752fb40bd92b8ca3af))
+* **harbor:** lxc-harbor-01 guest (deployed + live) ([13cdeb1](https://github.com/by-openclaw/infra-terraform-proxmox/commit/13cdeb11b78af124c54193b9c119ebc3d2f6d6e2))
+* **monitoring:** provision lxc-monitoring-01 (VMID 580, SVC 10.1.3.230) ([e882f70](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e882f70fb0701e463917d688636a08338c332ee5))
+* **opnsense-seed:** Authentik LDAP auth server (svc-ldap-prod) + platform-admins in the seed ([87943e0](https://github.com/by-openclaw/infra-terraform-proxmox/commit/87943e06c79b0bcee3e7c09290bffa55919a8bae))
+* **opnsense-seed:** Authentik LDAP auth server in the seed (binddn svc-ldap-prod), platform-admins group, authmode ([d10fb68](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d10fb687373354cfc882b9cf349709be3f5e4d68))
+* **opnsense-seed:** by-research break-glass user + fabric path fixes (FW-4b) ([75b4bb7](https://github.com/by-openclaw/infra-terraform-proxmox/commit/75b4bb7c07e5d46108af4394f6bb35008a511fa6))
+* **opnsense-seed:** by-research break-glass user + fabric path fixes (FW-4b) ([048e975](https://github.com/by-openclaw/infra-terraform-proxmox/commit/048e975e7ef4840737110996a5cc28b3711bba52))
+* **opnsense-seed:** svc-ansible-prod in, by-rune out (naming/0002 §3) ([43f4ef3](https://github.com/by-openclaw/infra-terraform-proxmox/commit/43f4ef3aa270974e690f0f7e5f4026e943670219))
+* **opnsense-seed:** svc-ansible-prod replaces by-rune (naming/0002 §3) ([a32c54c](https://github.com/by-openclaw/infra-terraform-proxmox/commit/a32c54c09365a34a4dfcfd1863a67beb1107fbf4))
+* **pbs:** provision vm-pbs-01 (VMID 103, SVC 10.1.3.222) — PBS 4 backup server ([e23e771](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e23e771d4eed68e3bec7c1b35cd3505745445cee))
+* **pbs:** provision vm-pbs-01 (VMID 103, SVC 10.1.3.222) — PBS 4 backup server ([c58fb77](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c58fb776f42d741db844cb89e7e00a9c7bfdb35d))
+* **prod:** lxc-pgsql-02 — Postgres HA replica guest (VMID 511, 10.1.3.111) ([d345fa6](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d345fa67b6f2ad85d4d0933eb5376c0c3b351ab2))
+* **prod:** lxc-pgsql-02 — Postgres HA replica guest (VMID 511, 10.1.3.111) ([8f44f0a](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8f44f0a189c6ba63006166325c2106c22dfa8929))
+* **prod:** lxc-stepca-01 — internal CA guest (VMID 506, 10.1.3.192) ([10182cf](https://github.com/by-openclaw/infra-terraform-proxmox/commit/10182cf813292b838e2766f56ce2eb110aa919ca))
+* **prod:** lxc-stepca-01 — internal CA guest (VMID 506, 10.1.3.192) ([94c4181](https://github.com/by-openclaw/infra-terraform-proxmox/commit/94c4181810f2dc2c5d86a9d3c5a4530e8915e251))
+* **prod:** lxc-verdaccio-01 — npm registry guest (VMID 505, 10.1.3.191) ([062dd52](https://github.com/by-openclaw/infra-terraform-proxmox/commit/062dd52ef678e936ff38d7e28bdd2220eaa09046))
+* **prod:** lxc-verdaccio-01 — npm registry guest (VMID 505, 10.1.3.191) ([c275d76](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c275d763944d1d89196bbb7b69d0f8e87befeb18))
+* **prod:** lxc-warden-01 — boot-time orchestrator ([a2b0f2f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/a2b0f2fbb78a3c4f44c70b62e1a7a3673f176e38))
+* **prod:** lxc-warden-01 — boot-time platform orchestrator (vault unseal + cold-start verify) ([1305aa6](https://github.com/by-openclaw/infra-terraform-proxmox/commit/1305aa61c809af237291a856bca8e69e8bc0b27c))
+* **prod:** mailcow mail-server VM (vm-mailcow-01, DMZ) ([f3a0011](https://github.com/by-openclaw/infra-terraform-proxmox/commit/f3a00117a85a5e7e885c8d024136616a573c476d))
+* **prod:** mailcow mail-server VM (vm-mailcow-01, DMZ) + cpu_type fix ([cb352f2](https://github.com/by-openclaw/infra-terraform-proxmox/commit/cb352f20a6492f576bcd00b1a770e5ae570bcb5a))
+* **seaweedfs:** provision lxc-seaweedfs-01 (small root, Ansible ZFS data mount) ([d73bd60](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d73bd6008048aa1b1a9294a8c27f39afaa8e632e))
+* **seaweedfs:** provision lxc-seaweedfs-01 (small root; data on Ansible ZFS mount) ([7825012](https://github.com/by-openclaw/infra-terraform-proxmox/commit/78250126d92bc07a399e1b5988a190f2abde8b13))
+* **seed:** enable WebGUI access log + confirm NetFlow covers all interfaces (closes [#23](https://github.com/by-openclaw/infra-terraform-proxmox/issues/23)) ([0ab1986](https://github.com/by-openclaw/infra-terraform-proxmox/commit/0ab19861cbd2acb3a1f889acfe42ed54337f8789))
+* **seed:** enable WebGUI access log in baseline (httpaccesslog) — closes [#23](https://github.com/by-openclaw/infra-terraform-proxmox/issues/23) ([8df3115](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8df311501a34d4275b647e0c268c572d0c3ddbc6))
+* **vm-linux:** persistent journald so boot failures are diagnosable ([7681c92](https://github.com/by-openclaw/infra-terraform-proxmox/commit/7681c922ac2ca1c3194337c4f1b4441f951158f3)), closes [#8](https://github.com/by-openclaw/infra-terraform-proxmox/issues/8)
+
+
+### Bug Fixes
+
+* **gitlab-runner:** revert vendor_data — guest config moves to Ansible ([54802a0](https://github.com/by-openclaw/infra-terraform-proxmox/commit/54802a00e2035ef4343182ec61f900403397f2a0)), closes [#8](https://github.com/by-openclaw/infra-terraform-proxmox/issues/8)
+* **prod:** restore svc-diagrams + svc-jumpserver definitions — plan wanted to DESTROY both guests ([f3e532d](https://github.com/by-openclaw/infra-terraform-proxmox/commit/f3e532d10325f1f5186a99f959452f8f23e49b26))
+* **prod:** restore svc-diagrams + svc-jumpserver definitions — plan wanted to DESTROY both guests ([d850eab](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d850eab6a16a1cce5ac1b794b0c208eb042dee19))
+* **prod:** terraform fmt svc-pbs.tf ([ab51ad6](https://github.com/by-openclaw/infra-terraform-proxmox/commit/ab51ad6386f03e50a9ef84a4b2e9266042d08c71))
+* **prod:** terraform fmt svc-pbs.tf (pre-existing; broke CI validate) ([c30f97b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c30f97bdea3eef961a0838000466feaa90efa1c2))
+* **seaweedfs:** 2048-&gt;4096 MB — OOM-killed during nightly PBS-&gt;S3 backup burst ([92b9134](https://github.com/by-openclaw/infra-terraform-proxmox/commit/92b9134b8d4a1a0418f3913673699c2d2bae39da))
+* **seaweedfs:** 2048-&gt;4096 MB — OOM-killed during nightly PBS-&gt;S3 backup burst ([a25c5c7](https://github.com/by-openclaw/infra-terraform-proxmox/commit/a25c5c7efad2216173342da51b1c7a3f6ee0da98))
+* **seed:** align interface idents to live FW + ansible (VLANs opt2-11, WANs opt12-13) ([c99e428](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c99e428dea179e60c8c7b5a338466bec813f3ecc))
+* **seed:** align interface idents to live FW + ansible (VLANs opt2-11, WANs opt12-13) — part of [#21](https://github.com/by-openclaw/infra-terraform-proxmox/issues/21) ([2993033](https://github.com/by-openclaw/infra-terraform-proxmox/commit/29930331267f4fb1280dc6d7b4a10b883a7bda3d))
+* **vm-linux:** add cpu_type var; use stable model for mailcow VM (panic fix) ([ceae378](https://github.com/by-openclaw/infra-terraform-proxmox/commit/ceae378eab1b8514c275e3a69b2c9d079a0838f9))
+* **vm-linux:** auto-reboot guests on kernel panic (old-host boot flakiness) ([5ea0b64](https://github.com/by-openclaw/infra-terraform-proxmox/commit/5ea0b64dc24267e573c0e9a8fa276104facfde92)), closes [#8](https://github.com/by-openclaw/infra-terraform-proxmox/issues/8)
+
 ## [1.4.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.3.0...v1.4.0) (2026-06-08)
 
 
