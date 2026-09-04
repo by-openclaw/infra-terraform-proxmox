@@ -151,6 +151,8 @@
       <ldap_sync_memberof>1</ldap_sync_memberof>
       <ldap_attr_memberof>memberOf</ldap_attr_memberof>
       <ldap_sync_memberof_groups>platform-admins</ldap_sync_memberof_groups>
+      <ldap_sync_default_groups/>
+      <caseInSensitiveUsernames/>
     </authserver>
   </system>
 </opnsense>
