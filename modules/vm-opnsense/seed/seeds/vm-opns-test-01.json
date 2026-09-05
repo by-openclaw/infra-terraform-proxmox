@@ -26,6 +26,7 @@
     "ipv6_prefix": 64
   },
   "wan": {
+    "_note": "PPPoE account is SHARED with prod (Proximus = one session). recreate-and-seed.py creates net2 link_down=1: opt12 exists for rule tests, the session is never dialled from the test FW.",
     "if": "pppoe0",
     "descr": "WAN1_PROXIMUS",
     "ipv4": "pppoe",
@@ -47,14 +48,14 @@
     "block_bogons": true
   },
   "wan2": {
-    "_isp_identity": "SHARED WITH PROD (same Telenet file = same public IPs). recreate-and-seed.py creates net2/net3 link_down=1; never bring them up on vmbrWAN1/vmbrWAN2 with this file (2026-09 duplicate-IP incident).",
+    "_isp_identity": "OWN Telenet identity: 213.214.47.220/29 + 2a02:1802:21::6/64 from fabric/net-isp-telenet-test.json (borrowed from the HA-Phase2 pool, no HA at this stage). NEVER point creds_secret at prod's net-isp-telenet.json (2026-09 duplicate-IP incident). See seed/ISP-ALLOCATION.md.",
     "if": "vtnet3",
     "descr": "WAN2_TELENET",
     "ipv4": "static",
     "ipv6": "static",
     "block_private": true,
     "block_bogons": true,
-    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-isp-telenet.json",
+    "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-isp-telenet-test.json",
     "default_gateway_v4": true,
     "default_gateway_v6": true,
     "gateway_descr": "ISP TELENET 500/50",
