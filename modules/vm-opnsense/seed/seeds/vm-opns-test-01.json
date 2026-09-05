@@ -56,9 +56,10 @@
     "block_private": true,
     "block_bogons": true,
     "creds_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-isp-telenet-test.json",
-    "default_gateway_v4": true,
-    "default_gateway_v6": true,
-    "gateway_descr": "ISP TELENET 500/50",
+    "default_gateway_v4": false,
+    "default_gateway_v6": false,
+    "monitor_disable": true,
+    "gateway_descr": "ISP TELENET 500/50 (TEST — non-default, monitor disabled: no dpinger to the shared CPE)",
     "monitor_ip_v4": "ipv4_gateway",
     "monitor_ip_v6": "ipv6_gateway"
   },

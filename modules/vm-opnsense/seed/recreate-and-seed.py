@@ -29,14 +29,20 @@ AUTH = f"PVEAPIToken={TID}={TSEC}"
 NODE = "srv-proxmox-poc-01"
 VMID = 199
 # ISP uplinks of the TEST FW (see the NIC block below and seed/ISP-ALLOCATION.md):
-#  - net3 / Telenet (vmbrWAN2): UP, with the test FW's OWN address file
-#    fabric/net-isp-telenet-test.json = 213.214.47.220/29 + 2a02:1802:21::6/64
-#    (borrowed from the HA-Phase2 pool — no HA at this stage). The guard below
-#    refuses prod's file or prod's addresses.
+#  - net3 / Telenet (vmbrWAN2): link_down=1 by DEFAULT. The seed still carries the
+#    test FW's OWN address (fabric/net-isp-telenet-test.json = 213.214.47.220/29 +
+#    2a02:1802:21::6/64, borrowed from the HA-Phase2 pool) so seed rendering and
+#    rule tests are realistic, but the cable stays DOWN: proven twice (2026-08-30
+#    and 2026-09-06) that a second OPNsense booting live on the prod Telenet segment
+#    sends a boot-time gratuitous ARP that POISONS the shared Telenet CPE's cache for
+#    .222 -> prod loses Telenet v4 and does NOT self-heal (needs a manual
+#    `configctl interface reconfigure opt13` on prod). Testing seeds/rules does NOT
+#    need live Internet. Set TELENET_UPLINK=True ONLY for a deliberate, supervised
+#    Internet test, and expect to reconfigure prod's opt13 afterwards.
 #  - net2 / Proximus (vmbrWAN1): link_down=1 ALWAYS — one PPPoE account = one
 #    session, a second session would fight prod. opt12 still exists in the seed so
 #    catalog rules bound to it can be tested.
-TELENET_UPLINK = True
+TELENET_UPLINK = False
 PROXIMUS_UPLINK = False
 TELENET_LINK = "" if TELENET_UPLINK else ",link_down=1"
 PROXIMUS_LINK = "" if PROXIMUS_UPLINK else ",link_down=1"

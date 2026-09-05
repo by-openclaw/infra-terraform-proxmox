@@ -11,7 +11,7 @@
 | 213.214.47.217 | 2a02:1802:21::1 | Telenet router | gateway for everyone |
 | 213.214.47.218 | 2a02:1802:21::4 | **pfSense01** (other island, `pfSense01.by-systems.arpa`) | still in production, WAN2 static |
 | 213.214.47.219 | — | pfSense01 **NAT 1:1** → 10.100.0.24 | "odoo instances" VIP |
-| 213.214.47.220 | 2a02:1802:21::6 | **vm-opns-test-01** (VM 199, TEST) | `fabric/net-isp-telenet-test.json` — **borrowed from the HA-Phase2 pool; no HA at this stage** |
+| 213.214.47.220 | 2a02:1802:21::6 | **vm-opns-test-01** (VM 199, TEST) | `fabric/net-isp-telenet-test.json` — borrowed from the HA-Phase2 pool (no HA at this stage). **Assigned in the seed, but the Telenet NIC is `link_down` by default** — see the finding below |
 | 213.214.47.221 | — | **free** | last free host; HA-Phase2 (pair + CARP VIP) must be re-planned |
 | 213.214.47.222 | 2a02:1802:21::5 | **vm-opns-01** (VM 100, PROD) | `fabric/net-isp-telenet.json` |
 | — | 2a02:1802:21::2 | nobody | routed `/48` target — parked |
@@ -24,6 +24,31 @@
    `link_down=1`; `opt12` exists only so catalog rules bound to it can be tested.
 3. Both secret files' `_meta.ip_allocation_policy` mirror this table — update all three
    together (this file, both `_meta`), then Vault via `playbooks/secrets-to-vault.yml`.
+
+## FINDING — a second OPNsense must NOT boot live on the prod Telenet segment (even with its own IP)
+
+Proven twice (2026-08-30 with the shared IP, 2026-09-06 with the test FW's own .220):
+when the test FW boots on `vmbrWAN2`, its **boot-time gratuitous ARP poisons the Telenet
+CPE's ARP cache for prod's `.222`** — the CPE starts sending prod's inbound v4 to the test
+FW's MAC. Prod then shows `WAN_TELENET_GW` 100 % loss (v6 unaffected), and it does **NOT
+self-heal** when the test FW goes away: the CPE holds the stale entry and does not relearn
+from prod's ordinary ARP requests. Recovery = force prod to re-announce:
+
+```
+# on prod vm-opns-01 (via qemu-agent or the console)
+configctl interface reconfigure opt13     # sends a gratuitous ARP for .222 -> CPE relearns
+```
+
+Because testing seed configs and firewall rules does **not** need live Internet, the test
+FW's Telenet NIC (`net3`) is created **`link_down=1` by default** (`TELENET_UPLINK=False` in
+`recreate-and-seed.py`), and its WAN2 gateways are seeded **non-default + `monitor_disable`**
+so no dpinger ever pings the shared CPE. `opt12`/`opt13` still exist in the config so every
+rule/alias bound to them is testable offline.
+
+**To test WITH live Internet (deliberate, supervised):** set `TELENET_UPLINK=True`, rebuild,
+and be ready to run the `configctl interface reconfigure opt13` above on prod afterwards. A
+clean long-term fix would be a dedicated test uplink (a WAN3 NIC behind pfSense01 on the OOB
+net) so the test FW never shares the prod Telenet L2 segment at all.
 
 ## Why this exists (incident 2026-08-30 → 2026-09-06)
 The test FW was recreated with net2/net3 on the ISP bridges and a seed that read prod's
