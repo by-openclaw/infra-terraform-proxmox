@@ -17,7 +17,7 @@ module "vm_jitsi_01" {
   tags        = ["service", "vlan1030", "zone-svc", "role-jitsi", "docker"]
 
   clone     = "debian-12-cloud"
-  cores     = 4
+  cores     = 2
   cpu_type  = "x86-64-v2-AES" # host-passthrough panics this Xeon E5-2640 v0 multi-core; v2-AES is safe
   memory    = 6144
   disk_size = "25G"
