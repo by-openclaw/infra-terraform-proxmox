@@ -47,6 +47,7 @@
     "block_bogons": true
   },
   "wan2": {
+    "_isp_identity": "SHARED WITH PROD (same Telenet file = same public IPs). recreate-and-seed.py creates net2/net3 link_down=1; never bring them up on vmbrWAN1/vmbrWAN2 with this file (2026-09 duplicate-IP incident).",
     "if": "vtnet3",
     "descr": "WAN2_TELENET",
     "ipv4": "static",
