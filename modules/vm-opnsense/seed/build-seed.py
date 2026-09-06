@@ -617,6 +617,37 @@ def build_ppps(seed: dict) -> ET.Element | None:
     return ppps
 
 
+def build_interfaces_settings() -> ET.Element:
+    """Emit <OPNsense><Interfaces><settings> — the 26.x global interface settings.
+
+    Without this node a fresh seed boots with IPv6 BLOCKED: the legacy->MVC
+    migration finds no <system><ipv6allow> and writes disableipv6=1, which
+    activates the auto-rule "Block all IPv6" on every interface (test FW,
+    2026-09-06: NDP to the Telenet router never resolved, fw log showed
+    'block ... rule=Block all IPv6'). is_ipv6_allowed() in 26.7 reads exactly
+    OPNsense/Interfaces/settings/disableipv6 (empty/0 = allowed).
+
+    Values mirror the LIVE prod FW (vm-opns-01): hardware offloading disabled
+    (virtio), VLAN hw filter disabled on parents (2), IPv6 allowed. The DHCPv6
+    DUID is per-box and deliberately NOT seeded (OPNsense generates it).
+    """
+    ifs = ET.Element("Interfaces")
+    st = ET.SubElement(ifs, "settings", version="1.0.0", description="Global interface settings")
+    for tag, val in (
+        ("disablechecksumoffloading", "1"),
+        ("disablesegmentationoffloading", "1"),
+        ("disablelargereceiveoffloading", "1"),
+        ("disablevlanhwfilter", "2"),
+        ("disableipv6", "0"),
+        ("dhcp6_norelease", "0"),
+        ("dhcp6_debug", "0"),
+        ("dhcp6_ratimeout", "10"),
+    ):
+        ET.SubElement(st, tag).text = val
+    ET.SubElement(st, "dhcp6_duid")
+    return ifs
+
+
 def render(seed_name: str) -> Path:
     seed = json.loads((SEEDS / f"{seed_name}.json").read_text())
     tree = ET.parse(TEMPLATES / "baseline.xml")
@@ -658,6 +689,14 @@ def render(seed_name: str) -> Path:
         if old_nf is not None:
             opnsense_node.remove(old_nf)
         opnsense_node.append(netflow_parent.find("Netflow"))
+
+    # Global interface settings (IPv6 allowed, offloading off) under <OPNsense>.
+    # Idempotent: replace any prior <Interfaces> node.
+    opnsense_node = root.find("OPNsense")
+    old_ifs = opnsense_node.find("Interfaces")
+    if old_ifs is not None:
+        opnsense_node.remove(old_ifs)
+    opnsense_node.append(build_interfaces_settings())
 
     ET.indent(tree, space="  ")
     out_dir = OUT / seed_name / "conf"

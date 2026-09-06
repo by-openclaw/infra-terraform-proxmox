@@ -11,7 +11,7 @@
 | 213.214.47.217 | 2a02:1802:21::1 | Telenet router | gateway for everyone |
 | 213.214.47.218 | 2a02:1802:21::4 | **pfSense01** (other island, `pfSense01.by-systems.arpa`) | still in production, WAN2 static |
 | 213.214.47.219 | — | pfSense01 **NAT 1:1** → 10.100.0.24 | "odoo instances" VIP |
-| 213.214.47.220 | 2a02:1802:21::6 | **vm-opns-test-01** (VM 199, TEST) | `fabric/net-isp-telenet-test.json` — borrowed from the HA-Phase2 pool (no HA at this stage). **Assigned in the seed, but the Telenet NIC is `link_down` by default** — see the finding below |
+| 213.214.47.220 | 2a02:1802:21::6 | **vm-opns-test-01** (VM 199, TEST) | `fabric/net-isp-telenet-test.json` — borrowed from the HA-Phase2 pool (no HA at this stage). **Telenet NIC UP since 2026-09-06 22:40** — distinct identity proven safe on the shared segment (hot link-up + full boot, prod `.222` untouched); Proximus NIC stays down (single PPPoE account) |
 | 213.214.47.221 | 2a02:1802:21::7 (spare) | **free** | spare host (was a pfSense VIP; removed 2026-09-06) |
 | 213.214.47.222 | 2a02:1802:21::5 | **vm-opns-01** (VM 100, PROD) | `fabric/net-isp-telenet.json` |
 | — | 2a02:1802:21::2 | nobody | routed `/48` target — parked |
@@ -118,3 +118,11 @@ ARP reached the shared segment. Prod view right after: `WAN_TELENET_GW` (.217) a
 (pfSense01), `.222` (prod, MAC of VM 100 `net3`); NDP = `::1`, `::5` (prod). **`.220` /
 `::6` absent, `.221` free.** Rule stands: the test FW's Telenet NIC stays down unless a supervised
 uplink test is explicitly requested (then expect to `configctl interface reconfigure opt13` on prod).
+
+## 2026-09-06 22:40 — Telenet uplink ENABLED for the test FW (rule narrowed)
+Hot link-up of VM 199 `net3`, then a full guest reboot with Telenet up: prod `WAN_TELENET_GW` /
+`GWv6` stayed **Online 0 %** for the whole 135 s poll, prod `.222` ARP entry unchanged; the test FW
+egresses from `.220` to 1.1.1.1 at **0 % loss**. The 2026-08-30 poisoning was caused by the
+**duplicate** `.222` identity, not by sharing the segment. Rule now: a test FW may sit on
+`vmbrWAN2` **only with its own /29 + /64 address** (guarded by `_assert_no_prod_isp_identity`);
+never a duplicate; never the Proximus PPPoE account. `recreate-and-seed.py`: `TELENET_UPLINK=True`.

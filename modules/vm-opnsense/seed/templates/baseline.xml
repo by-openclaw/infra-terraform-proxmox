@@ -93,6 +93,10 @@
       <apikeys>__OOBADMIN_APIKEYS__</apikeys>
     </user>
     <timezone>Etc/UTC</timezone>
+    <!-- legacy "Allow IPv6": without it a fresh seed migrates to
+         OPNsense/Interfaces/settings/disableipv6=1 => "Block all IPv6" (test FW, 2026-09-06).
+         build-seed.py ALSO emits the 26.x MVC node (disableipv6=0) — belt and braces. -->
+    <ipv6allow>1</ipv6allow>
     <timeservers>0.opnsense.pool.ntp.org 1.opnsense.pool.ntp.org 2.opnsense.pool.ntp.org 3.opnsense.pool.ntp.org</timeservers>
     <webgui>
       <protocol>https</protocol>

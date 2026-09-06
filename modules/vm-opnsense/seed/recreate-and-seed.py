@@ -29,20 +29,26 @@ AUTH = f"PVEAPIToken={TID}={TSEC}"
 NODE = "srv-proxmox-poc-01"
 VMID = 199
 # ISP uplinks of the TEST FW (see the NIC block below and seed/ISP-ALLOCATION.md):
-#  - net3 / Telenet (vmbrWAN2): link_down=1 by DEFAULT. The seed still carries the
-#    test FW's OWN address (fabric/net-isp-telenet-test.json = 213.214.47.220/29 +
-#    2a02:1802:21::6/64, borrowed from the HA-Phase2 pool) so seed rendering and
-#    rule tests are realistic, but the cable stays DOWN: proven twice (2026-08-30
-#    and 2026-09-06) that a second OPNsense booting live on the prod Telenet segment
-#    sends a boot-time gratuitous ARP that POISONS the shared Telenet CPE's cache for
-#    .222 -> prod loses Telenet v4 and does NOT self-heal (needs a manual
-#    `configctl interface reconfigure opt13` on prod). Testing seeds/rules does NOT
-#    need live Internet. Set TELENET_UPLINK=True ONLY for a deliberate, supervised
-#    Internet test, and expect to reconfigure prod's opt13 afterwards.
+#  - net3 / Telenet (vmbrWAN2): UP by default (full config, live Internet). The test
+#    FW carries its OWN address (fabric/net-isp-telenet-test.json = 213.214.47.220/29
+#    + 2a02:1802:21::6/64, borrowed from the HA-Phase2 pool) — never prod's .222/::5
+#    (enforced by _assert_no_prod_isp_identity). The 2026-08-30 incident (prod Telenet
+#    v4 flapping, v6 92 % loss) was a DUPLICATE identity: the test seed then leaked
+#    prod's .222/::5 onto the shared segment. With a distinct address it is safe —
+#    proven 2026-09-06 on the live segment (hot link-up + full boot, prod's .222 ARP
+#    entry and both prod Telenet gateways untouched, 0 % loss). If prod's .222 were
+#    ever poisoned again: prod API `interfaces/overview/reloadInterface/opt13`.
 #  - net2 / Proximus (vmbrWAN1): link_down=1 ALWAYS — one PPPoE account = one
 #    session, a second session would fight prod. opt12 still exists in the seed so
 #    catalog rules bound to it can be tested.
-TELENET_UPLINK = False
+# 2026-09-06 (later): Telenet uplink is UP by default. Root cause of the incident above
+# was the DUPLICATE identity (the test seed carried prod's .222/::5). With the test
+# FW's OWN .220/::6 (guarded by _assert_no_prod_isp_identity) it was proven on the live
+# segment: hot link-up AND a full guest boot (boot-time GARP for .220) left prod's
+# WAN_TELENET_GW/GWv6 Online 0 % and prod's .222 ARP entry untouched (135 s poll), while
+# the test FW egresses from .220 at 0 % loss. Full config = live Telenet. Proximus stays
+# DOWN (one PPPoE account = one session).
+TELENET_UPLINK = True
 PROXIMUS_UPLINK = False
 TELENET_LINK = "" if TELENET_UPLINK else ",link_down=1"
 PROXIMUS_LINK = "" if PROXIMUS_UPLINK else ",link_down=1"
