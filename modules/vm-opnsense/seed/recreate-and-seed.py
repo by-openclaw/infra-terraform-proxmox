@@ -28,7 +28,28 @@ HOST, TID, TSEC = load()
 AUTH = f"PVEAPIToken={TID}={TSEC}"
 NODE = "srv-proxmox-poc-01"
 VMID = 199
-NANO = "poc-iso:import/OPNsense-26.1.6-nano-amd64.raw"
+# ISP uplinks of the TEST FW (see the NIC block below and seed/ISP-ALLOCATION.md):
+#  - net3 / Telenet (vmbrWAN2): link_down=1 by DEFAULT. The seed still carries the
+#    test FW's OWN address (fabric/net-isp-telenet-test.json = 213.214.47.220/29 +
+#    2a02:1802:21::6/64, borrowed from the HA-Phase2 pool) so seed rendering and
+#    rule tests are realistic, but the cable stays DOWN: proven twice (2026-08-30
+#    and 2026-09-06) that a second OPNsense booting live on the prod Telenet segment
+#    sends a boot-time gratuitous ARP that POISONS the shared Telenet CPE's cache for
+#    .222 -> prod loses Telenet v4 and does NOT self-heal (needs a manual
+#    `configctl interface reconfigure opt13` on prod). Testing seeds/rules does NOT
+#    need live Internet. Set TELENET_UPLINK=True ONLY for a deliberate, supervised
+#    Internet test, and expect to reconfigure prod's opt13 afterwards.
+#  - net2 / Proximus (vmbrWAN1): link_down=1 ALWAYS — one PPPoE account = one
+#    session, a second session would fight prod. opt12 still exists in the seed so
+#    catalog rules bound to it can be tested.
+TELENET_UPLINK = False
+PROXIMUS_UPLINK = False
+TELENET_LINK = "" if TELENET_UPLINK else ",link_down=1"
+PROXIMUS_LINK = "" if PROXIMUS_UPLINK else ",link_down=1"
+SECRETS_DIR = Path.home() / ".openclaw/workspace/infra/secrets/fabric"
+PROD_TELENET_FILE = "net-isp-telenet.json"          # pragma: allowlist secret (file NAME)
+PROD_PPPOE_FILE = "net-isp-proximus-pppoe.json"     # pragma: allowlist secret (file NAME)
+NANO = "poc-iso:import/OPNsense-26.7-nano-amd64.raw"  # test FW tracks latest CE for lib/MVC work
 SEED_IMPORT = "poc-iso:import/vm-opns-test-01-seed.raw"
 DEVICE = "vtbd1"  # virtio-block disk #1 (seed-ISO attached as block, not CDROM)
 
@@ -72,6 +93,32 @@ def wait_task(upid, timeout=120):
     return "TIMEOUT"
 
 
+def _assert_no_prod_isp_identity(seed_path: Path) -> None:
+    """Refuse to put the test FW on an ISP segment with PROD's identity.
+
+    Telenet: the seed's wan2.creds_secret must be a different file than prod's AND
+    carry different IPv4/IPv6 addresses. Proximus: the single PPPoE account must
+    never be dialled from the test FW (net2 stays link_down).
+    """
+    seed = json.loads(Path(seed_path).read_text())
+    if TELENET_UPLINK:
+        creds = (seed.get("wan2") or {}).get("creds_secret", "")
+        if not creds or Path(creds).name == PROD_TELENET_FILE:
+            raise SystemExit(
+                "TELENET_UPLINK=True but wan2.creds_secret is missing or is PROD's "
+                f"{PROD_TELENET_FILE} -> duplicate public IP on vmbrWAN2 (2026-09 incident)."
+            )
+        test_f = json.loads(Path(creds).read_text()).get("fields", {})
+        prod_f = json.loads((SECRETS_DIR / PROD_TELENET_FILE).read_text()).get("fields", {})
+        for k in ("ipv4_address", "ipv6_address"):
+            if not test_f.get(k) or test_f.get(k) == prod_f.get(k):
+                raise SystemExit(f"test Telenet file {k}={test_f.get(k)!r} equals prod's -> refuse.")
+    if PROXIMUS_UPLINK:
+        pppoe = (seed.get("wan") or {}).get("pppoe_creds_secret", "")
+        if Path(pppoe).name == PROD_PPPOE_FILE:
+            raise SystemExit("PROXIMUS_UPLINK=True with PROD's PPPoE account: single session, refuse.")
+
+
 def recreate_vm():
     """Destroy VM 199 (if it exists) and recreate it from the nano image."""
     # destroy
@@ -109,15 +156,21 @@ def recreate_vm():
         "virtio0": f"poc-data:0,import-from={NANO},iothread=1,discard=on",
         "virtio1": f"poc-data:0,import-from={SEED_IMPORT},iothread=1,discard=on",
         # vtnet0 = trunk (SDN VLANs), vtnet1 = OOB, vtnet2 = WAN1 parent (PPPoE),
-        # vtnet3 = WAN2 (Telenet). Without net2/net3 the seed comes up without
-        # WAN — PPPoE has no parent NIC, pkg can't download plugins, recovery
-        # is manual. All four are required to match the seed JSON's
+        # vtnet3 = WAN2 (Telenet). All four NICs must exist so the seed JSON's
         # physical_interfaces map and the rendered config.xml's interface
-        # assignments. firewall=0 because pf rules are managed by OPNsense.
+        # assignments (opt12 = Proximus, opt13 = Telenet) match the prod layout
+        # the FW catalog expects. firewall=0 because pf rules are managed by OPNsense.
+        #
+        # INCIDENT 2026-08-30..09-06: this test FW carried the SAME Telenet identity
+        # as prod (seed read fabric/net-isp-telenet.json). Live on vmbrWAN2 it answered
+        # ARP/ND for prod's 213.214.47.222 / 2a02:1802:21::5 -> prod WAN_TELENET_GW
+        # flapped 12-20 % loss and WAN_TELENET_GWv6 went Offline (92 % loss) for a
+        # week. Now: net3 carries the test FW's OWN Telenet address (guarded above),
+        # net2 (Proximus, single PPPoE account) is ADMINISTRATIVELY DOWN.
         "net0": "virtio,bridge=vmbrAPPS,firewall=0",
         "net1": "virtio,bridge=vmbrOOB,firewall=0",
-        "net2": "virtio,bridge=vmbrWAN1,firewall=0",
-        "net3": "virtio,bridge=vmbrWAN2,firewall=0",
+        "net2": f"virtio,bridge=vmbrWAN1,firewall=0{PROXIMUS_LINK}",
+        "net3": f"virtio,bridge=vmbrWAN2,firewall=0{TELENET_LINK}",
     }
     r = api("POST", f"/nodes/{NODE}/qemu", config)
     ex = wait_task(r["data"])
@@ -406,6 +459,7 @@ def start_vm_and_drive():
 
 def main():
     if "--no-recreate" not in sys.argv:
+        _assert_no_prod_isp_identity(Path(__file__).parent / "seeds" / "vm-opns-test-01.json")
         recreate_vm()
     rc = start_vm_and_drive()
     # After the importer + first reboot, qemu-agent comes up — grow root.

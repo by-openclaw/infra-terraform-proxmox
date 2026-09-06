@@ -370,6 +370,8 @@ def build_gateways(seed: dict, slot_map: dict) -> ET.Element | None:
     ET.SubElement(g4, "ipprotocol").text = "inet"
     ET.SubElement(g4, "descr").text = w2.get("gateway_descr", "WAN2 gateway")
     ET.SubElement(g4, "monitor").text = creds["ipv4_gateway"]
+    if w2.get("monitor_disable"):
+        ET.SubElement(g4, "monitor_disable").text = "1"
     if w2.get("default_gateway_v4"):
         ET.SubElement(g4, "defaultgw").text = "1"
 
@@ -382,6 +384,8 @@ def build_gateways(seed: dict, slot_map: dict) -> ET.Element | None:
     ET.SubElement(g6, "ipprotocol").text = "inet6"
     ET.SubElement(g6, "descr").text = w2.get("gateway_descr", "WAN2 gateway")
     ET.SubElement(g6, "monitor").text = creds["ipv6_gateway"]
+    if w2.get("monitor_disable"):
+        ET.SubElement(g6, "monitor_disable").text = "1"
     if w2.get("default_gateway_v6"):
         ET.SubElement(g6, "defaultgw").text = "1"
 
