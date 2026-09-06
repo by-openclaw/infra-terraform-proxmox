@@ -44,7 +44,12 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
           permissions: "0440"
 
       package_update: true
-      package_upgrade: true
+      # NO package_upgrade on first boot: the image ships without qemu-guest-agent, and
+      # cloud-init installs `packages:` only AFTER a full dist-upgrade (~70 pkgs incl. a
+      # kernel, several minutes on srv-proxmox-poc-01) -> the agent shows up late and
+      # the provider's agent wait times out ("VM never booted" false alarm). Patching is
+      # the ansible-platform `updates` role's job in the mandatory bring-up chain.
+      package_upgrade: false
 
       packages:
         - curl
@@ -133,7 +138,9 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   agent {
     enabled = true
-    timeout = "5m"
+    # First boot = cloud-init apt install of qemu-guest-agent on an old node; 5m was
+    # too tight and made healthy clones look dead. Provider default is 15m.
+    timeout = "15m"
   }
 
   initialization {
