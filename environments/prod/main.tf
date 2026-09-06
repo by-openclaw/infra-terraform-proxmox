@@ -70,8 +70,10 @@ output "sdn_vnet_ids" {
 #   - infra/0004-network-architecture §6: OPNsense is THE platform router
 #
 # NOT terraform-managed (issue #27, 2026-06-06). The prod FW vm-opns-01 (vmid
-# 100) is provisioned by the SEED pipeline (modules/vm-opnsense/seed +
-# recreate-and-seed-prod.py): a 2-disk virtio layout (virtio0 root 20G +
+# 100) is provisioned by the SEED pipeline (modules/vm-opnsense/seed: the
+# hardware profile is seeds/vm-opns-01.json "vm"; drift gate =
+# `recreate-and-seed.py vm-opns-01 --check`, never writes; recreate needs
+# --confirm-prod-recreate in a window): a 2-disk virtio layout (virtio0 root 20G +
 # virtio1 1M config-import drive) that the `vm-opnsense` terraform module cannot
 # model (the importer drive is sub-GB; bpg disk size is integer GB). The live
 # VM was removed from terraform state — managing it here produced a phantom
