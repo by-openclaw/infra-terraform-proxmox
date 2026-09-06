@@ -2,8 +2,9 @@
 # Copyright (c) BY-SYSTEMS SRL
 # SPDX-License-Identifier: Apache-2.0
 #
-# Destroy + recreate vm-opns-test-01 from the verified nano image, then
-# drive the importer over Proxmox termproxy. Idempotent.
+# Destroy + recreate an OPNsense FW VM from the verified nano image and drive the
+# importer over Proxmox termproxy (seed-driven: seeds/<name>.json "vm"), or with
+# --check just diff the live hardware against that profile. Idempotent.
 from __future__ import annotations
 
 import json
@@ -26,8 +27,7 @@ def load():
 
 HOST, TID, TSEC = load()
 AUTH = f"PVEAPIToken={TID}={TSEC}"
-NODE = "srv-proxmox-poc-01"
-VMID = 199
+# NODE / VMID / SEED_IMPORT / uplinks come from the seed profile block below.
 # ISP uplinks of the TEST FW (see the NIC block below and seed/ISP-ALLOCATION.md):
 #  - net3 / Telenet (vmbrWAN2): UP by default (full config, live Internet). The test
 #    FW carries its OWN address (fabric/net-isp-telenet-test.json = 213.214.47.220/29
@@ -41,22 +41,10 @@ VMID = 199
 #  - net2 / Proximus (vmbrWAN1): link_down=1 ALWAYS — one PPPoE account = one
 #    session, a second session would fight prod. opt12 still exists in the seed so
 #    catalog rules bound to it can be tested.
-# 2026-09-06 (later): Telenet uplink is UP by default. Root cause of the incident above
-# was the DUPLICATE identity (the test seed carried prod's .222/::5). With the test
-# FW's OWN .220/::6 (guarded by _assert_no_prod_isp_identity) it was proven on the live
-# segment: hot link-up AND a full guest boot (boot-time GARP for .220) left prod's
-# WAN_TELENET_GW/GWv6 Online 0 % and prod's .222 ARP entry untouched (135 s poll), while
-# the test FW egresses from .220 at 0 % loss. Full config = live Telenet. Proximus stays
-# DOWN (one PPPoE account = one session).
-TELENET_UPLINK = True
-PROXIMUS_UPLINK = False
-TELENET_LINK = "" if TELENET_UPLINK else ",link_down=1"
-PROXIMUS_LINK = "" if PROXIMUS_UPLINK else ",link_down=1"
 SECRETS_DIR = Path.home() / ".openclaw/workspace/infra/secrets/fabric"
 PROD_TELENET_FILE = "net-isp-telenet.json"          # pragma: allowlist secret (file NAME)
 PROD_PPPOE_FILE = "net-isp-proximus-pppoe.json"     # pragma: allowlist secret (file NAME)
 NANO = "poc-iso:import/OPNsense-26.7-nano-amd64.raw"  # test FW tracks latest CE for lib/MVC work
-SEED_IMPORT = "poc-iso:import/vm-opns-test-01-seed.raw"
 DEVICE = "vtbd1"  # virtio-block disk #1 (seed-ISO attached as block, not CDROM)
 
 # Target disk size for the FW root. The OPNsense Nano image is 3G — too small
@@ -68,6 +56,25 @@ DEVICE = "vtbd1"  # virtio-block disk #1 (seed-ISO attached as block, not CDROM)
 # the importer finishes — so a single `recreate-and-seed.py` run produces a
 # fully-sized FW with no manual follow-up. Tracked in CLAUDE.md known blockers.
 TARGET_DISK_GB = 20
+
+# ---- seed-driven VM hardware profile (vmprofile.py) -------------------------
+# Usage: recreate-and-seed.py [<seed-name>] [--check] [--no-recreate] [--no-growfs]
+#        [--no-baseline] [--confirm-prod-recreate]
+#   <seed-name> defaults to vm-opns-test-01 (backward compatible).
+#   --check     NON-DESTRUCTIVE drift gate: live `qm config` vs seeds/<name>.json "vm".
+#   prod seeds (vm.env == "prod") only accept --check unless --confirm-prod-recreate.
+from vmprofile import load_profile, desired_config, check_drift, format_drift, is_prod, link_suffix  # noqa: E402
+
+SEED_NAME = next((a for a in sys.argv[1:] if not a.startswith("--")), "vm-opns-test-01")
+SEED_PATH = Path(__file__).parent / "seeds" / f"{SEED_NAME}.json"
+PROFILE = load_profile(SEED_PATH)
+VMID, NODE = int(PROFILE["vmid"]), PROFILE["node"]
+SEED_IMPORT = f"poc-iso:import/{SEED_NAME}-seed.raw"
+TARGET_DISK_GB = int(PROFILE["target_disk_gb"])
+TELENET_UPLINK = bool(PROFILE["uplinks"].get("telenet"))
+PROXIMUS_UPLINK = bool(PROFILE["uplinks"].get("proximus"))
+TELENET_LINK = link_suffix(PROFILE, "net3")
+PROXIMUS_LINK = link_suffix(PROFILE, "net2")
 
 
 def api(method, path, body=None):
@@ -126,7 +133,7 @@ def _assert_no_prod_isp_identity(seed_path: Path) -> None:
 
 
 def recreate_vm():
-    """Destroy VM 199 (if it exists) and recreate it from the nano image."""
+    """Destroy the profile's VM (if it exists) and recreate it from the nano image."""
     # destroy
     cur = api("GET", f"/nodes/{NODE}/qemu/{VMID}/status/current")
     if not cur.get("_missing"):
@@ -148,39 +155,7 @@ def recreate_vm():
 
     # create
     print("[c] creating VM...")
-    config = {
-        "vmid": VMID,
-        "name": "vm-opns-test-01",
-        "bios": "seabios", "machine": "q35", "scsihw": "virtio-scsi-single",
-        "tablet": 0, "onboot": 0, "ostype": "other",
-        "cpu": "host", "cores": 2, "sockets": 1, "memory": 3072,
-        "boot": "order=virtio0",
-        "tags": "layer0;opnsense;env-test;seed-nano",
-        "agent": "0",
-        "keyboard": "fr-be",
-        "serial0": "socket", "vga": "std",
-        "virtio0": f"poc-data:0,import-from={NANO},iothread=1,discard=on",
-        "virtio1": f"poc-data:0,import-from={SEED_IMPORT},iothread=1,discard=on",
-        # vtnet0 = trunk (SDN VLANs), vtnet1 = OOB, vtnet2 = WAN1 parent (PPPoE),
-        # vtnet3 = WAN2 (Telenet). All four NICs must exist so the seed JSON's
-        # physical_interfaces map and the rendered config.xml's interface
-        # assignments (opt12 = Proximus, opt13 = Telenet) match the prod layout
-        # the FW catalog expects. firewall=0 because pf rules are managed by OPNsense.
-        #
-        # INCIDENT 2026-08-30..09-06: this test FW carried the SAME Telenet identity
-        # as prod (seed read fabric/net-isp-telenet.json). Live on vmbrWAN2 it answered
-        # ARP/ND for prod's 213.214.47.222 / 2a02:1802:21::5 -> prod WAN_TELENET_GW
-        # flapped 12-20 % loss and WAN_TELENET_GWv6 went Offline (92 % loss) for a
-        # week. Now: net3 carries the test FW's OWN Telenet address (guarded above),
-        # net2 (Proximus, single PPPoE account) is ADMINISTRATIVELY DOWN.
-        "net0": "virtio,bridge=vmbrAPPS,firewall=0",
-        "net1": "virtio,bridge=vmbrOOB,firewall=0",
-        "net2": f"virtio,bridge=vmbrWAN1,firewall=0{PROXIMUS_LINK}",
-        "net3": f"virtio,bridge=vmbrWAN2,firewall=0{TELENET_LINK}",
-        # vtnet4 = FAB fabric MGMT (VLAN 600, untagged on vmbrFAB = nic4.600) ->
-        # seed opt14, static 10.6.240.3/20 (prod vm-opns-01 = .2 on its own net4).
-        "net4": "virtio,bridge=vmbrFAB,firewall=0",
-    }
+    config = desired_config(PROFILE, NANO, SEED_IMPORT)  # seed-driven (vmprofile.py)
     r = api("POST", f"/nodes/{NODE}/qemu", config)
     ex = wait_task(r["data"])
     print(f"    create: {ex}")
@@ -466,9 +441,29 @@ def start_vm_and_drive():
     return 0 if success else 1
 
 
+def check_only() -> int:
+    """--check: compare the live VM hardware with the seed profile. Never writes."""
+    cur = api("GET", f"/nodes/{NODE}/qemu/{VMID}/config")
+    if cur.get("_missing") or not cur.get("data"):
+        print(f"[check] {PROFILE['name']} (vmid {VMID}): VM ABSENT on {NODE}")
+        return 2
+    drift = check_drift(PROFILE, cur["data"])
+    print(format_drift(PROFILE, drift))
+    return 2 if drift else 0
+
+
 def main():
+    if "--check" in sys.argv:
+        return check_only()
+    if is_prod(PROFILE) and "--confirm-prod-recreate" not in sys.argv:
+        raise SystemExit(
+            f"{SEED_NAME} is a PROD profile (vmid {VMID}): only --check is allowed. "
+            "Recreating destroys the running firewall — pass --confirm-prod-recreate "
+            "inside a maintenance window if that is really intended."
+        )
     if "--no-recreate" not in sys.argv:
-        _assert_no_prod_isp_identity(Path(__file__).parent / "seeds" / "vm-opns-test-01.json")
+        if not is_prod(PROFILE):  # the test FW must never carry prod ISP identities
+            _assert_no_prod_isp_identity(SEED_PATH)
         recreate_vm()
     rc = start_vm_and_drive()
     # After the importer + first reboot, qemu-agent comes up — grow root.
