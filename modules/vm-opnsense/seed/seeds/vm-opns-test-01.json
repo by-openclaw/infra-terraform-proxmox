@@ -2,6 +2,7 @@
   "hostname": "vm-opns-test-01",
   "domain": "test.by-research.be",
   "timezone": "Europe/Brussels",
+  "genesis_creds_file": "net-opnsense-test-oob-admin.json",
   "physical_interfaces": {
     "trunk": "vtnet0",
     "oob_mgmt": "vtnet1",

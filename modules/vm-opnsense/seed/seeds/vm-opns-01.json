@@ -4,6 +4,7 @@
   "domain": "example.local",
   "domain_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-internal-domain.json",
   "timezone": "Europe/Brussels",
+  "genesis_creds_file": "net-opnsense-prod-oob-admin.json",
   "physical_interfaces": {
     "trunk": "vtnet0",
     "oob_mgmt": "vtnet1",

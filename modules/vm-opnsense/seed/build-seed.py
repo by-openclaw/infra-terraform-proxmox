@@ -48,6 +48,48 @@ _PLACEHOLDERS = {
 _EXTRA_PLACEHOLDERS = {
     "__LDAP_BIND_PASSWORD__": ("app-ldap-bind.json", "password"),  # pragma: allowlist secret
 }
+# Genesis (break-glass oob-admin) credentials are COMPUTED at render time from a
+# PER-SEED secret file: seed["genesis_creds_file"] = file under secrets/fabric with
+# fields key, secret, webgui_password (prod: net-opnsense-prod-oob-admin.json,
+# test: net-opnsense-test-oob-admin.json -> each env has its own identity).
+# The seed only ever carries HASHES: the API secret as sha512-crypt (what
+# OPNsense stores: "key|$6$..."), the GUI password as bcrypt. This is the ONE
+# seeded API credential; svc-ansible's token is never seeded — it is minted
+# from this one by ansible-platform roles/opnsense_api_bootstrap.
+_GENESIS_PLACEHOLDERS = ("__OOBADMIN_APIKEYS__", "__OOBADMIN_PASSWORD_HASH__")
+
+
+def _inject_genesis(text: str, seed: dict) -> str:
+    """Render the oob-admin genesis API key + GUI password hash into the config."""
+    if not any(p in text for p in _GENESIS_PLACEHOLDERS):
+        return text
+    fname = seed.get("genesis_creds_file")
+    if not fname:
+        raise SystemExit("baseline has genesis placeholders but the seed lacks 'genesis_creds_file'")
+    fpath = BOOTSTRAP_SECRET.parent / fname
+    if not fpath.exists():
+        raise SystemExit(f"genesis secret file not found: {fpath}")
+    f = json.loads(fpath.read_text()).get("fields", {})
+    for k in ("key", "secret", "webgui_password"):
+        if not str(f.get(k, "")).strip():
+            raise SystemExit(f"{fpath}: missing/empty field '{k}' (genesis)")
+    try:
+        import warnings
+
+        warnings.simplefilter("ignore", DeprecationWarning)
+        import crypt  # stdlib up to 3.12
+
+        api_hash = crypt.crypt(f["secret"], crypt.mksalt(crypt.METHOD_SHA512))
+    except ImportError:  # 3.13+: crypt removed -> passlib
+        from passlib.hash import sha512_crypt
+
+        api_hash = sha512_crypt.using(rounds=5000).hash(f["secret"])
+    import bcrypt
+
+    pw_hash = bcrypt.hashpw(f["webgui_password"].encode(), bcrypt.gensalt(10)).decode()
+    text = text.replace("__OOBADMIN_APIKEYS__", f"{f['key']}|{api_hash}")
+    text = text.replace("__OOBADMIN_PASSWORD_HASH__", pw_hash)
+    return text
 
 
 def _inject_bootstrap_secrets(text: str) -> str:
@@ -623,7 +665,7 @@ def render(seed_name: str) -> Path:
     target = out_dir / "config.xml"
     tree.write(target, encoding="UTF-8", xml_declaration=True)
     # Inject bootstrap creds from the secret store (placeholders -> real values).
-    target.write_text(_inject_bootstrap_secrets(target.read_text()))
+    target.write_text(_inject_genesis(_inject_bootstrap_secrets(target.read_text()), seed))
     return target
 
 
