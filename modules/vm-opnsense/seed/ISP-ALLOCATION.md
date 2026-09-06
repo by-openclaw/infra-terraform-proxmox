@@ -109,3 +109,12 @@ Credentials are NEVER in this repo. Files on the controller under
 | 10.6.240.4 | free | next static (lab FW candidate) |
 | 10.6.240.5 | srv-proxmox-poc-01 | node `vmbrFAB` address |
 | 10.6.255.254 | Arista fabric VRF | **gateway** for the whole /20 |
+
+## Re-verified after the 2026-09-06 test-FW reseed (18:30, from prod vm-opns-01)
+The test FW was destroyed + recreated from the seed with `net3` (Telenet) **`link_down=1`** — its
+`vtnet3` carries `213.214.47.220/29` in config but reports `no carrier`, so no boot-time gratuitous
+ARP reached the shared segment. Prod view right after: `WAN_TELENET_GW` (.217) and
+`WAN_TELENET_GWv6` (::1) **Online, 0 % loss, 0.6 ms**; ARP = `.217` (Telenet router), `.218`
+(pfSense01), `.222` (prod, MAC of VM 100 `net3`); NDP = `::1`, `::5` (prod). **`.220` /
+`::6` absent, `.221` free.** Rule stands: the test FW's Telenet NIC stays down unless a supervised
+uplink test is explicitly requested (then expect to `configctl interface reconfigure opt13` on prod).
