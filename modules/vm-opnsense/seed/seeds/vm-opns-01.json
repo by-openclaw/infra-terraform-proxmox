@@ -4,11 +4,13 @@
   "domain": "example.local",
   "domain_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-internal-domain.json",
   "timezone": "Europe/Brussels",
+  "genesis_creds_file": "net-opnsense-prod-oob-admin.json",
   "physical_interfaces": {
     "trunk": "vtnet0",
     "oob_mgmt": "vtnet1",
     "wan_parent": "vtnet2",
-    "wan2_parent": "vtnet3"
+    "wan2_parent": "vtnet3",
+    "fab": "vtnet4"
   },
   "lan": {
     "if": "vtnet1",
@@ -52,6 +54,13 @@
     "gateway_descr": "ISP TELENET 500/50",
     "monitor_ip_v4": "ipv4_gateway",
     "monitor_ip_v6": "ipv6_gateway"
+  },
+  "fab": {
+    "_doc": "FAB = fabric MGMT VLAN 600 (10.6.240.0/20) on a dedicated NIC vtnet4 -> vmbrFAB (node nic4.600, untagged). Static, no gateway/IPv6/DHCP: the fabric VRF 10.6.255.254 routes. Rendered as opt14 (matches live). Allocation: seed/ISP-ALLOCATION.md.",
+    "if": "vtnet4",
+    "descr": "FAB",
+    "ipaddr": "10.6.240.2",
+    "subnet": 20
   },
   "vlans": [
     {

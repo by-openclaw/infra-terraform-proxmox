@@ -48,6 +48,48 @@ _PLACEHOLDERS = {
 _EXTRA_PLACEHOLDERS = {
     "__LDAP_BIND_PASSWORD__": ("app-ldap-bind.json", "password"),  # pragma: allowlist secret
 }
+# Genesis (break-glass oob-admin) credentials are COMPUTED at render time from a
+# PER-SEED secret file: seed["genesis_creds_file"] = file under secrets/fabric with
+# fields key, secret, webgui_password (prod: net-opnsense-prod-oob-admin.json,
+# test: net-opnsense-test-oob-admin.json -> each env has its own identity).
+# The seed only ever carries HASHES: the API secret as sha512-crypt (what
+# OPNsense stores: "key|$6$..."), the GUI password as bcrypt. This is the ONE
+# seeded API credential; svc-ansible's token is never seeded — it is minted
+# from this one by ansible-platform roles/opnsense_api_bootstrap.
+_GENESIS_PLACEHOLDERS = ("__OOBADMIN_APIKEYS__", "__OOBADMIN_PASSWORD_HASH__")
+
+
+def _inject_genesis(text: str, seed: dict) -> str:
+    """Render the oob-admin genesis API key + GUI password hash into the config."""
+    if not any(p in text for p in _GENESIS_PLACEHOLDERS):
+        return text
+    fname = seed.get("genesis_creds_file")
+    if not fname:
+        raise SystemExit("baseline has genesis placeholders but the seed lacks 'genesis_creds_file'")
+    fpath = BOOTSTRAP_SECRET.parent / fname
+    if not fpath.exists():
+        raise SystemExit(f"genesis secret file not found: {fpath}")
+    f = json.loads(fpath.read_text()).get("fields", {})
+    for k in ("key", "secret", "webgui_password"):
+        if not str(f.get(k, "")).strip():
+            raise SystemExit(f"{fpath}: missing/empty field '{k}' (genesis)")
+    try:
+        import warnings
+
+        warnings.simplefilter("ignore", DeprecationWarning)
+        import crypt  # stdlib up to 3.12
+
+        api_hash = crypt.crypt(f["secret"], crypt.mksalt(crypt.METHOD_SHA512))
+    except ImportError:  # 3.13+: crypt removed -> passlib
+        from passlib.hash import sha512_crypt
+
+        api_hash = sha512_crypt.using(rounds=5000).hash(f["secret"])
+    import bcrypt
+
+    pw_hash = bcrypt.hashpw(f["webgui_password"].encode(), bcrypt.gensalt(10)).decode()
+    text = text.replace("__OOBADMIN_APIKEYS__", f"{f['key']}|{api_hash}")
+    text = text.replace("__OOBADMIN_PASSWORD_HASH__", pw_hash)
+    return text
 
 
 def _inject_bootstrap_secrets(text: str) -> str:
@@ -94,6 +136,7 @@ def build_interfaces(seed: dict) -> ET.Element:
       <lo0>      = loopback.
       <opt12>    = WAN1 Proximus PPPoE (pppoe0).           Only if seed has "wan".
       <opt13>    = WAN2 Telenet static (vtnet3).           Only if seed has "wan2".
+      <opt14>    = FAB fabric MGMT VLAN 600 (vtnet4).      Only if seed has "fab".
 
     The WANs are numbered AFTER the VLANs so the slot idents equal the running
     FW (Proximus=opt12, Telenet=opt13) and the ansible catalog — which assigns
@@ -149,7 +192,30 @@ def build_interfaces(seed: dict) -> ET.Element:
         _wan2(wan2_node, seed["wan2"])
         opt_idx += 1
 
+    # opt14 = FAB fabric MGMT (vtnet4 -> vmbrFAB). Only if seed has "fab".
+    if "fab" in seed:
+        fab_node = ET.SubElement(ifs, f"opt{opt_idx}")
+        _fab(fab_node, seed["fab"])
+        opt_idx += 1
+
     return ifs
+
+
+def _fab(node: ET.Element, f: dict) -> None:
+    """OPNsense <opt14> = FAB — fabric MGMT (VLAN 600 = 10.6.240.0/20) on a dedicated
+    physical NIC (vtnet4 -> vmbrFAB; the node bridges nic4.600, so untagged here).
+
+    Static IPv4 only: no gateway, no IPv6, no DHCP. The fabric VRF (10.6.255.254)
+    is the gateway; OPNsense is a member on the segment, not its router. Mirrors
+    the LIVE prod block exactly (vm-opns-01, verified 2026-09-06): if, descr,
+    enable, spoofmac, ipaddr, subnet — and nothing else. Prod = .2, test = .3.
+    """
+    ET.SubElement(node, "if").text = f["if"]
+    ET.SubElement(node, "descr").text = f.get("descr", "FAB")
+    ET.SubElement(node, "enable").text = "1"
+    ET.SubElement(node, "spoofmac")
+    ET.SubElement(node, "ipaddr").text = f["ipaddr"]
+    ET.SubElement(node, "subnet").text = str(f.get("subnet", 20))
 
 
 def _wan(node: ET.Element, w: dict) -> None:
@@ -341,6 +407,10 @@ def compute_slot_map(seed: dict) -> dict:
     if "wan2" in seed:
         slots["wan2"] = f"opt{idx}"
         idx += 1
+    # FAB last -> opt14 (fabric MGMT NIC; matches the live prod ident).
+    if "fab" in seed:
+        slots["fab"] = f"opt{idx}"
+        idx += 1
     return slots
 
 
@@ -418,7 +488,9 @@ def build_netflow(slot_map: dict) -> ET.Element:
         return (2, 0)
 
     wan_idents = [v for k, v in slot_map.items() if k in ("wan", "wan2", "wan_parent")]
-    capture = sorted(slot_map.values(), key=_order)
+    # FAB (fabric MGMT, opt14) is NOT captured — mirrors the live prod capture list
+    # (lan,opt1..opt13); a management segment needs no flow accounting.
+    capture = sorted([v for k, v in slot_map.items() if k != "fab"], key=_order)
     egress = sorted(wan_idents, key=_order)
 
     opnsense = ET.Element("OPNsense")
@@ -545,6 +617,37 @@ def build_ppps(seed: dict) -> ET.Element | None:
     return ppps
 
 
+def build_interfaces_settings() -> ET.Element:
+    """Emit <OPNsense><Interfaces><settings> — the 26.x global interface settings.
+
+    Without this node a fresh seed boots with IPv6 BLOCKED: the legacy->MVC
+    migration finds no <system><ipv6allow> and writes disableipv6=1, which
+    activates the auto-rule "Block all IPv6" on every interface (test FW,
+    2026-09-06: NDP to the Telenet router never resolved, fw log showed
+    'block ... rule=Block all IPv6'). is_ipv6_allowed() in 26.7 reads exactly
+    OPNsense/Interfaces/settings/disableipv6 (empty/0 = allowed).
+
+    Values mirror the LIVE prod FW (vm-opns-01): hardware offloading disabled
+    (virtio), VLAN hw filter disabled on parents (2), IPv6 allowed. The DHCPv6
+    DUID is per-box and deliberately NOT seeded (OPNsense generates it).
+    """
+    ifs = ET.Element("Interfaces")
+    st = ET.SubElement(ifs, "settings", version="1.0.0", description="Global interface settings")
+    for tag, val in (
+        ("disablechecksumoffloading", "1"),
+        ("disablesegmentationoffloading", "1"),
+        ("disablelargereceiveoffloading", "1"),
+        ("disablevlanhwfilter", "2"),
+        ("disableipv6", "0"),
+        ("dhcp6_norelease", "0"),
+        ("dhcp6_debug", "0"),
+        ("dhcp6_ratimeout", "10"),
+    ):
+        ET.SubElement(st, tag).text = val
+    ET.SubElement(st, "dhcp6_duid")
+    return ifs
+
+
 def render(seed_name: str) -> Path:
     seed = json.loads((SEEDS / f"{seed_name}.json").read_text())
     tree = ET.parse(TEMPLATES / "baseline.xml")
@@ -587,13 +690,21 @@ def render(seed_name: str) -> Path:
             opnsense_node.remove(old_nf)
         opnsense_node.append(netflow_parent.find("Netflow"))
 
+    # Global interface settings (IPv6 allowed, offloading off) under <OPNsense>.
+    # Idempotent: replace any prior <Interfaces> node.
+    opnsense_node = root.find("OPNsense")
+    old_ifs = opnsense_node.find("Interfaces")
+    if old_ifs is not None:
+        opnsense_node.remove(old_ifs)
+    opnsense_node.append(build_interfaces_settings())
+
     ET.indent(tree, space="  ")
     out_dir = OUT / seed_name / "conf"
     out_dir.mkdir(parents=True, exist_ok=True)
     target = out_dir / "config.xml"
     tree.write(target, encoding="UTF-8", xml_declaration=True)
     # Inject bootstrap creds from the secret store (placeholders -> real values).
-    target.write_text(_inject_bootstrap_secrets(target.read_text()))
+    target.write_text(_inject_genesis(_inject_bootstrap_secrets(target.read_text()), seed))
     return target
 
 

@@ -71,6 +71,12 @@ variable "wan2_bridge" {
   default     = ""
 }
 
+variable "fab_bridge" {
+  description = "vtnet4 — FAB fabric MGMT VLAN 600 (e.g. vmbrFAB = nic4.600 untagged; seed opt14 static 10.6.240.x/20). Requires wan1_bridge + wan2_bridge set so the NIC lands on vtnet4 as the seed expects. Empty to skip."
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Proxmox tags"
   type        = list(string)

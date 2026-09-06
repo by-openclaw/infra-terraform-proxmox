@@ -11,7 +11,7 @@
 | 213.214.47.217 | 2a02:1802:21::1 | Telenet router | gateway for everyone |
 | 213.214.47.218 | 2a02:1802:21::4 | **pfSense01** (other island, `pfSense01.by-systems.arpa`) | still in production, WAN2 static |
 | 213.214.47.219 | — | pfSense01 **NAT 1:1** → 10.100.0.24 | "odoo instances" VIP |
-| 213.214.47.220 | 2a02:1802:21::6 | **vm-opns-test-01** (VM 199, TEST) | `fabric/net-isp-telenet-test.json` — borrowed from the HA-Phase2 pool (no HA at this stage). **Assigned in the seed, but the Telenet NIC is `link_down` by default** — see the finding below |
+| 213.214.47.220 | 2a02:1802:21::6 | **vm-opns-test-01** (VM 199, TEST) | `fabric/net-isp-telenet-test.json` — borrowed from the HA-Phase2 pool (no HA at this stage). **Telenet NIC UP since 2026-09-06 22:40** — distinct identity proven safe on the shared segment (hot link-up + full boot, prod `.222` untouched); Proximus NIC stays down (single PPPoE account) |
 | 213.214.47.221 | 2a02:1802:21::7 (spare) | **free** | spare host (was a pfSense VIP; removed 2026-09-06) |
 | 213.214.47.222 | 2a02:1802:21::5 | **vm-opns-01** (VM 100, PROD) | `fabric/net-isp-telenet.json` |
 | — | 2a02:1802:21::2 | nobody | routed `/48` target — parked |
@@ -94,3 +94,35 @@ Credentials are NEVER in this repo. Files on the controller under
 | Support | Telenet Business customer care 015 364 364 (option 2), customercare@telenetgroup.be |
 | Credentials | `fabric/net-isp-telenet.json` (PROD) / `fabric/net-isp-telenet-test.json` (TEST) → Vault `secret/fabric/net/isp/telenet` / `…/telenet-test` — fields `ipv4_address`, `ipv4_prefix`, `ipv4_gateway`, `ipv6_address`, `ipv6_prefix`, `ipv6_gateway`, `account_id`, `contract_id` |
 | Rotation | only if the line/contract changes → update files → `secrets-to-vault` → reseed |
+
+## Fabric MGMT VLAN 600 — `10.6.240.0/20` (FAB, `vmbrFAB` = node `nic4.600`, untagged)
+
+> Who holds which static address on the fabric management segment. The fabric VRF is the
+> gateway; the OPNsense FWs are members (seed `opt14` = `vtnet4`, static, no gateway/IPv6).
+> Verified free at ARP level before allocation (2026-09-06, from the POC node on `vmbrFAB`).
+
+| Address | Holder | Note |
+|---|---|---|
+| 10.6.240.1 | pfSense01 | Kea DHCP server for the segment (pool 10.6.255.101-199) |
+| 10.6.240.2 | **vm-opns-01** (VM 100, PROD) | `opt14`/FAB on `net4 → vmbrFAB` (live since 2026-09; seed-synced 2026-09-06) |
+| 10.6.240.3 | **vm-opns-test-01** (VM 199, TEST) | seed `fab.ipaddr`; `net4 → vmbrFAB` added to `recreate-and-seed.py` 2026-09-06 |
+| 10.6.240.4 | free | next static (lab FW candidate) |
+| 10.6.240.5 | srv-proxmox-poc-01 | node `vmbrFAB` address |
+| 10.6.255.254 | Arista fabric VRF | **gateway** for the whole /20 |
+
+## Re-verified after the 2026-09-06 test-FW reseed (18:30, from prod vm-opns-01)
+The test FW was destroyed + recreated from the seed with `net3` (Telenet) **`link_down=1`** — its
+`vtnet3` carries `213.214.47.220/29` in config but reports `no carrier`, so no boot-time gratuitous
+ARP reached the shared segment. Prod view right after: `WAN_TELENET_GW` (.217) and
+`WAN_TELENET_GWv6` (::1) **Online, 0 % loss, 0.6 ms**; ARP = `.217` (Telenet router), `.218`
+(pfSense01), `.222` (prod, MAC of VM 100 `net3`); NDP = `::1`, `::5` (prod). **`.220` /
+`::6` absent, `.221` free.** Rule stands: the test FW's Telenet NIC stays down unless a supervised
+uplink test is explicitly requested (then expect to `configctl interface reconfigure opt13` on prod).
+
+## 2026-09-06 22:40 — Telenet uplink ENABLED for the test FW (rule narrowed)
+Hot link-up of VM 199 `net3`, then a full guest reboot with Telenet up: prod `WAN_TELENET_GW` /
+`GWv6` stayed **Online 0 %** for the whole 135 s poll, prod `.222` ARP entry unchanged; the test FW
+egresses from `.220` to 1.1.1.1 at **0 % loss**. The 2026-08-30 poisoning was caused by the
+**duplicate** `.222` identity, not by sharing the segment. Rule now: a test FW may sit on
+`vmbrWAN2` **only with its own /29 + /64 address** (guarded by `_assert_no_prod_isp_identity`);
+never a duplicate; never the Proximus PPPoE account. `recreate-and-seed.py`: `TELENET_UPLINK=True`.
