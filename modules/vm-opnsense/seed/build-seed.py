@@ -94,6 +94,7 @@ def build_interfaces(seed: dict) -> ET.Element:
       <lo0>      = loopback.
       <opt12>    = WAN1 Proximus PPPoE (pppoe0).           Only if seed has "wan".
       <opt13>    = WAN2 Telenet static (vtnet3).           Only if seed has "wan2".
+      <opt14>    = FAB fabric MGMT VLAN 600 (vtnet4).      Only if seed has "fab".
 
     The WANs are numbered AFTER the VLANs so the slot idents equal the running
     FW (Proximus=opt12, Telenet=opt13) and the ansible catalog — which assigns
@@ -149,7 +150,30 @@ def build_interfaces(seed: dict) -> ET.Element:
         _wan2(wan2_node, seed["wan2"])
         opt_idx += 1
 
+    # opt14 = FAB fabric MGMT (vtnet4 -> vmbrFAB). Only if seed has "fab".
+    if "fab" in seed:
+        fab_node = ET.SubElement(ifs, f"opt{opt_idx}")
+        _fab(fab_node, seed["fab"])
+        opt_idx += 1
+
     return ifs
+
+
+def _fab(node: ET.Element, f: dict) -> None:
+    """OPNsense <opt14> = FAB — fabric MGMT (VLAN 600 = 10.6.240.0/20) on a dedicated
+    physical NIC (vtnet4 -> vmbrFAB; the node bridges nic4.600, so untagged here).
+
+    Static IPv4 only: no gateway, no IPv6, no DHCP. The fabric VRF (10.6.255.254)
+    is the gateway; OPNsense is a member on the segment, not its router. Mirrors
+    the LIVE prod block exactly (vm-opns-01, verified 2026-09-06): if, descr,
+    enable, spoofmac, ipaddr, subnet — and nothing else. Prod = .2, test = .3.
+    """
+    ET.SubElement(node, "if").text = f["if"]
+    ET.SubElement(node, "descr").text = f.get("descr", "FAB")
+    ET.SubElement(node, "enable").text = "1"
+    ET.SubElement(node, "spoofmac")
+    ET.SubElement(node, "ipaddr").text = f["ipaddr"]
+    ET.SubElement(node, "subnet").text = str(f.get("subnet", 20))
 
 
 def _wan(node: ET.Element, w: dict) -> None:
@@ -341,6 +365,10 @@ def compute_slot_map(seed: dict) -> dict:
     if "wan2" in seed:
         slots["wan2"] = f"opt{idx}"
         idx += 1
+    # FAB last -> opt14 (fabric MGMT NIC; matches the live prod ident).
+    if "fab" in seed:
+        slots["fab"] = f"opt{idx}"
+        idx += 1
     return slots
 
 
@@ -418,7 +446,9 @@ def build_netflow(slot_map: dict) -> ET.Element:
         return (2, 0)
 
     wan_idents = [v for k, v in slot_map.items() if k in ("wan", "wan2", "wan_parent")]
-    capture = sorted(slot_map.values(), key=_order)
+    # FAB (fabric MGMT, opt14) is NOT captured — mirrors the live prod capture list
+    # (lan,opt1..opt13); a management segment needs no flow accounting.
+    capture = sorted([v for k, v in slot_map.items() if k != "fab"], key=_order)
     egress = sorted(wan_idents, key=_order)
 
     opnsense = ET.Element("OPNsense")

@@ -116,6 +116,16 @@ resource "proxmox_virtual_environment_vm" "this" {
     }
   }
 
+  # vtnet4 — FAB fabric MGMT VLAN 600 (vmbrFAB = nic4.600 untagged; seed opt14, static /20)
+  dynamic "network_device" {
+    for_each = var.fab_bridge != "" ? [1] : []
+    content {
+      bridge   = var.fab_bridge
+      model    = "virtio"
+      firewall = false
+    }
+  }
+
   vga {
     type   = "std"
     memory = 16

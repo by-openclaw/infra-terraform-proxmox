@@ -94,3 +94,18 @@ Credentials are NEVER in this repo. Files on the controller under
 | Support | Telenet Business customer care 015 364 364 (option 2), customercare@telenetgroup.be |
 | Credentials | `fabric/net-isp-telenet.json` (PROD) / `fabric/net-isp-telenet-test.json` (TEST) → Vault `secret/fabric/net/isp/telenet` / `…/telenet-test` — fields `ipv4_address`, `ipv4_prefix`, `ipv4_gateway`, `ipv6_address`, `ipv6_prefix`, `ipv6_gateway`, `account_id`, `contract_id` |
 | Rotation | only if the line/contract changes → update files → `secrets-to-vault` → reseed |
+
+## Fabric MGMT VLAN 600 — `10.6.240.0/20` (FAB, `vmbrFAB` = node `nic4.600`, untagged)
+
+> Who holds which static address on the fabric management segment. The fabric VRF is the
+> gateway; the OPNsense FWs are members (seed `opt14` = `vtnet4`, static, no gateway/IPv6).
+> Verified free at ARP level before allocation (2026-09-06, from the POC node on `vmbrFAB`).
+
+| Address | Holder | Note |
+|---|---|---|
+| 10.6.240.1 | pfSense01 | Kea DHCP server for the segment (pool 10.6.255.101-199) |
+| 10.6.240.2 | **vm-opns-01** (VM 100, PROD) | `opt14`/FAB on `net4 → vmbrFAB` (live since 2026-09; seed-synced 2026-09-06) |
+| 10.6.240.3 | **vm-opns-test-01** (VM 199, TEST) | seed `fab.ipaddr`; `net4 → vmbrFAB` added to `recreate-and-seed.py` 2026-09-06 |
+| 10.6.240.4 | free | next static (lab FW candidate) |
+| 10.6.240.5 | srv-proxmox-poc-01 | node `vmbrFAB` address |
+| 10.6.255.254 | Arista fabric VRF | **gateway** for the whole /20 |

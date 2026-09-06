@@ -171,6 +171,9 @@ def recreate_vm():
         "net1": "virtio,bridge=vmbrOOB,firewall=0",
         "net2": f"virtio,bridge=vmbrWAN1,firewall=0{PROXIMUS_LINK}",
         "net3": f"virtio,bridge=vmbrWAN2,firewall=0{TELENET_LINK}",
+        # vtnet4 = FAB fabric MGMT (VLAN 600, untagged on vmbrFAB = nic4.600) ->
+        # seed opt14, static 10.6.240.3/20 (prod vm-opns-01 = .2 on its own net4).
+        "net4": "virtio,bridge=vmbrFAB,firewall=0",
     }
     r = api("POST", f"/nodes/{NODE}/qemu", config)
     ex = wait_task(r["data"])

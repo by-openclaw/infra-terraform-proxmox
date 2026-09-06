@@ -6,7 +6,8 @@
     "trunk": "vtnet0",
     "oob_mgmt": "vtnet1",
     "wan_parent": "vtnet2",
-    "wan2_parent": "vtnet3"
+    "wan2_parent": "vtnet3",
+    "fab": "vtnet4"
   },
   "lan": {
     "if": "vtnet1",
@@ -80,6 +81,13 @@
       "vlan2320": { "prefix_id": "0xa",  "_descr": "GAMING" },
       "vlan2400": { "prefix_id": "0xb",  "_descr": "CCTV" }
     }
+  },
+  "fab": {
+    "_doc": "FAB = fabric MGMT VLAN 600 (10.6.240.0/20) on vtnet4 -> vmbrFAB (net4 added to recreate-and-seed.py). TEST FW = .3 (prod = .2, same L2 segment). Static, no gateway/IPv6/DHCP. Rendered as opt14. Allocation: seed/ISP-ALLOCATION.md.",
+    "if": "vtnet4",
+    "descr": "FAB",
+    "ipaddr": "10.6.240.3",
+    "subnet": 20
   },
   "vlans": [
     { "vlanif": "vlan2010", "tag": 2010, "pcp": 6, "descr": "MGMT",    "ipv4": "10.11.1.1",  "ipv6": "fd11:1::1"  },
