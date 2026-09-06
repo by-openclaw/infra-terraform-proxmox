@@ -30,7 +30,7 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 | [`docs/variables-reference.md`](docs/variables-reference.md) | All module inputs, types, defaults |
 | [`versions.tf`](versions.tf) | Pinned versions — do not change without instruction |
 | [`providers.tf`](providers.tf) | Provider config (bpg/proxmox v0.99.0) |
-| [`environments/poc/`](environments/poc/) | VMs on srv-proxmox-poc-01 (node name — NOT env tier; all current VMs = prod) |
+| [`environments/prod/`](environments/prod/) · [`environments/test/`](environments/test/) | Per-env-tier roots (2026-09: the legacy `environments/poc/` folder is gone). Both on node srv-proxmox-poc-01; `env` stays a per-VM property |
 | [`modules/vm-linux/`](modules/vm-linux/) | VM module — cloud-init, VirtIO, qemu-guest-agent |
 | [`modules/lxc-standard/`](modules/lxc-standard/) | LXC module — unprivileged containers |
 | [`modules/sdn-poc/`](modules/sdn-poc/) | SDN module — VLAN zone + VNets + subnets (deployed 2026-04-03) |
@@ -53,7 +53,8 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 
 | VM | Proxmox ID | env | IP | Status |
 |---|---|---|---|---|
-| vm-opnsense-01 | 100 | prod | 10.6.224.106 (WAN) / 10.1.1.1 (MGMT) | ⏸ ISO installed, Ansible config pending |
+| vm-opns-01 | 100 | prod | OOB 10.6.239.196 / FAB 10.6.240.2 | ✅ LIVE. **Not Terraform-managed** (issue #27) — hardware owned by the seed pipeline: `modules/vm-opnsense/seed/seeds/vm-opns-01.json` `vm` block, drift gate `recreate-and-seed.py vm-opns-01 --check` (read-only); config via ansible-platform + lib-opnsense MVC |
+| vm-opns-test-01 | 199 | test | OOB 10.6.239.195 / FAB 10.6.240.3 / Telenet .220 | ✅ LIVE, reseeded from code (`recreate-and-seed.py`, default profile) |
 | vm-debian-bootstrap-test-01 | — | prod | 10.1.1.x (post-SDN) | ✅ VALIDATED — decommission when netbox is up |
 | vm-netbox-01 | TBD | prod | 10.1.1.x (post-SDN) | ⏸ PLANNED — next deploy |
 
