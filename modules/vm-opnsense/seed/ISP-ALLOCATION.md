@@ -12,9 +12,14 @@
 | 213.214.47.218 | 2a02:1802:21::4 | **pfSense01** (other island, `pfSense01.by-systems.arpa`) | still in production, WAN2 static |
 | 213.214.47.219 | — | pfSense01 **NAT 1:1** → 10.100.0.24 | "odoo instances" VIP |
 | 213.214.47.220 | 2a02:1802:21::6 | **vm-opns-test-01** (VM 199, TEST) | `fabric/net-isp-telenet-test.json` — borrowed from the HA-Phase2 pool (no HA at this stage). **Assigned in the seed, but the Telenet NIC is `link_down` by default** — see the finding below |
-| 213.214.47.221 | — | **free** | last free host; HA-Phase2 (pair + CARP VIP) must be re-planned |
+| 213.214.47.221 | 2a02:1802:21::7 (spare) | **free** | spare host (was a pfSense VIP; removed 2026-09-06) |
 | 213.214.47.222 | 2a02:1802:21::5 | **vm-opns-01** (VM 100, PROD) | `fabric/net-isp-telenet.json` |
 | — | 2a02:1802:21::2 | nobody | routed `/48` target — parked |
+
+## Verified occupancy (2026-09-06, live ARP/NDP on prod OPNsense vtnet3)
+After the user removed the stale pfSense01 VIPs .220/.221/.222, a flushed-then-fresh probe confirms:
+`.217` Telenet gw · `.218` pfSense01 WAN · `.219` pfSense01 (Odoo 1:1) · **`.220` FREE → test FW** · **`.221` FREE (spare)** · `.222` prod OPNsense.
+IPv6: `::1` gw · `::5` prod · **`::6` FREE → test FW**; `::2` and `::4` unanswered. pfSense blocks WAN ICMP, so occupancy was proven at the **ARP/NDP layer** (a MAC reply), not by ping.
 
 ## Rules
 1. **One seed = one identity file.** `seeds/vm-opns-01.json` → `net-isp-telenet.json`;
