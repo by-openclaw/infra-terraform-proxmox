@@ -49,7 +49,7 @@ PROXIMUS_LINK = "" if PROXIMUS_UPLINK else ",link_down=1"
 SECRETS_DIR = Path.home() / ".openclaw/workspace/infra/secrets/fabric"
 PROD_TELENET_FILE = "net-isp-telenet.json"          # pragma: allowlist secret (file NAME)
 PROD_PPPOE_FILE = "net-isp-proximus-pppoe.json"     # pragma: allowlist secret (file NAME)
-NANO = "poc-iso:import/OPNsense-26.1.6-nano-amd64.raw"
+NANO = "poc-iso:import/OPNsense-26.7-nano-amd64.raw"  # test FW tracks latest CE for lib/MVC work
 SEED_IMPORT = "poc-iso:import/vm-opns-test-01-seed.raw"
 DEVICE = "vtbd1"  # virtio-block disk #1 (seed-ISO attached as block, not CDROM)
 
