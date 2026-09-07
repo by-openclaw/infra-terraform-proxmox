@@ -5,6 +5,20 @@
   "domain_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-internal-domain.json",
   "timezone": "Europe/Brussels",
   "genesis_creds_file": "net-opnsense-prod-oob-admin.json",
+  "vm": {
+    "_doc": "Hardware profile (seed pipeline owns FW hardware; VM 100 is deliberately NOT Terraform-managed, issue #27). Mirrors the live prod VM. Check with: recreate-and-seed.py vm-opns-01 --check (never writes). Recreate needs --confirm-prod-recreate in a window.",
+    "vmid": 100,
+    "name": "vm-opns-01",
+    "node": "srv-proxmox-poc-01",
+    "env": "prod",
+    "onboot": 1,
+    "agent_enabled": true,
+    "cores": 2,
+    "memory": 3072,
+    "tags": "layer0;opnsense;env-prod;seed-nano",
+    "uplinks": { "proximus": true, "telenet": true },
+    "nics": { "net0": "vmbrAPPS", "net1": "vmbrOOB", "net2": "vmbrWAN1", "net3": "vmbrWAN2", "net4": "vmbrFAB" }
+  },
   "physical_interfaces": {
     "trunk": "vtnet0",
     "oob_mgmt": "vtnet1",
