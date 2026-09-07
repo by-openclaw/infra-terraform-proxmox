@@ -44,7 +44,7 @@
   "wan": {
     "_note": "PPPoE account is SHARED with prod (Proximus = one session). recreate-and-seed.py creates net2 link_down=1: opt12 exists for rule tests, the session is never dialled from the test FW.",
     "if": "pppoe0",
-    "descr": "WAN1_PROXIMUS",
+    "descr": "WAN_PROXIMUS",
     "ipv4": "pppoe",
     "ipv6": "dhcp6",
     "mtu": 1492,
@@ -66,7 +66,7 @@
   "wan2": {
     "_isp_identity": "OWN Telenet identity: 213.214.47.220/29 + 2a02:1802:21::6/64 from fabric/net-isp-telenet-test.json (borrowed from the HA-Phase2 pool, no HA at this stage). NEVER point creds_secret at prod's net-isp-telenet.json (2026-09 duplicate-IP incident). See seed/ISP-ALLOCATION.md. Telenet uplink LIVE since 2026-09-06 (distinct identity proven safe incl. boot-time GARP); Proximus stays down.",
     "if": "vtnet3",
-    "descr": "WAN2_TELENET",
+    "descr": "WAN_TELENET",
     "ipv4": "static",
     "ipv6": "static",
     "block_private": true,

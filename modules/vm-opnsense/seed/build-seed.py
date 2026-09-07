@@ -376,11 +376,11 @@ def _wan2(node: ET.Element, w2: dict) -> None:
     # IPv4 static
     ET.SubElement(node, "ipaddr").text = creds["ipv4_address"]
     ET.SubElement(node, "subnet").text = str(creds["ipv4_prefix"])
-    ET.SubElement(node, "gateway").text = "WAN2GW"
+    ET.SubElement(node, "gateway").text = "WAN_TELENET_GW"
     # IPv6 static (independent — not PPPoE-tracked)
     ET.SubElement(node, "ipaddrv6").text = creds["ipv6_address"]
     ET.SubElement(node, "subnetv6").text = str(creds["ipv6_prefix"])
-    ET.SubElement(node, "gatewayv6").text = "WAN2GWv6"
+    ET.SubElement(node, "gatewayv6").text = "WAN_TELENET_GWv6"
 
 
 def compute_slot_map(seed: dict) -> dict:
@@ -435,7 +435,7 @@ def build_gateways(seed: dict, slot_map: dict) -> ET.Element | None:
     g4 = ET.SubElement(gws, "gateway_item")
     ET.SubElement(g4, "interface").text = wan2_slot
     ET.SubElement(g4, "gateway").text = creds["ipv4_gateway"]
-    ET.SubElement(g4, "name").text = "WAN2GW"
+    ET.SubElement(g4, "name").text = "WAN_TELENET_GW"
     ET.SubElement(g4, "weight").text = "1"
     ET.SubElement(g4, "ipprotocol").text = "inet"
     ET.SubElement(g4, "descr").text = w2.get("gateway_descr", "WAN2 gateway")
@@ -449,7 +449,7 @@ def build_gateways(seed: dict, slot_map: dict) -> ET.Element | None:
     g6 = ET.SubElement(gws, "gateway_item")
     ET.SubElement(g6, "interface").text = wan2_slot
     ET.SubElement(g6, "gateway").text = creds["ipv6_gateway"]
-    ET.SubElement(g6, "name").text = "WAN2GWv6"
+    ET.SubElement(g6, "name").text = "WAN_TELENET_GWv6"
     ET.SubElement(g6, "weight").text = "1"
     ET.SubElement(g6, "ipprotocol").text = "inet6"
     ET.SubElement(g6, "descr").text = w2.get("gateway_descr", "WAN2 gateway")
