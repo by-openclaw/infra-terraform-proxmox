@@ -85,7 +85,7 @@
       <scope>user</scope>
       <expires />
       <otp_seed />
-      <shell />
+      <shell>/bin/sh</shell>
       <password>__OOBADMIN_PASSWORD_HASH__</password>
       <landing_page />
       <comment />
