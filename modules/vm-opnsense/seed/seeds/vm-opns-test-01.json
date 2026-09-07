@@ -26,7 +26,7 @@
   },
   "lan": {
     "if": "vtnet1",
-    "descr": "OOB_MGMT",
+    "descr": "OOB",
     "ipv4": "10.6.239.195",
     "ipv4_prefix": 20,
     "ipv4_gateway": "10.6.224.1",
