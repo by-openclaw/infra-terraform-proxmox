@@ -97,7 +97,9 @@
          OPNsense/Interfaces/settings/disableipv6=1 => "Block all IPv6" (test FW, 2026-09-06).
          build-seed.py ALSO emits the 26.x MVC node (disableipv6=0) — belt and braces. -->
     <ipv6allow>1</ipv6allow>
-    <timeservers>0.opnsense.pool.ntp.org 1.opnsense.pool.ntp.org 2.opnsense.pool.ntp.org 3.opnsense.pool.ntp.org</timeservers>
+    <!-- no <timeservers>: OPNsense starts the legacy ntpd at boot iff system.timeservers is set
+         (core ntpd.inc ntpd_enabled()). Time sync is os-chrony, catalog-managed (ansible-platform
+         opnsense_chrony_*); with the key absent ntpd never starts and never fights chronyd for :123. -->
     <webgui>
       <protocol>https</protocol>
       <ssl-certref />
