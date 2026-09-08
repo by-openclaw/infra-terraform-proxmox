@@ -12,7 +12,7 @@
     "onboot": 0,
     "agent_enabled": true,
     "cores": 2,
-    "memory": 3072,
+    "memory": 8192,
     "tags": "layer0;opnsense;env-test;seed-nano",
     "uplinks": { "proximus": false, "telenet": true },
     "nics": { "net0": "vmbrAPPS", "net1": "vmbrOOB", "net2": "vmbrWAN1", "net3": "vmbrWAN2", "net4": "vmbrFAB" }

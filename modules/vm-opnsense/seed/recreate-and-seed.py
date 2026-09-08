@@ -3,8 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Destroy + recreate an OPNsense FW VM from the verified nano image and drive the
-# importer over Proxmox termproxy (seed-driven: seeds/<name>.json "vm"), or with
-# --check just diff the live hardware against that profile. Idempotent.
+# importer over Proxmox termproxy (seed-driven: seeds/<name>.json "vm"), with
+# --check just diff the live hardware against that profile, or with --apply-hw
+# push the in-place hardware keys (memory/cores/onboot/tags) to the live VM and
+# cold-restart it when memory/cores changed — no recreate, no disk/NIC change.
+# Idempotent. Prod: --check always; --apply-hw needs --confirm-prod-restart.
 from __future__ import annotations
 
 import json
@@ -452,9 +455,65 @@ def check_only() -> int:
     return 2 if drift else 0
 
 
+# Hardware keys the seed may change on a LIVE VM without a recreate (no disk, no NIC).
+HW_APPLY_KEYS = ("memory", "cores", "onboot", "tags")
+# ... of which these only take effect after a full stop/start (not hot-pluggable here).
+COLD_RESTART_KEYS = ("memory", "cores")
+
+
+def apply_hardware() -> int:
+    """--apply-hw: converge the in-place hardware keys of the live VM to the seed profile.
+
+    Pushes memory/cores/onboot/tags through the PVE API (`PUT .../config`), then, when a
+    cold-restart key changed and the VM is running, does a guest shutdown (ACPI/agent) and
+    a start so the new memory/cores are live. Refuses when the drift includes anything
+    outside HW_APPLY_KEYS (that is a recreate). Prod needs --confirm-prod-restart because
+    the restart takes the running firewall down. Returns 0 = converged, 2 = drift remains.
+    """
+    cur = api("GET", f"/nodes/{NODE}/qemu/{VMID}/config")
+    if cur.get("_missing") or not cur.get("data"):
+        print(f"[apply-hw] {PROFILE['name']} (vmid {VMID}): VM ABSENT on {NODE} — nothing to apply")
+        return 2
+    drift = check_drift(PROFILE, cur["data"])
+    print(format_drift(PROFILE, drift))
+    wanted = [k for k, _, _ in drift if k in HW_APPLY_KEYS]
+    other = [k for k, _, _ in drift if k not in HW_APPLY_KEYS]
+    if other:
+        print(f"[apply-hw] REFUSED: drift outside the in-place set {HW_APPLY_KEYS}: {other} — needs a recreate")
+        return 2
+    if not wanted:
+        print("[apply-hw] nothing to apply")
+        return 0
+    needs_restart = any(k in COLD_RESTART_KEYS for k in wanted)
+    if is_prod(PROFILE) and needs_restart and "--confirm-prod-restart" not in sys.argv:
+        raise SystemExit(
+            f"{SEED_NAME} is a PROD profile (vmid {VMID}): {wanted} needs a cold restart of the running "
+            "firewall — pass --confirm-prod-restart inside a maintenance window."
+        )
+    body = {k: (int(PROFILE[k]) if k in ("memory", "cores", "onboot") else PROFILE[k]) for k in wanted}
+    api("PUT", f"/nodes/{NODE}/qemu/{VMID}/config", body)
+    print(f"[apply-hw] set {body}")
+    if needs_restart:
+        status = api("GET", f"/nodes/{NODE}/qemu/{VMID}/status/current")["data"].get("status")
+        if status == "running":
+            print("[apply-hw] cold restart (guest shutdown → start) so memory/cores take effect …")
+            upid = api("POST", f"/nodes/{NODE}/qemu/{VMID}/status/shutdown", {"timeout": 180})["data"]
+            print(f"[apply-hw] shutdown: {wait_task(upid, 240)}")
+            upid = api("POST", f"/nodes/{NODE}/qemu/{VMID}/status/start")["data"]
+            print(f"[apply-hw] start: {wait_task(upid, 120)}")
+        else:
+            print(f"[apply-hw] VM is {status}: the new values apply on the next start")
+    cur = api("GET", f"/nodes/{NODE}/qemu/{VMID}/config")
+    drift = check_drift(PROFILE, cur["data"])
+    print(format_drift(PROFILE, drift))
+    return 2 if drift else 0
+
+
 def main():
     if "--check" in sys.argv:
         return check_only()
+    if "--apply-hw" in sys.argv:
+        return apply_hardware()
     if is_prod(PROFILE) and "--confirm-prod-recreate" not in sys.argv:
         raise SystemExit(
             f"{SEED_NAME} is a PROD profile (vmid {VMID}): only --check is allowed. "
