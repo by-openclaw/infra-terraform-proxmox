@@ -1,0 +1,72 @@
+{
+  "_doc": "THROWAWAY firewall used to prove the provisioning path end to end before any real FW is reseeded (issue #93). Safety by construction: the ONLY NIC on a shared segment is OOB (10.6.239.197, verified free); trunk/FAB sit on the unused `cctv` VNet and every address outside OOB is in 10.99.0.0/16, which the platform does not use; the seed carries NO wan/wan2 section at all and both uplink flags are off, so net2/net3 come up link_down and no ISP identity exists to dial. Destroy it when the run is done: `qm stop 197 && qm destroy 197`.",
+  "hostname": "vm-opns-scratch-01",
+  "domain": "scratch.by-research.be",
+  "timezone": "Europe/Brussels",
+  "genesis_creds_file": "net-opnsense-test-oob-admin.json",
+  "vm": {
+    "vmid": 197,
+    "name": "vm-opns-scratch-01",
+    "node": "srv-proxmox-poc-01",
+    "env": "test",
+    "onboot": 0,
+    "agent_enabled": true,
+    "cores": 2,
+    "memory": 2048,
+    "tags": "layer0;opnsense;env-test;seed-nano;scratch",
+    "uplinks": {
+      "proximus": false,
+      "telenet": false
+    },
+    "nics": {
+      "net0": "cctv",
+      "net1": "vmbrOOB",
+      "net2": "cctv",
+      "net3": "cctv",
+      "net4": "cctv"
+    }
+  },
+  "physical_interfaces": {
+    "trunk": "vtnet0",
+    "oob_mgmt": "vtnet1",
+    "wan_parent": "vtnet2",
+    "wan2_parent": "vtnet3",
+    "fab": "vtnet4"
+  },
+  "lan": {
+    "if": "vtnet1",
+    "descr": "OOB",
+    "ipv4": "10.6.239.197",
+    "ipv4_prefix": 20,
+    "ipv4_gateway": "10.6.224.1",
+    "ipv6": "none",
+    "ipv6_prefix": 64
+  },
+  "trunk": {
+    "if": "vtnet0",
+    "descr": "LAN_TRUNK",
+    "ipv4": "10.99.1.1",
+    "ipv4_prefix": 24,
+    "ipv6": "fd99:1::1",
+    "ipv6_prefix": 64
+  },
+  "fab": {
+    "_doc": "On the unused cctv VNet, not vmbrFAB, and in 10.99.0.0/16 \u2014 it cannot collide with the real fabric VLAN 600.",
+    "if": "vtnet4",
+    "descr": "FAB",
+    "ipaddr": "10.99.240.9",
+    "subnet": 20
+  },
+  "vlans": [
+    {
+      "vlanif": "vlan2999",
+      "tag": 2999,
+      "pcp": 1,
+      "descr": "SCRATCH",
+      "ipv4": "10.99.99.1",
+      "ipv6": "fd99:99::1"
+    }
+  ],
+  "ipv4_prefix": 24,
+  "ipv6_prefix": 64
+}
