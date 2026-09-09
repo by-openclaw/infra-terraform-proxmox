@@ -97,7 +97,11 @@
          OPNsense/Interfaces/settings/disableipv6=1 => "Block all IPv6" (test FW, 2026-09-06).
          build-seed.py ALSO emits the 26.x MVC node (disableipv6=0) — belt and braces. -->
     <ipv6allow>1</ipv6allow>
-    <timeservers>0.opnsense.pool.ntp.org 1.opnsense.pool.ntp.org 2.opnsense.pool.ntp.org 3.opnsense.pool.ntp.org</timeservers>
+    <!-- NO <timeservers>: core ntpd.inc decides whether to start the legacy ntpd with
+         `isset($config['system']['timeservers'])` and nothing else, so any value here starts
+         it at every boot alongside chronyd. chrony (os-chrony) is THE time service and the
+         catalog configures it after boot. There is no MVC endpoint for this key
+         (ntpd/*, ntp/* are 404), which is why it is seed-owned. -->
     <webgui>
       <protocol>https</protocol>
       <ssl-certref />
