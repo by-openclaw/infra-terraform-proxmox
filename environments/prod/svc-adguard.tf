@@ -39,7 +39,7 @@ module "vm_adguard_01" {
   ipv6_gateway   = "fd01:3::1"
 
   domain      = "by-research.be"
-  dns_servers = ["10.1.3.1", "fd01:3::1"] # FW SVC gateway (Unbound chain)
+  dns_servers = local.dns_direct # AdGuard itself — must not resolve through itself
   ssh_keys    = local.standard_ssh_keys
 
   # PVE node SSH for snippets upload is unavailable (Known Blocker: SSH key for

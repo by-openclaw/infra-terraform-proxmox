@@ -35,7 +35,7 @@ module "svc_traefik" {
   ipv6_gateway   = "fd01:2::1"
 
   dns_domain  = local.svc_domain
-  dns_servers = ["10.1.2.1", "fd01:2::1"] # OPNsense resolver on DMZ VLAN
+  dns_servers = local.dns_direct # DMZ — firewall keeps it out of SVC, so AdGuard is unreachable from here
   ssh_keys    = local.standard_ssh_keys
 }
 
