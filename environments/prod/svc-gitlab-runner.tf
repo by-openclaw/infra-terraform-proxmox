@@ -36,7 +36,7 @@ module "vm_gitlab_runner_01" {
   ipv6_gateway   = "fd01:3::1"
 
   domain      = "by-research.be"
-  dns_servers = ["10.1.3.1", "fd01:3::1"] # OPNsense resolver on SVC VLAN
+  dns_servers = local.dns_filtered # AdGuard first (filtered + logged), firewall as fallback
   ssh_keys    = local.standard_ssh_keys
 
   # No vendor_data snippet: like every other VM here, this uses native cloud-init

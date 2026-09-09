@@ -43,7 +43,7 @@ module "vm_mailcow_01" {
   ipv6_gateway   = "fd01:2::1"
 
   domain      = "by-research.be"
-  dns_servers = ["10.1.2.1", "fd01:2::1"] # FW DMZ gateway (Unbound chain)
+  dns_servers = local.dns_direct # DMZ — firewall keeps it out of SVC, so AdGuard is unreachable from here
   ssh_keys    = local.standard_ssh_keys
 
   use_vendor_data = false

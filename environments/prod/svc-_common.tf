@@ -21,6 +21,22 @@ locals {
   svc_bridge = "vmbrAPPS"
   svc_domain = "by-research.be" # prod zone — clean, no env sub-domain (naming/0001 §7)
   # standard_ssh_keys is defined in main.tf (rune automation key + ref ws).
+
+  # Resolvers a guest is CREATED with. cloud-init writes these to /etc/resolv.conf, so this is
+  # what a guest uses from first boot — ansible-platform roles/resolver keeps the running state
+  # in step, but a guest should not need correcting after creation.
+  #
+  # dns_filtered: AdGuard first on both families, the firewall's Unbound as fallback. AdGuard is
+  # where DNS is filtered and where query visibility lives; a guest pointed straight at Unbound
+  # still resolves and still reaches an encrypted upstream, but is outside both. THREE entries by
+  # design — glibc reads at most MAXNS (3) from resolv.conf and silently ignores the rest.
+  #
+  # dns_direct: the firewall's Unbound. For AdGuard itself (pointing it at itself would loop) and
+  # for DMZ guests, which the firewall deliberately keeps out of the services VLAN — they cannot
+  # reach AdGuard, and giving it to them puts a timeout in front of every lookup (verified
+  # 2026-09-09: lxc-traefik-01 and vm-mailcow-01 time out to AdGuard on both families).
+  dns_filtered = ["10.1.3.101", "fd01:3::101", "10.1.3.1"]
+  dns_direct   = ["10.1.3.1", "fd01:3::1"]
 }
 
 # Proxmox-standard Debian 13 LXC template (ships openssh-server, enabled) →

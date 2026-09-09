@@ -46,8 +46,8 @@ module "vm_pbs_01" {
   ipv6_address   = "fd01:3::222/64"
   ipv6_gateway   = "fd01:3::1"
 
-  domain      = local.svc_domain          # by-research.be
-  dns_servers = ["10.1.3.1", "fd01:3::1"] # OPNsense resolver on the SVC VLAN
+  domain      = local.svc_domain   # by-research.be
+  dns_servers = local.dns_filtered # AdGuard first (filtered + logged), firewall as fallback
   ssh_keys    = local.standard_ssh_keys
 
   use_vendor_data = false

@@ -31,7 +31,7 @@ module "svc_verdaccio" {
   ipv6_gateway   = "fd01:3::1"
 
   dns_domain  = local.svc_domain
-  dns_servers = ["10.1.3.1", "fd01:3::1"]
+  dns_servers = local.dns_filtered # AdGuard first (filtered + logged), firewall as fallback
   ssh_keys    = local.standard_ssh_keys
 }
 
