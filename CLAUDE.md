@@ -54,7 +54,8 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 | VM | Proxmox ID | env | IP | Status |
 |---|---|---|---|---|
 | vm-opns-01 | 100 | prod | OOB 10.6.239.196 / FAB 10.6.240.2 | ✅ LIVE. **Not Terraform-managed** (issue #27) — hardware owned by the seed pipeline: `modules/vm-opnsense/seed/seeds/vm-opns-01.json` `vm` block, drift gate `recreate-and-seed.py vm-opns-01 --check` (read-only); in-place hardware keys (memory/cores/onboot/tags) converge with `--apply-hw` (`--confirm-prod-restart` on prod: cold restart); config via ansible-platform + lib-opnsense MVC |
-| vm-opns-test-01 | 199 | test | OOB 10.6.239.195 / FAB 10.6.240.3 / Telenet .220 | ✅ LIVE, reseeded from code (`recreate-and-seed.py`, default profile) |
+| vm-opns-test-01 | 199 | test | OOB 10.6.239.195 / FAB 10.6.240.3 / Telenet .220 | ✅ LIVE, reseeded from code |
+| vm-opns-lab-01 | 198 | test | OOB 10.6.239.129, trunk on the unused `cctv` VNet | ✅ LIVE. Rehearsal box — reseed target for proving seed changes before either real firewall. Built by `ansible-playbook playbooks/opnsense-build.yml -e opnsense_provision_fw=vm-opns-lab-01` |
 | vm-debian-bootstrap-test-01 | — | prod | 10.1.1.x (post-SDN) | ✅ VALIDATED — decommission when netbox is up |
 | vm-netbox-01 | TBD | prod | 10.1.1.x (post-SDN) | ⏸ PLANNED — next deploy |
 

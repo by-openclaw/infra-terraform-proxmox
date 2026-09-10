@@ -1,6 +1,7 @@
 name: Seed reseed reminder
 
-# The OPNsense seed (build-seed.py / baseline.xml / seeds/*.json) defines
+# The OPNsense seed (baseline.xml / seeds/*.json, rendered by the collection's
+# opnsense_seed_config module) defines
 # non-API-able L2/L3 config (interface assignments, WAN setup) that takes effect
 # on the live FW ONLY after a reseed (#21). This guard auto-flags any PR touching
 # the seed so the change is tracked on the reseed umbrella and never silently lost.
