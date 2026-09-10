@@ -1,0 +1,135 @@
+{
+  "hostname": "vm-opns-lab-01",
+  "domain": "lab.by-research.be",
+  "timezone": "Europe/Brussels",
+  "genesis_creds_file": "net-opnsense-test-oob-admin.json",
+  "vm": {
+    "_doc": "Hardware profile for the LAB FW \u2014 the rehearsal box for a reseed before either real firewall is touched (#93). Its trunk sits on the UNUSED cctv VNet, not vmbrAPPS: the prod firewall trunks on vmbrAPPS, so a lab box carrying VLAN interfaces there would bring up duplicate gateway addresses on production VLANs. Both WAN NICs are on the same isolated VNet with their uplinks off \u2014 a lab firewall never dials an ISP.",
+    "vmid": 198,
+    "name": "vm-opns-lab-01",
+    "node": "srv-proxmox-poc-01",
+    "env": "test",
+    "onboot": 0,
+    "agent_enabled": true,
+    "cores": 4,
+    "memory": 4096,
+    "tags": "layer0;opnsense;env-test;seed-nano;lab",
+    "uplinks": {
+      "proximus": false,
+      "telenet": false
+    },
+    "nics": {
+      "net0": "cctv",
+      "net1": "vmbrOOB",
+      "net2": "cctv",
+      "net3": "cctv"
+    }
+  },
+  "physical_interfaces": {
+    "trunk": "vtnet0",
+    "oob_mgmt": "vtnet1",
+    "wan_parent": "vtnet2",
+    "wan2_parent": "vtnet3"
+  },
+  "lan": {
+    "if": "vtnet1",
+    "descr": "OOB",
+    "ipv4": "10.6.239.129",
+    "ipv4_prefix": 20,
+    "ipv4_gateway": "10.6.224.1",
+    "ipv6": "none",
+    "ipv6_prefix": 64
+  },
+  "trunk": {
+    "if": "vtnet0",
+    "descr": "LAN_TRUNK",
+    "ipv4": "10.98.1.1",
+    "ipv4_prefix": 24,
+    "ipv6": "fd98:1::1",
+    "ipv6_prefix": 64
+  },
+  "vlans": [
+    {
+      "vlanif": "vlan3010",
+      "tag": 3010,
+      "pcp": 6,
+      "descr": "MGMT",
+      "ipv4": "10.98.1.1",
+      "ipv6": "fd98:1::1"
+    },
+    {
+      "vlanif": "vlan3020",
+      "tag": 3020,
+      "pcp": 1,
+      "descr": "DMZ",
+      "ipv4": "10.98.2.1",
+      "ipv6": "fd98:2::1"
+    },
+    {
+      "vlanif": "vlan3030",
+      "tag": 3030,
+      "pcp": 4,
+      "descr": "SVC",
+      "ipv4": "10.98.3.1",
+      "ipv6": "fd98:3::1"
+    },
+    {
+      "vlanif": "vlan3040",
+      "tag": 3040,
+      "pcp": 5,
+      "descr": "VPN",
+      "ipv4": "10.98.4.1",
+      "ipv6": "fd98:4::1"
+    },
+    {
+      "vlanif": "vlan3100",
+      "tag": 3100,
+      "pcp": 1,
+      "descr": "IoT",
+      "ipv4": "10.98.10.1",
+      "ipv6": "fd98:10::1"
+    },
+    {
+      "vlanif": "vlan3110",
+      "tag": 3110,
+      "pcp": 5,
+      "descr": "VoIP",
+      "ipv4": "10.98.11.1",
+      "ipv6": "fd98:11::1"
+    },
+    {
+      "vlanif": "vlan3200",
+      "tag": 3200,
+      "pcp": 2,
+      "descr": "Storage",
+      "ipv4": "10.98.20.1",
+      "ipv6": "fd98:20::1"
+    },
+    {
+      "vlanif": "vlan3300",
+      "tag": 3300,
+      "pcp": 3,
+      "descr": "Media",
+      "ipv4": "10.98.30.1",
+      "ipv6": "fd98:30::1"
+    },
+    {
+      "vlanif": "vlan3320",
+      "tag": 3320,
+      "pcp": 0,
+      "descr": "GAMING",
+      "ipv4": "10.98.32.1",
+      "ipv6": "fd98:32::1"
+    },
+    {
+      "vlanif": "vlan3400",
+      "tag": 3400,
+      "pcp": 2,
+      "descr": "CCTV",
+      "ipv4": "10.98.40.1",
+      "ipv6": "fd98:40::1"
+    }
+  ],
+  "ipv4_prefix": 24,
+  "ipv6_prefix": 64
+}

@@ -1,4 +1,17 @@
 #!/usr/bin/env python3
+# ARCHIVED 2026-09-10 — superseded by by_systems.opnsense.opnsense_seed_config.
+#
+# This rendered a firewall's config.xml and was run by hand before Ansible could do anything.
+# Its builders moved into the collection unchanged (ansible-opnsense#32): all three real seed
+# profiles rendered BYTE-IDENTICAL to this script's output before anything else changed, and the
+# Ansible path has since built three firewalls from scratch — the throwaway twice and the lab
+# firewall once (infra#93).
+#
+# Build a firewall with:
+#   ansible-playbook -i inventories/<env> playbooks/opnsense-build.yml -e opnsense_provision_fw=<name>
+#
+# Kept, not deleted, so the provenance of the render logic stays readable. Do not run it: the
+# baseline template has moved on (no <timeservers>, #95) and the collection is the source of truth.
 # Copyright (c) BY-SYSTEMS SRL
 # SPDX-License-Identifier: Apache-2.0
 # Source: https://github.com/by-openclaw/infra-terraform-proxmox
@@ -38,7 +51,7 @@ BOOTSTRAP_SECRET = Path(
     os.path.expanduser("~/.openclaw/workspace/infra/secrets/fabric/OPNsense.seed-bootstrap.json")
 )
 _PLACEHOLDERS = {
-    "__ROOT_PASSWORD_HASH__": "root_password_hash",
+    "__ROOT_PASSWORD_HASH__": "root_password_hash",  # pragma: allowlist secret
     "__BYRESEARCH_PASSWORD_HASH__": "byresearch_password_hash",  # pragma: allowlist secret
     "__BYRESEARCH_AUTHORIZEDKEYS__": "byresearch_authorizedkeys",
     "__SVCANSIBLE_AUTHORIZEDKEYS__": "svcansible_authorizedkeys",
