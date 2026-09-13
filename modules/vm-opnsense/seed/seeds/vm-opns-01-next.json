@@ -1,0 +1,58 @@
+{
+  "hostname": "vm-opns-01-next",
+  "domain": "next.by-research.be",
+  "timezone": "Europe/Brussels",
+  "genesis_creds_file": "net-opnsense-test-oob-admin.json",
+  "dns_servers": [
+    "10.6.224.1"
+  ],
+  "vm": {
+    "_doc": "Build/staging profile used to pre-stage the replacement before the cutover. BUILD profile for the prod firewall's replacement (blue/green). Same hardware as vm-opns-01 so nothing changes at cutover, but only the OOB NIC is on a real bridge \u2014 every other NIC sits on the unused cctv VNet, and there is no WAN section, so this box cannot collide with the running firewall or dial an ISP. It carries a TEMPORARY OOB address; the real profile (vm-opns-01.json, .196) is seeded during the window, which replaces config.xml while the firmware and plugins installed here stay on disk.",
+    "vmid": 196,
+    "name": "vm-opns-01-next",
+    "node": "srv-proxmox-poc-01",
+    "env": "test",
+    "onboot": 0,
+    "agent_enabled": true,
+    "cores": 2,
+    "memory": 8192,
+    "tags": "layer0;opnsense;env-test;seed-nano;prod-next",
+    "uplinks": {
+      "proximus": false,
+      "telenet": false
+    },
+    "nics": {
+      "net0": "cctv",
+      "net1": "vmbrOOB",
+      "net2": "cctv",
+      "net3": "cctv",
+      "net4": "cctv"
+    }
+  },
+  "physical_interfaces": {
+    "trunk": "vtnet0",
+    "oob_mgmt": "vtnet1",
+    "wan_parent": "vtnet2",
+    "wan2_parent": "vtnet3",
+    "fab": "vtnet4"
+  },
+  "lan": {
+    "if": "vtnet1",
+    "descr": "OOB",
+    "ipv4": "10.6.239.198",
+    "ipv4_prefix": 20,
+    "ipv4_gateway": "10.6.224.1",
+    "ipv6": "none",
+    "ipv6_prefix": 64
+  },
+  "trunk": {
+    "if": "vtnet0",
+    "descr": "LAN_TRUNK",
+    "ipv4": "10.97.1.1",
+    "ipv4_prefix": 24,
+    "ipv6": "fd97:1::1",
+    "ipv6_prefix": 64
+  },
+  "ipv4_prefix": 24,
+  "ipv6_prefix": 64
+}
