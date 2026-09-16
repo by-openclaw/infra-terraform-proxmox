@@ -7,6 +7,7 @@
   "webgui_althostnames": [
     "fw.by-research.be"
   ],
+  "webgui_acme_fqdn": "fw.by-research.be",
   "sudo_allow_wheel": 1,
   "genesis_creds_file": "net-opnsense-prod-oob-admin.json",
   "vm": {
