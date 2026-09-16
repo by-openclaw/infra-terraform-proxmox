@@ -1,12 +1,16 @@
 {
-  "_doc": "Base seed (issue #21, supersedes minimal #17). Per ADR services/0008 the SEED owns all non-API-able L2/L3: physical iface assignments + OOB mgmt IP + SSH + WAN1 Proximus PPPoE + WAN2 Telenet static (interface assignment + static IP have NO OPNsense API \u2014 settled since April / PR #8436). VLANs/Kea/rules/unbound/dnscrypt/crowdsec/netflow = ansible MVC lib (by_systems.opnsense), applied after reseed + 26.1.9 upgrade.",
+  "_doc": "Base seed (issue #21, supersedes minimal #17). Per ADR services/0008 the SEED owns all non-API-able L2/L3: physical iface assignments + OOB mgmt IP + SSH + WAN1 Proximus PPPoE + WAN2 Telenet static (interface assignment + static IP have NO OPNsense API — settled since April / PR #8436). VLANs/Kea/rules/unbound/dnscrypt/crowdsec/netflow = ansible MVC lib (by_systems.opnsense), applied after reseed + 26.1.9 upgrade.",
   "hostname": "vm-opns-01",
   "domain": "example.local",
   "domain_secret": "/home/by-systems/.openclaw/workspace/infra/secrets/fabric/net-internal-domain.json",
   "timezone": "Europe/Brussels",
+  "webgui_althostnames": [
+    "fw.by-research.be"
+  ],
+  "sudo_allow_wheel": 1,
   "genesis_creds_file": "net-opnsense-prod-oob-admin.json",
   "vm": {
-    "_doc": "This is the profile the LIVE prod firewall was built from on 2026-09-12. CUTOVER profile \u2014 prod's configuration, built at VMID 196 so the old firewall (VM 100) is left stopped and intact as a one-action rollback. Identical to vm-opns-01.json in every respect except the VM id and name: same OOB address, same VLANs, same ISP identity, same hardware. Run ONLY with VM 100 powered off \u2014 the two carry the same addresses.",
+    "_doc": "This is the profile the LIVE prod firewall was built from on 2026-09-12. CUTOVER profile — prod's configuration, built at VMID 196 so the old firewall (VM 100) is left stopped and intact as a one-action rollback. Identical to vm-opns-01.json in every respect except the VM id and name: same OOB address, same VLANs, same ISP identity, same hardware. Run ONLY with VM 100 powered off — the two carry the same addresses.",
     "vmid": 196,
     "name": "vm-opns-01-new",
     "node": "srv-proxmox-poc-01",
