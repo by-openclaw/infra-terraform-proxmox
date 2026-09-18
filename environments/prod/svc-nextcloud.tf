@@ -22,8 +22,8 @@ module "svc_nextcloud" {
   tags        = ["service", "vlan1030", "zone-svc", "role-files", "nextcloud", "docker"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores              = 2
-  memory             = 4096
+  cores              = 4
+  memory             = 8192
   disk_gb            = 20
   storage            = "poc-data"
 
