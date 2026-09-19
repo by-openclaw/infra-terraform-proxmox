@@ -178,6 +178,8 @@ resource "proxmox_virtual_environment_vm" "this" {
   lifecycle {
     # clone: template ref drifts post-create. agent: provider fills agent.type
     # (virtio) on the live VM → benign in-place churn; ignore it (#27).
-    ignore_changes = [clone, agent]
+    # operating_system: the template carries ostype=l26; the module never sets it, so an
+    # imported VM (vm-k3s-01, 2026-09-19) would otherwise plan "l26 → null".
+    ignore_changes = [clone, agent, operating_system]
   }
 }
