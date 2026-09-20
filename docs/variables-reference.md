@@ -27,7 +27,7 @@ For full Linux VMs cloned from a cloud-init template (e.g. `debian-12-cloud`).
 | `dns` | string | `"10.6.224.1"` | — | ✅ | DNS server |
 | `domain` | string | `"by-systems.arpa"` | — | ✅ | FQDN domain suffix |
 | `keyboard_layout` | string | `"fr-be"` | — | ✅ | Proxmox console keyboard |
-| `ci_user` | string | `"by-systems"` | — | ✅ | Cloud-init user |
+| `ci_user` | string | `"by-research"` | — | ✅ | Cloud-init user |
 | `ci_password` | string | `"<REDACTED:password>"` | — | ✅ | Web console password (sensitive) |
 | `ssh_keys` | list(string) | `[]` | — | ✅ | SSH public keys injected via cloud-init |
 

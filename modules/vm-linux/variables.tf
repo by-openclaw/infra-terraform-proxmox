@@ -84,9 +84,9 @@ variable "keyboard_layout" {
 }
 
 variable "ci_user" {
-  description = "Cloud-init default user (created by cloud-init on first boot)"
+  description = "Cloud-init default user (created by cloud-init on first boot) — the platform's OOB/local admin identity (identity/0004); Ansible's identity baseline then adds svc-* and purges any other human account"
   type        = string
-  default     = "by-systems"
+  default     = "by-research"
 }
 
 variable "ci_password" {
