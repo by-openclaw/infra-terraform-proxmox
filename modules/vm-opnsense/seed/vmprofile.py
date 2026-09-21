@@ -64,6 +64,9 @@ def load_profile(seed_path: Path) -> dict:
     prof = {**DEFAULTS, **vm}
     prof["uplinks"] = {**DEFAULTS["uplinks"], **(vm.get("uplinks") or {})}
     prof["nics"] = dict(vm.get("nics") or DEFAULTS["nics"])
+    # Pinned hardware addresses (optional, per NIC). A firewall's MACs are part of its identity:
+    # the OOB router's ARP/DHCP mapping and the ISP modem key on them, so a rebuild keeps them.
+    prof["nic_macs"] = {k: str(m).upper() for k, m in (vm.get("nic_macs") or {}).items()}
     prof["seed_name"] = Path(seed_path).stem
     return prof
 
@@ -106,7 +109,9 @@ def desired_config(profile: dict, nano: str, seed_import: str) -> dict:
         "virtio1": f"poc-data:0,import-from={seed_import},iothread=1,discard=on",
     }
     for nic, bridge in sorted(profile["nics"].items()):
-        cfg[nic] = f"virtio,bridge={bridge},firewall=0{link_suffix(profile, nic)}"
+        mac = profile.get("nic_macs", {}).get(nic)
+        model = f"virtio={mac}" if mac else "virtio"
+        cfg[nic] = f"{model},bridge={bridge},firewall=0{link_suffix(profile, nic)}"
     return cfg
 
 
@@ -159,6 +164,9 @@ def check_drift(profile: dict, live: dict) -> list[tuple[str, str, str]]:
         cmp(f"{nic}.bridge", bridge, have.get("bridge", "<absent>"))
         cmp(f"{nic}.link_down", "1" if link_suffix(profile, nic) else "0", have.get("link_down", "0"))
         cmp(f"{nic}.firewall", "0", have.get("firewall", "0"))
+        mac = profile.get("nic_macs", {}).get(nic)
+        if mac:
+            cmp(f"{nic}.macaddr", mac, str(have.get("virtio", "<absent>")).upper())
     for k in live:
         if re.fullmatch(r"net\d+", k) and k not in profile["nics"]:
             drift.append((f"{k}", "<absent>", str(live[k])))
