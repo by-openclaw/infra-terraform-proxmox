@@ -64,10 +64,12 @@ was untouched. Stopping VM 199 restored all gateways to 0 % loss within 70 s.
 
 ## ISP settings (non-secret) — where the credentials live
 
-Credentials are NEVER in this repo. Files on the controller under
-`~/.openclaw/workspace/infra/secrets/fabric/`, mirrored to Vault KV v2 by
-`ansible-platform/playbooks/secrets-to-vault.yml` (map: `playbooks/vars/vault_kv_map.yml`).
-`build-seed.py` reads the files at build time and renders them into `config.xml`.
+Credentials are NEVER in this repo. Vault KV v2 is the store of record (`ansible-platform`
+`playbooks/vars/vault_kv_map.yml` maps the fabric names); the files on the controller under
+`~/.openclaw/workspace/infra/secrets/fabric/` are the break-glass fallback a rebuild reads when
+Vault sits behind the firewall being rebuilt. The provisioning role (`roles/opnsense_provision` →
+`by_systems.opnsense.opnsense_seed_config`) reads Vault first, the file second, and renders into
+`config.xml`. The PPPoE password is refreshed into the file *from* Vault by the rotation playbook.
 
 ### Proximus (WAN1, `opt12`, `pppoe0` over `vtnet2`)
 | Setting | Value |
@@ -77,8 +79,8 @@ Credentials are NEVER in this repo. Files on the controller under
 | IPv6 | DHCPv6 over PPP, **/56 prefix delegation**, IA_PD only, prefix hint 56, request DNS |
 | MTU / MSS | 1492 / 1452 |
 | Gateways | `WAN_PROXIMUS_PPPOE` (v4, default) + `WAN_PROXIMUS_DHCP6` (v6, default) — monitors `9.9.9.9` / `2001:4860:4860::8888` (Quad9 v6 does NOT route from Proximus) |
-| Credentials | `fabric/net-isp-proximus-pppoe.json` → Vault `secret/fabric/net/isp-proximus-pppoe` — fields `pppoe_username` (`puXXXXXX@PROXIMUS`), `pppoe_password`, `service_name`, `host_uniq`, `account_id`, `contract_id` |
-| Rotation | MyProximus portal → update the file → `secrets-to-vault` → reseed prod FW (no live API for PPPoE) |
+| Credentials | Vault `secret/prod/net/isp-proximus-pppoe` (store of record; custom metadata `format=raw`, `rotated_at`, `reason`) — fields `pppoe_username` (`puXXXXXX@PROXIMUS`), `pppoe_password` **raw as issued** (the renderer base64-encodes it, OPNsense `base64_decode`s the element), `service_name`, `host_uniq`, `account_id`, `contract_id`. Break-glass fallback `fabric/net-isp-proximus-pppoe.json` (read only when Vault is unreachable, refreshed *from* Vault by the playbook) |
+| Rotation | ISP portal first (the running session keeps its authentication until it re-dials), then `ansible-platform/playbooks/opnsense-pppoe-rotate.yml` (hidden prompt → Vault → firewall over SSH + wheel sudo, `configctl` re-dial, gateway wait). Without wheel sudo on the appliance (seed `sudo_allow_wheel`), the seed applies Vault's value at the re-seed. No file edit, no GUI |
 | Notes | blocks outbound :25 (mail egress is policy-routed via Telenet); block private/bogons on |
 
 ### Telenet (WAN2, `opt13`, `vtnet3`)
