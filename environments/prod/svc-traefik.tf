@@ -22,8 +22,8 @@ module "svc_traefik" {
   tags        = ["service", "vlan1020", "zone-dmz", "role-ingress", "traefik"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores              = 1
-  memory             = 1024
+  cores              = 2 # every HTTPS request of the platform terminates here; 1 vCPU was the choke point (2026-09-21)
+  memory             = 2048
   disk_gb            = 8
   storage            = "poc-data"
 
