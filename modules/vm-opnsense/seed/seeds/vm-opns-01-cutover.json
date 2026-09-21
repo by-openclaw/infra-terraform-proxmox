@@ -31,7 +31,15 @@
       "net2": "vmbrWAN1",
       "net3": "vmbrWAN2",
       "net4": "vmbrFAB"
-    }
+    },
+    "nic_macs": {
+      "net0": "BC:24:11:BB:AC:C7",
+      "net1": "BC:24:11:92:25:EC",
+      "net2": "BC:24:11:CE:F3:A2",
+      "net3": "BC:24:11:48:87:B0",
+      "net4": "BC:24:11:53:D8:51"
+    },
+    "_doc_nic_macs": "Hardware addresses are part of the firewall's identity: peers outside the platform (the OOB router's ARP/DHCP mapping, the ISP modem) key on them, so a rebuild must keep them. Values = the VM's addresses before the 2026-09-21 rebuild (vzdump 05:09)."
   },
   "physical_interfaces": {
     "trunk": "vtnet0",
