@@ -11,9 +11,9 @@
 | 213.214.47.217 | 2a02:1802:21::1 | Telenet router | gateway for everyone |
 | 213.214.47.218 | 2a02:1802:21::4 | **pfSense01** (other island, `pfSense01.by-systems.arpa`) | still in production, WAN2 static |
 | 213.214.47.219 | — | pfSense01 **NAT 1:1** → 10.100.0.24 | "odoo instances" VIP |
-| 213.214.47.220 | 2a02:1802:21::6 | **vm-opns-test-01** (VM 199, TEST) | `fabric/net-isp-telenet-test.json` — borrowed from the HA-Phase2 pool (no HA at this stage). **Telenet NIC UP since 2026-09-06 22:40** — distinct identity proven safe on the shared segment (hot link-up + full boot, prod `.222` untouched); Proximus NIC stays down (single PPPoE account) |
+| 213.214.47.220 | 2a02:1802:21::6 | **RESERVED — image validation** (seed `vm-opns-test-01`, VM 199; the VM was retired 2026-09-22, the allocation is kept) | `fabric/net-isp-telenet-test.json` stays. Rebuild for a validation: `opnsense-provision.yml -e opnsense_provision_fw=vm-opns-test-01`; retire again with `-e opnsense_provision_state=absent` (archive + destroy). Never a duplicate identity on this segment. |
 | 213.214.47.221 | 2a02:1802:21::7 (spare) | **free** | spare host (was a pfSense VIP; removed 2026-09-06) |
-| 213.214.47.222 | 2a02:1802:21::5 | **vm-opns-01** (VM 100, PROD) | `fabric/net-isp-telenet.json` |
+| 213.214.47.222 | 2a02:1802:21::5 | **vm-opns-01** (VM 196 since the 26.7 cutover, PROD) | `fabric/net-isp-telenet.json` |
 | — | 2a02:1802:21::2 | nobody | routed `/48` target — parked |
 
 ## Verified occupancy (2026-09-06, live ARP/NDP on prod OPNsense vtnet3)
