@@ -8,7 +8,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-VENV_PYTHON="/home/by-systems/.openclaw/workspace/repos/lib-synology-dsm/.venv/bin/python"
+# The backup helper lives in lib-synology-dsm; its checkout moved out of the workspace path.
+# Resolve it, and fail loudly rather than silently skipping the state backup.
+VENV_PYTHON="${TF_BACKUP_PYTHON:-$HOME/repos/lib-synology-dsm/.venv/bin/python}"
 ENV="${TF_ENV:-poc}"
 
 # Determine working dir from env
@@ -30,6 +32,11 @@ EXIT_CODE=$?
 if [[ $EXIT_CODE -eq 0 ]] && [[ "${1:-}" =~ ^(apply|destroy)$ ]]; then
   echo ""
   echo "🔄 Backing up state to NAS..."
+  if [[ ! -x "$VENV_PYTHON" ]]; then
+    echo "❌ state NOT backed up: $VENV_PYTHON is missing (set TF_BACKUP_PYTHON)." >&2
+    echo "   The state of $ENV exists only on this controller until that is fixed." >&2
+    exit 2
+  fi
   "$VENV_PYTHON" "${SCRIPT_DIR}/backup-state.py" --env "$ENV"
 fi
 
