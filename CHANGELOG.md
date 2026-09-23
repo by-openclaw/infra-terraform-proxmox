@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.5.0...v1.6.0) (2026-09-23)
+
+
+### Features
+
+* **collab:** lxc-collab-01 — Nextcloud collaboration backend (ONLYOFFICE, Talk HPB/TURN, recording, whiteboard) ([47979ec](https://github.com/by-openclaw/infra-terraform-proxmox/commit/47979ecca230d4e31c86962278a38556fa3b6808))
+* **collab:** lxc-collab-01 — Nextcloud collaboration backend container (ONLYOFFICE, Talk HPB, recording, whiteboard) ([fe8d4a3](https://github.com/by-openclaw/infra-terraform-proxmox/commit/fe8d4a34c86af75034f88a5242d585985c702918))
+* **opnsense-seed:** FAB fabric-MGMT interface (opt14/vtnet4, VLAN 600) in seed + VM definitions ([17eb53b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/17eb53b8cb1b64df483f70676c5c65f0a9414e15))
+* **opnsense-seed:** FAB interface (opt14/VLAN 600) + oob-admin genesis credential ([8c0a646](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8c0a64625700a809113a5956948b6ed638710bd9))
+* **opnsense-seed:** full config on the test FW — Telenet uplink UP by default, IPv6 allowed, WAN2 default gateways ([aa5d1c3](https://github.com/by-openclaw/infra-terraform-proxmox/commit/aa5d1c3149afc6a6af48f631c7e93d3168e7abbc))
+* **opnsense-seed:** seed the oob-admin GENESIS credential, hashes computed at render time ([45e6c1a](https://github.com/by-openclaw/infra-terraform-proxmox/commit/45e6c1a34e5e7d1dceef4c68e9d07353a4df53f5))
+* **opnsense-seed:** seed-driven VM hardware profiles + --check drift gate ([1517ed8](https://github.com/by-openclaw/infra-terraform-proxmox/commit/1517ed8a8be26286d5ec923841630dd025818182))
+* **opnsense-seed:** seed-driven VM hardware profiles + --check drift gate (prod VM 100 asserted from code) ([aae0804](https://github.com/by-openclaw/infra-terraform-proxmox/commit/aae080415e3ffb8ad9c5e7122471eba283ede242))
+* **opnsense-seed:** test FW gets its OWN Telenet identity (.220 / ::6, HA pool borrowed) + ISP-ALLOCATION.md ([c5e4546](https://github.com/by-openclaw/infra-terraform-proxmox/commit/c5e45467dc2f29b55150d11a4326759f6ef8ff0d))
+* **prod:** CISO Assistant guest (lxc-grc-01) + repair the Terraform state backup ([431b370](https://github.com/by-openclaw/infra-terraform-proxmox/commit/431b37023f19630ee94e63027d431f040cbe92a2))
+* **prod:** CISO Assistant guest (lxc-grc-01) + repair the Terraform state backup ([aae0e67](https://github.com/by-openclaw/infra-terraform-proxmox/commit/aae0e675601da48c2362ceba732c6965a5c85fd9))
+* **prod:** lxc-jitsi-01 — Jitsi Meet (Docker-in-LXC, SVC 10.1.3.193) ([85d8ad5](https://github.com/by-openclaw/infra-terraform-proxmox/commit/85d8ad5341de8e8f8865748ab6bdfff8712b711f))
+* **prod:** lxc-portainer-01 — dedicated guest for the container console ([22469dd](https://github.com/by-openclaw/infra-terraform-proxmox/commit/22469dd6509dd17580169e12c0d399be8349d2be))
+* **prod:** lxc-portainer-01 — dedicated guest for the container console (2 vCPU / 2 GiB / 10 GiB, SVC) ([29aa1b7](https://github.com/by-openclaw/infra-terraform-proxmox/commit/29aa1b733b7e797554d9989312370d9b5da9df0b))
+* **prod:** lxc-wazuh-01 — security monitoring guest ([10d8317](https://github.com/by-openclaw/infra-terraform-proxmox/commit/10d83173deaf7716da1a8fdd3465f9618f0c31fb))
+* **prod:** lxc-wazuh-01 — security monitoring guest (4 vCPU / 8 GiB / 40 GiB, SVC) ([22e2201](https://github.com/by-openclaw/infra-terraform-proxmox/commit/22e22017edaed021c56ab2e5236ffe6cd9ad8c34))
+* **prod:** vm-jitsi-01 — Jitsi Meet VM (SVC vlan1030, 10.1.3.193, vmid 507) ([592d33f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/592d33f1057bb5c1ef5fed25e6bf11b5304ba465))
+* **prod:** vm-k3s-01 — single-node k3s application platform (SVC, 4 vCPU / 8 GiB / 60 GiB) ([cc1804b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/cc1804b5a18e29c4ce11d6dfd26f2ca0d9389724))
+* **prod:** vm-k3s-01 — single-node k3s application platform (SVC) ([725874c](https://github.com/by-openclaw/infra-terraform-proxmox/commit/725874c9812e7f415fd0d901f276ff697d23fc25))
+* **seed:** --apply-hw in-place hardware converge + FW VMs 3072 -&gt; 8192 MiB (Suricata sizing review) ([799b0b1](https://github.com/by-openclaw/infra-terraform-proxmox/commit/799b0b146a7f38547f173af3e0e2dc1bf76409d8))
+* **seed:** --apply-hw in-place hardware converge + FW VMs 3072 → 8192 MiB (Suricata sizing review) ([3501ca6](https://github.com/by-openclaw/infra-terraform-proxmox/commit/3501ca6742ef4336ff228581a6214ef0443ba5be))
+* **seed:** lab profile, and archive the renderer Ansible replaced ([4829f3b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/4829f3bd08270a33e3cc938e8ada5416498f2e74))
+* **seed:** lab profile, and archive the renderer Ansible replaced ([b74ea08](https://github.com/by-openclaw/infra-terraform-proxmox/commit/b74ea0882827ce0c46689a64839d00c62326cec6))
+* **seed:** prod profiles carry the GUI alternate hostname and the wheel sudo policy ([b614e1f](https://github.com/by-openclaw/infra-terraform-proxmox/commit/b614e1fffa1fb178d2fb46637792a3e7c1271c2e))
+* **seed:** prod profiles carry the GUI alternate hostname and the wheel sudo policy ([e3714cb](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e3714cbcd448cce0983ecbb0d2d5e88b56a338fa))
+* **seed:** prod profiles seed the WebGUI certificate slot (webgui_acme_fqdn) ([69d21c2](https://github.com/by-openclaw/infra-terraform-proxmox/commit/69d21c26617670b489e440677678f61b7694d440))
+* **seed:** prod profiles seed the WebGUI certificate slot (webgui_acme_fqdn) ([84f62a9](https://github.com/by-openclaw/infra-terraform-proxmox/commit/84f62a94837b6cc5b23ad4183bf89b19fb95dceb))
+* **seed:** the prod firewall keeps its hardware addresses across rebuilds ([fa2c3f6](https://github.com/by-openclaw/infra-terraform-proxmox/commit/fa2c3f69f422085410e6648761fa8922797f8ad2))
+* **seed:** the prod firewall keeps its hardware addresses across rebuilds ([078457b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/078457bad3c8b2b9fe301705c16a469a730c8c15))
+* **seed:** throwaway scratch profile to prove the provisioning path ([#93](https://github.com/by-openclaw/infra-terraform-proxmox/issues/93)) ([00f23e3](https://github.com/by-openclaw/infra-terraform-proxmox/commit/00f23e3e1d8e53fc40dd72ba8fbdd0ba86a7b7f0))
+* **seed:** throwaway scratch profile to prove the provisioning path ([#93](https://github.com/by-openclaw/infra-terraform-proxmox/issues/93)) ([ab06567](https://github.com/by-openclaw/infra-terraform-proxmox/commit/ab06567c221b183951aeb525e9338b7eaed52537))
+* **seed:** track the profiles the prod cutover was built from ([15f8dd1](https://github.com/by-openclaw/infra-terraform-proxmox/commit/15f8dd1c5e947cd2d29f9fd6a04f79e9d9fdf6e1))
+* **seed:** track the profiles the prod cutover was built from ([273eb71](https://github.com/by-openclaw/infra-terraform-proxmox/commit/273eb71b3c9df7fc0bbf5790d527e15ede873d2a))
+
+
+### Bug Fixes
+
+* **dns:** create guests pointing at AdGuard, not the firewall ([47c7518](https://github.com/by-openclaw/infra-terraform-proxmox/commit/47c751842850df087a2854f37cb842b1199d5633))
+* **dns:** create guests pointing at AdGuard, not the firewall ([16ea586](https://github.com/by-openclaw/infra-terraform-proxmox/commit/16ea586e8d31112520bda777738e04ec442abc2e))
+* **jitsi:** 2 cores (multi-core cold-clone boot panic on the Xeon; 4→2 boots reliably) ([ad2d673](https://github.com/by-openclaw/infra-terraform-proxmox/commit/ad2d67344e185deb39b27c8311f9300ed0e32b09))
+* **jitsi:** deploy as Docker-in-LXC (508), not a VM — avoids the old-Xeon cold-clone VM boot flake ([5e1f7c8](https://github.com/by-openclaw/infra-terraform-proxmox/commit/5e1f7c8b459bd8f4aa6894a81c6f7468227f509c))
+* **opnsense-seed:** oob-admin shell=/bin/sh (identity/0004 §6, IDN-31) ([8c27ca5](https://github.com/by-openclaw/infra-terraform-proxmox/commit/8c27ca530fac37b1c3427ec73224c007699a8aa7))
+* **opnsense-seed:** oob-admin shell=/bin/sh (IDN-31) ([9554d8e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/9554d8e8a43684b9a0492025421e40758e05d9c3))
+* **opnsense-seed:** test FW ISP NICs link_down by default — never a duplicate of prod's Telenet identity ([90ebb31](https://github.com/by-openclaw/infra-terraform-proxmox/commit/90ebb310c799a6c338dc555aee4e4b3b231f382b))
+* **opnsense-seed:** test FW ISP NICs link_down by default — never a duplicate of prod's Telenet identity ([d5b908b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d5b908bd19eab19a10b6c2b82d4aed4dc3f35d48))
+* **opnsense-seed:** test FW Telenet NIC link_down by default — boot-time ARP poisons the shared prod CPE ([d06dc6d](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d06dc6d8ccaf2b12659b46fac37843c3f3359850))
+* **opnsense-seed:** test LAN/trunk descriptions identical to prod ([2b114f0](https://github.com/by-openclaw/infra-terraform-proxmox/commit/2b114f0007f4c1f4015930120f2921f69a558f04))
+* **opnsense-seed:** test LAN/trunk descriptions identical to prod (OOB / LAN_TRUNK) ([6916ea9](https://github.com/by-openclaw/infra-terraform-proxmox/commit/6916ea9d2147384ab051accc70a0777dfa75ffa9))
+* **opnsense-seed:** WAN interface + gateway names identical to prod live ([9e19779](https://github.com/by-openclaw/infra-terraform-proxmox/commit/9e19779a9db7602cdcd27b6cfe9782baf559b41e))
+* **opnsense-seed:** WAN names identical to prod live (WAN_PROXIMUS/WAN_TELENET, WAN_TELENET_GW*) ([1d03e8b](https://github.com/by-openclaw/infra-terraform-proxmox/commit/1d03e8b905171ba59684dece656a219ab6f0a9ff))
+* **seed:** drop &lt;timeservers&gt; so a fresh boot does not start legacy ntpd ([baa6e54](https://github.com/by-openclaw/infra-terraform-proxmox/commit/baa6e544f66b5176c96b4b414db3d89e498b0bb7))
+* **seed:** drop &lt;timeservers&gt; so a fresh boot does not start legacy ntpd ([5c12ea9](https://github.com/by-openclaw/infra-terraform-proxmox/commit/5c12ea9ababcbbdd32dbfc4541475e1d7fdadd75)), closes [#92](https://github.com/by-openclaw/infra-terraform-proxmox/issues/92)
+* **svc-traefik:** 2 vCPU / 2 GiB — the reverse proxy terminates every HTTPS request of the platform; 1 vCPU was the choke point ([2b9bb64](https://github.com/by-openclaw/infra-terraform-proxmox/commit/2b9bb6454db2248a8191aaeb726a6ce6584c0910))
+* **svc-traefik:** 2 vCPU / 2 GiB for the reverse proxy ([36eec10](https://github.com/by-openclaw/infra-terraform-proxmox/commit/36eec10c6a7460f6678b5793e276e873d2404c51))
+* **vm-linux:** cloud-init user is by-research (the OOB/local admin identity) — never the retired by-systems bootstrap account ([76d16fb](https://github.com/by-openclaw/infra-terraform-proxmox/commit/76d16fb18bbed246ccc63583b1402f71311ec541))
+* **vm-linux:** cloud-init user is by-research, not the retired by-systems account ([d557e43](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d557e43f8d7f3dceda86e8ecf226453d3fb897c3))
+* **vm-linux:** ignore the template-set operating_system (imported VMs planned l26 → null) ([4de38d5](https://github.com/by-openclaw/infra-terraform-proxmox/commit/4de38d55cd56e5a5c369ca69ff13a782473f1e89))
+* **vm-linux:** ignore the template-set operating_system on VMs ([41b4970](https://github.com/by-openclaw/infra-terraform-proxmox/commit/41b4970c5c0f6b37ec8aa943d1befd6ebc34467f))
+* **vm-linux:** stop first-boot dist-upgrade + 15m agent wait — healthy clones no longer look dead ([220298e](https://github.com/by-openclaw/infra-terraform-proxmox/commit/220298ed8d049eda0e9272270f06a1180425d375))
+* **vm-linux:** stop first-boot dist-upgrade + 15m agent wait — healthy clones no longer look dead ([4881ed5](https://github.com/by-openclaw/infra-terraform-proxmox/commit/4881ed519a7004b542fe0cbeb77f826e88926923))
+
 ## [1.5.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.4.0...v1.5.0) (2026-09-04)
 
 
