@@ -22,7 +22,7 @@ module "svc_warden" {
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores              = 1
-  memory             = 512
+  memory             = 1024
   disk_gb            = 6
   storage            = "poc-data"
 
