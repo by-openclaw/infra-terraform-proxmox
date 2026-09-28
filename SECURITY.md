@@ -24,7 +24,7 @@ We aim to acknowledge reports within 48 hours and provide a fix within 14 days f
 ## Scope
 
 This repo manages Proxmox VM/LXC provisioning via Terraform. Security considerations:
-- `terraform.tfvars` is gitignored — contains Proxmox API tokens and cloud-init passwords
+- No `terraform.tfvars`: the Proxmox API token lives in Vault and reaches `terraform` only as an environment variable (ansible-platform `playbooks/terraform.yml`)
 - State files contain sensitive data — backed up to NAS, not committed
 - Proxmox API authentication uses dedicated `svc-terraform@pve!ci` token (least privilege)
 - Cloud-init injects SSH keys and user credentials at VM creation time

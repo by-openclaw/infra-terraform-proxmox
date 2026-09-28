@@ -8,10 +8,3 @@ variable "proxmox_api_token" {
   type        = string
   sensitive   = true
 }
-
-variable "proxmox_ssh_password" {
-  description = "SSH password for root — kept for reference, SSH via agent in practice"
-  type        = string
-  sensitive   = true
-  default     = ""
-}

@@ -36,7 +36,7 @@ Before touching anything in this repo:
 > Also read [`CLAUDE.md`](CLAUDE.md) for architecture constraints, known blockers, and state backend rules.
 
 - Do NOT change provider or Terraform version pins without explicit instruction
-- Do NOT commit `terraform.tfvars` (contains secrets) -- it is gitignored
+- Do NOT create a `terraform.tfvars`: secrets come from Vault via ansible-platform `playbooks/terraform.yml` (a tfvars file would also override them)
 - Do NOT commit `.terraform/` lock files unless pinning is intentional
 - Do NOT use `terraform apply` directly in CI without plan review step
 - Do NOT migrate the state backend without explicit sign-off from My Lord

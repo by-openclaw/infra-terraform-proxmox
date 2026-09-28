@@ -1,6 +1,6 @@
 # State: local backend — migrate to GitLab managed state at Phase 5 per ADR-0011
 # Backup: scripts/backup-state.py --env prod syncs to Synology NAS
-# Wrapper: scripts/tf.sh auto-backs up on apply/destroy
+# Run: ansible-platform playbooks/terraform.yml (token from Vault; NAS backup after apply)
 
 terraform {
   # State backend — local for PoC phase

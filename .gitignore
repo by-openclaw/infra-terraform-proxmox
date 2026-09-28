@@ -3,9 +3,9 @@
 *.tfstate.*
 *.tfstate.backup
 
-# Terraform variable files with secrets — use *.tfvars.example for templates
+# Terraform variable files: none are used — secrets come from Vault through
+# ansible-platform playbooks/terraform.yml. Still ignored, as a safety net.
 *.tfvars
-!*.tfvars.example
 
 # Terraform working directory
 .terraform/
