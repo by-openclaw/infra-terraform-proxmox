@@ -87,7 +87,7 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 - **Current:** local file (`environments/poc/terraform.tfstate`) — folder named after node, not env
 - **Backup:** Synology NAS `/by-terraform-state/poc/terraform.tfstate` — synced after every apply
 - **Restore:** `python3 scripts/backup-state.py --env poc` (downloads from NAS if local is lost)
-- **Wrapper:** use `scripts/tf.sh` instead of bare `terraform` — auto-backs up on apply/destroy
+- **Run:** through ansible-platform `playbooks/terraform.yml` (plan; `-e tf_apply=true` applies that plan) — the Proxmox API token comes from Vault into the process environment (no `terraform.tfvars`), and the state is backed up to the NAS after every apply
 - **Migration:** GitLab managed state (Phase 5, ADR-0005) — do NOT migrate until instructed
 
 See ADR-0008 for full state management decision.

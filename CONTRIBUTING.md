@@ -14,14 +14,16 @@
 
 ## Setup
 
-```bash
-cd environments/poc
-cp terraform.tfvars.example terraform.tfvars  # Fill in secrets
-terraform init
-terraform plan  # Always plan before apply
-```
+Terraform runs through ansible-platform `playbooks/terraform.yml`: it reads the
+Proxmox API token from Vault and hands it to the `terraform` process as `TF_VAR_*`
+environment variables. There is no `terraform.tfvars`; do not create one (the
+file would also override the environment).
 
-**Never commit `terraform.tfvars`** — it contains secrets and is gitignored.
+```bash
+# from the ansible-platform checkout
+ansible-playbook playbooks/terraform.yml                        # plan
+ansible-playbook playbooks/terraform.yml -e tf_apply=true       # apply that plan
+```
 
 ---
 
@@ -89,7 +91,7 @@ terraform apply plan.tfplan
 python3 scripts/backup-state.py --env poc
 ```
 
-**Use `scripts/tf.sh` as wrapper** — it auto-backs up state after apply/destroy.
+**Apply through ansible-platform `playbooks/terraform.yml`** — it backs the state up to the NAS after every apply.
 
 ---
 

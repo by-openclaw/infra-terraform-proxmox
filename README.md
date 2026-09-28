@@ -27,9 +27,8 @@ versions.tf          # Terraform + provider version pins
 # 1. Navigate to environment
 cd environments/poc
 
-# 2. Configure secrets
-cp terraform.tfvars.example terraform.tfvars
-vim terraform.tfvars   # fill in API URL and token
+# 2. Secrets: none on disk — ansible-platform playbooks/terraform.yml passes the
+#    Proxmox API token from Vault as TF_VAR_* environment variables
 
 # 3. Initialize
 terraform init

@@ -18,7 +18,7 @@ No remote backend is available during the PoC phase. There is a single operator,
 ### Positive
 
 - Zero external dependencies during PoC — no backend configuration required.
-- `scripts/tf.sh` wraps all terraform commands with automatic state backup after each apply.
+- Every apply runs through ansible-platform `playbooks/terraform.yml`, which backs the state up to the NAS afterwards (it replaced `scripts/tf.sh` on 2026-09-28; the decision is unchanged).
 - Manual sync available via `backup-state.py` for ad-hoc backups.
 
 ### Negative
