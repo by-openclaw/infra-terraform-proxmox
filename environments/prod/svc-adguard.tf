@@ -28,7 +28,7 @@ module "vm_adguard_01" {
   clone     = "debian-12-cloud" # template VMID 9000 (per repo CLAUDE.md)
   cores     = 1
   memory    = 1024
-  disk_size = "5G"
+  disk_size = "20G"
   storage   = "poc-data"
 
   network_bridge = "vmbrAPPS"
