@@ -41,6 +41,6 @@ resource "proxmox_lxc" "this" {
     prevent_destroy = false
     # `startup` (start order + delay) is owned by ansible-platform roles/pve_host (pve_host_boot_order):
     # the cold-start sequence follows the service dependencies of the catalog, not the guest definition.
-    ignore_changes  = [network, rootfs, startup]
+    ignore_changes = [network, rootfs, startup]
   }
 }
