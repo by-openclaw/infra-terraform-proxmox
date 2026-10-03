@@ -180,6 +180,8 @@ resource "proxmox_virtual_environment_vm" "this" {
     # (virtio) on the live VM → benign in-place churn; ignore it (#27).
     # operating_system: the template carries ostype=l26; the module never sets it, so an
     # imported VM (vm-k3s-01, 2026-09-19) would otherwise plan "l26 → null".
-    ignore_changes = [clone, agent, operating_system]
+    # `startup` (start order + delay) is owned by ansible-platform roles/pve_host (pve_host_boot_order):
+    # the cold-start sequence follows the service dependencies of the catalog, not the guest definition.
+    ignore_changes = [clone, agent, operating_system, startup]
   }
 }
