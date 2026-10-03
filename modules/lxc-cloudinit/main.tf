@@ -117,6 +117,8 @@ resource "proxmox_virtual_environment_container" "this" {
     # out-of-band via `pct set`. Terraform owns the LXC, Ansible owns the data mount:
     # ignore mount_point so an apply never strips it (which forces a container
     # replacement). LXCs with no data mount have mount_point=[] → no effect.
-    ignore_changes = [mount_point]
+    # `startup` (start order + delay) is owned by ansible-platform roles/pve_host (pve_host_boot_order):
+    # the cold-start sequence follows the service dependencies of the catalog, not the guest definition.
+    ignore_changes = [mount_point, startup]
   }
 }
