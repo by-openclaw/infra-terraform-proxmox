@@ -22,7 +22,7 @@ module "svc_vault" {
   tags        = ["service", "vlan1030", "zone-svc", "role-secrets", "vault", "docker"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores              = 1
+  cores              = 2 # every deploy play reads its secrets through this guest (one core saturated, 2026-10-04)
   memory             = 1024
   disk_gb            = 8
   storage            = "poc-data"
