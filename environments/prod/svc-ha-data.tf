@@ -22,8 +22,8 @@
 
 locals {
   ha_data_lxc = {
-    "lxc-pgsql-02"  = { vmid = 513, host = 111, cores = 2, mem = 2048, disk = 30, tags = ["role-db", "postgres", "patroni"] }
-    "lxc-pgsql-03"  = { vmid = 514, host = 112, cores = 2, mem = 2048, disk = 30, tags = ["role-db", "postgres", "patroni"] }
+    "lxc-pgsql-02"  = { vmid = 513, host = 111, cores = 2, mem = 4096, disk = 30, tags = ["role-db", "postgres", "patroni"] }
+    "lxc-pgsql-03"  = { vmid = 514, host = 112, cores = 2, mem = 4096, disk = 30, tags = ["role-db", "postgres", "patroni"] }
     "lxc-pgpool-01" = { vmid = 515, host = 113, cores = 1, mem = 1024, disk = 8, tags = ["role-db", "role-cache", "endpoint", "sentinel"] }
     "lxc-redis-02"  = { vmid = 518, host = 118, cores = 1, mem = 1024, disk = 8, tags = ["role-cache", "redis", "sentinel"] }
   }

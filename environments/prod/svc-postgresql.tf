@@ -25,7 +25,7 @@ module "svc_postgresql" {
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores              = 2
-  memory             = 2048
+  memory             = 4096 # 400 connections at about 5 MB each (2026-10-04: 189 of 200 with 2 GiB)
   disk_gb            = 30
   storage            = "poc-data"
 
