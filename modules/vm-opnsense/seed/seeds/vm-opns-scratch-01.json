@@ -4,6 +4,10 @@
   "domain": "scratch.by-research.be",
   "timezone": "Europe/Brussels",
   "genesis_creds_file": "net-opnsense-test-oob-admin.json",
+  "_doc_dns": "Its only uplink is the OOB segment, which blocks external DNS: the baseline's public resolver leaves it unable to reach the firmware mirrors (2026-10-04). The OOB gateway resolves.",
+  "dns_servers": [
+    "10.6.224.1"
+  ],
   "vm": {
     "vmid": 197,
     "name": "vm-opns-scratch-01",
