@@ -3,9 +3,9 @@
 # 2 app hosts + 1 SQL Express host, 6 vCPU / 32 GiB each, ballooning off, each VM
 # pinned to its own host NUMA node (node 3 + leftovers stay free for Linux guests).
 #
-#   vm-winapp-01 → host NUMA node 0 (cores 0-5)
-#   vm-winapp-02 → host NUMA node 1 (cores 6-11)
-#   vm-winsql-01 → host NUMA node 2 (cores 12-17)
+#   vm-winapp-01 → host NUMA node 0   vm-winapp-02 → node 1   vm-winsql-01 → node 2
+# (memory bind here; the root-only vCPU affinity 0-5/6-11/12-17 is set by
+#  ansible-platform roles/pve_host, pve_host_guest_affinity)
 
 module "vm_winapp_01" {
   source = "../../modules/vm-windows"
@@ -18,7 +18,6 @@ module "vm_winapp_01" {
   tags        = ["app"]
 
   cores         = 6
-  cpu_affinity  = "0-5"
   numa_hostnode = "0"
   memory        = 32768
 
@@ -44,7 +43,6 @@ module "vm_winapp_02" {
   tags        = ["app"]
 
   cores         = 6
-  cpu_affinity  = "6-11"
   numa_hostnode = "1"
   memory        = 32768
 
@@ -70,7 +68,6 @@ module "vm_winsql_01" {
   tags        = ["sql"]
 
   cores         = 6
-  cpu_affinity  = "12-17"
   numa_hostnode = "2"
   memory        = 32768
 

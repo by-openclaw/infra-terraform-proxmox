@@ -65,8 +65,7 @@ chain (configdrive → hostname/IP/keys → `administrators_authorized_keys` use
 | `tags` | list(string) | `[]` | — | ✅ | Extra Proxmox tags |
 | `cores` | number | `6` | — | ✅ | Single socket |
 | `cpu_type` | string | `"x86-64-v2-AES"` | — | ✅ | `host` panics multi-core VMs on this hardware |
-| `cpu_affinity` | string | `""` | — | ✅ | Host cores the vCPUs pin to, e.g. `"0-5"`; empty = no pinning |
-| `numa_hostnode` | string | `""` | — | ✅ | Host NUMA node the RAM binds to (`policy=bind`); empty = no binding |
+| `numa_hostnode` | string | `""` | — | ✅ | Host NUMA node the RAM binds to (`policy=bind`); empty = no binding. The matching vCPU affinity is root-only in PVE — ansible-platform `pve_host_guest_affinity` sets it |
 | `memory` | number | `32768` | — | ✅ | MB, dedicated only — ballooning stays off |
 | `storage` | string | `"local-zfs"` | — | ✅ | OS disk + cloud-init drive |
 | `disk_size` | string | `"80G"` | — | ✅ | ≥ template disk; growth extends online (cloudbase ExtendVolumes) |
