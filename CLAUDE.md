@@ -59,6 +59,14 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 | vm-debian-bootstrap-test-01 | — | prod | 10.1.1.x (post-SDN) | ✅ VALIDATED — decommission when netbox is up |
 | vm-netbox-01 | TBD | prod | 10.1.1.x (post-SDN) | ⏸ PLANNED — next deploy |
 
+> Node: `br-pmox-03` (standalone dev hypervisor, "pve.dev", OOB 10.6.239.177). `environments/dev/`; token from Vault `dev/proxmox/tokens/svc-rune-terraform` via ansible-platform `playbooks/terraform.yml -e tf_env=dev -e tf_node=br-pmox-03 …`.
+
+| VM | Proxmox ID | env | IP | Status |
+|---|---|---|---|---|
+| vm-winapp-01 | 201 | dev | 10.6.239.201/20 | ✅ LIVE — WS2025 Std GUI from `tpl-ws2025-std-gui` (9100), NUMA node 0 (affinity 0-5 via ansible `pve_host_guest_affinity`) |
+| vm-winapp-02 | 202 | dev | 10.6.239.202/20 | ✅ LIVE — NUMA node 1 (6-11) |
+| vm-winsql-01 | 203 | dev | 10.6.239.203/20 | ✅ LIVE — SQL Express host, NUMA node 2 (12-17); node 3 + leftover cores reserved for Linux guests |
+
 ### Proxmox Template Status
 
 - `debian-12-cloud` template: **VM 9000** on `srv-proxmox-poc-01`
