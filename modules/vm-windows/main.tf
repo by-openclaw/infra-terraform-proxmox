@@ -162,6 +162,9 @@ resource "proxmox_virtual_environment_vm" "this" {
   lifecycle {
     # clone: template ref drifts post-create. agent: provider fills agent.type on the
     # live VM. startup is owned by ansible-platform roles/pve_host (pve_host_boot_order).
-    ignore_changes = [clone, agent, startup]
+    # cpu[0].affinity is owned by pve_host_guest_affinity (root-only in PVE): without the
+    # ignore, ANY in-place change tries to clear it and the whole update is refused
+    # ("only root can set 'affinity' config", seen on the balloon rollout 2026-10-14).
+    ignore_changes = [clone, agent, startup, cpu[0].affinity]
   }
 }
