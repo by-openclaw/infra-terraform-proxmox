@@ -48,6 +48,38 @@ For full Linux VMs cloned from a cloud-init template (e.g. `debian-12-cloud`).
 
 ---
 
+## Module: `vm-windows`
+
+For Windows Server VMs cloned from an ansible-platform `windows_template` build
+(sysprep-generalised; qemu-guest-agent + cloudbase-init inside; cloud-init drive
+`ide2` `citype=configdrive2`). See `modules/vm-windows/README.md` for the first-boot
+chain (configdrive → hostname/IP/keys → `administrators_authorized_keys` user-data).
+
+| Variable | Type | Default | Required | Supported | Notes |
+|---|---|---|---|---|---|
+| `name` | string | — | ✅ | ✅ | = Windows hostname; NetBIOS caps it at 15 chars (validated) |
+| `target_node` | string | — | ✅ | ✅ | e.g. `br-pmox-03` |
+| `clone` | string | — | ✅ | ✅ | Template name e.g. `tpl-ws2025-std-gui` |
+| `vmid` | number | `0` | — | ✅ | 0 = auto |
+| `env` | string | — | ✅ | ✅ | Tier tag (`env-<tier>`) |
+| `tags` | list(string) | `[]` | — | ✅ | Extra Proxmox tags |
+| `cores` | number | `6` | — | ✅ | Single socket |
+| `cpu_type` | string | `"x86-64-v2-AES"` | — | ✅ | `host` panics multi-core VMs on this hardware |
+| `cpu_affinity` | string | `""` | — | ✅ | Host cores the vCPUs pin to, e.g. `"0-5"`; empty = no pinning |
+| `numa_hostnode` | string | `""` | — | ✅ | Host NUMA node the RAM binds to (`policy=bind`); empty = no binding |
+| `memory` | number | `32768` | — | ✅ | MB, dedicated only — ballooning stays off |
+| `storage` | string | `"local-zfs"` | — | ✅ | OS disk + cloud-init drive |
+| `disk_size` | string | `"80G"` | — | ✅ | ≥ template disk; growth extends online (cloudbase ExtendVolumes) |
+| `network_bridge` | string | `"vmbr0"` | — | ✅ | — |
+| `vlan_id` | number | `0` | — | ✅ | 0 = untagged |
+| `ip` | string | — | ✅ | ✅ | Static IPv4 CIDR |
+| `gateway` | string | — | ✅ | ✅ | — |
+| `dns_servers` | list(string) | — | ✅ | ✅ | — |
+| `domain` | string | — | ✅ | ✅ | DNS search domain |
+| `ssh_keys` | list(string) | — | ✅ | ✅ | Administrator keys (profile + `administrators_authorized_keys`) |
+| `use_admin_key_userdata` | bool | `true` | — | ✅ | Uploads the `#ps1` snippet over provider SSH |
+| `agent_timeout` | string | `"20m"` | — | ✅ | First boot runs sysprep specialize + cloudbase before qemu-ga answers |
+
 ## Module: `lxc-standard`
 
 For lightweight LXC containers (no cloud-init, no full OS install).
