@@ -90,9 +90,14 @@ resource "proxmox_virtual_environment_vm" "this" {
     }
   }
 
-  # Dedicated only, no floating: ballooning stays off (template carries balloon=0).
+  # floating == dedicated keeps the balloon DEVICE — the virtio balloon driver then
+  # reports guest memory usage, so the PVE UI shows a real % instead of the flat
+  # allocation — while deflation stays impossible (min == max): the reservation and
+  # the NUMA bind remain absolute ("no freeze"). (Owner 2026-10-14: "32GB permanently,
+  # can't see the % load".)
   memory {
     dedicated = var.memory
+    floating  = var.memory
   }
 
   scsi_hardware = "virtio-scsi-single"
