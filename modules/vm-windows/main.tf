@@ -28,7 +28,11 @@ resource "proxmox_virtual_environment_file" "admin_key_userdata" {
 
   source_raw {
     file_name = "${var.name}-user-data.ps1"
-    data      = <<-EOT
+    # Also the hostname: Proxmox's configdrive2 meta_data.json carries NO hostname key
+    # (verified 2026-10-14: uuid, public_keys, network_config only), so cloudbase's
+    # SetHostNamePlugin silently does nothing here. Exit 1003 is cloudbase's "reboot,
+    # do not re-run" convention — the rename lands within the first boot.
+    data = <<-EOT
       #ps1
       $keys = @'
       ${join("\n", var.ssh_keys)}
@@ -36,6 +40,10 @@ resource "proxmox_virtual_environment_file" "admin_key_userdata" {
       $p = Join-Path $env:ProgramData 'ssh\administrators_authorized_keys'
       Set-Content -Path $p -Value $keys -Encoding ascii
       icacls.exe $p /inheritance:r /grant 'Administrators:F' /grant 'SYSTEM:F' | Out-Null
+      if ($env:COMPUTERNAME -ne '${var.name}') {
+        Rename-Computer -NewName '${var.name}' -Force
+        exit 1003
+      }
     EOT
   }
 }
