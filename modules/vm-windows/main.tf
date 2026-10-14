@@ -32,14 +32,24 @@ resource "proxmox_virtual_environment_file" "admin_key_userdata" {
     # (verified 2026-10-14: uuid, public_keys, network_config only), so cloudbase's
     # SetHostNamePlugin silently does nothing here. Exit 1003 is cloudbase's "reboot,
     # do not re-run" convention — the rename lands within the first boot.
+    # Order matters: the key file is written (and CONFIRMED) before the rename reboots.
+    # C:\ProgramData\ssh is created here, not assumed — on first boot under load sshd may
+    # not have created it yet, and Set-Content then threw, the script exited 1 and never
+    # reached the rename (two guests stuck WIN-*/keyless, 2026-10-14). Exit 1003 is
+    # cloudbase's "reboot, do not re-run" convention; the hostname lands on first boot
+    # (Proxmox's configdrive2 meta_data.json carries no hostname key, so SetHostName no-ops).
     data = <<-EOT
       #ps1
+      $ErrorActionPreference = 'Stop'
       $keys = @'
       ${join("\n", var.ssh_keys)}
       '@
-      $p = Join-Path $env:ProgramData 'ssh\administrators_authorized_keys'
+      $d = Join-Path $env:ProgramData 'ssh'
+      New-Item -ItemType Directory -Force -Path $d | Out-Null
+      $p = Join-Path $d 'administrators_authorized_keys'
       Set-Content -Path $p -Value $keys -Encoding ascii
       icacls.exe $p /inheritance:r /grant 'Administrators:F' /grant 'SYSTEM:F' | Out-Null
+      if (-not (Test-Path $p)) { exit 1 }
       if ($env:COMPUTERNAME -ne '${var.name}') {
         Rename-Computer -NewName '${var.name}' -Force
         exit 1003
