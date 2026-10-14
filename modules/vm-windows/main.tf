@@ -64,9 +64,10 @@ resource "proxmox_virtual_environment_vm" "this" {
     cores = var.cores
     type  = var.cpu_type # cpu=host panics multi-core VMs on this hardware
     numa  = true
-    # Pin the vCPUs to one host NUMA node's cores ("the VM fits as a VM, no freeze"):
-    # the guest never migrates across the QPI link.
-    affinity = var.cpu_affinity != "" ? var.cpu_affinity : null
+    # NO affinity here: PVE accepts the affinity option from root@pam ONLY ("only root
+    # can set 'affinity' config", HTTP 500 for any API token). The vCPU pinning that
+    # completes the NUMA bind below is owned by ansible-platform roles/pve_host
+    # (pve_host_guest_affinity, qm set --affinity as root on the node).
   }
 
   # Guest NUMA topology bound to one host node: vCPUs 0..N-1 and all RAM on it.

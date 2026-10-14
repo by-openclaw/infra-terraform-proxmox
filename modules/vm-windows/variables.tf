@@ -46,12 +46,6 @@ variable "cpu_type" {
   default     = "x86-64-v2-AES"
 }
 
-variable "cpu_affinity" {
-  description = "Host CPU list the vCPUs are pinned to, e.g. \"0-5\" (one NUMA node's cores). Empty = no pinning."
-  type        = string
-  default     = ""
-}
-
 variable "numa_hostnode" {
   description = "Host NUMA node the guest's memory is bound to (policy=bind), e.g. \"0\". Empty = no binding."
   type        = string
