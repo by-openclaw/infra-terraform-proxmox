@@ -12,7 +12,7 @@ module "vm_winapp_01" {
 
   name        = "vm-winapp-01"
   target_node = local.node
-  clone       = "tpl-ws2025-std-gui"
+  clone       = "tpl-ws2025-std-gui-gold" # the golden template (ansible-platform playbooks/windows-golden.yml): base + hardening + firewall + agents baked
   vmid        = 201
   env         = local.env
   tags        = ["app"]
@@ -37,7 +37,7 @@ module "vm_winapp_02" {
 
   name        = "vm-winapp-02"
   target_node = local.node
-  clone       = "tpl-ws2025-std-gui"
+  clone       = "tpl-ws2025-std-gui-gold" # the golden template (ansible-platform playbooks/windows-golden.yml): base + hardening + firewall + agents baked
   vmid        = 202
   env         = local.env
   tags        = ["app"]
@@ -62,7 +62,7 @@ module "vm_winsql_01" {
 
   name        = "vm-winsql-01"
   target_node = local.node
-  clone       = "tpl-ws2025-std-gui"
+  clone       = "tpl-ws2025-std-gui-gold" # the golden template (ansible-platform playbooks/windows-golden.yml): base + hardening + firewall + agents baked
   vmid        = 203
   env         = local.env
   tags        = ["sql"]
