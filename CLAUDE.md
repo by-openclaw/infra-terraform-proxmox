@@ -63,11 +63,13 @@ Terraform modules (`vm-linux`, `lxc-standard`, `vm-opnsense`, `sdn-poc`) and env
 
 | VM | Proxmox ID | env | IP | Status |
 |---|---|---|---|---|
-| vm-winapp-01 | 201 | dev | 10.6.239.201/20 | ✅ LIVE — WS2025 Std GUI from `tpl-ws2025-std-gui` (9100), NUMA node 0 (affinity 0-5 via ansible `pve_host_guest_affinity`) |
+| vm-winapp-01 | 201 | dev | 10.6.239.201/20 | ✅ LIVE — WS2025 Std GUI from the **golden** template `tpl-ws2025-std-gui-gold` (9110 = base 9100 + ansible-platform `windows-golden.yml`: guest baseline, CIS L1, firewall, agents baked), NUMA node 0 (affinity 0-5 via ansible `pve_host_guest_affinity`) |
 | vm-winapp-02 | 202 | dev | 10.6.239.202/20 | ✅ LIVE — NUMA node 1 (6-11) |
 | vm-winsql-01 | 203 | dev | 10.6.239.203/20 | ✅ LIVE — SQL Express host, NUMA node 2 (12-17); node 3 + leftover cores reserved for Linux guests |
 
 ### Proxmox Template Status
+
+- `tpl-ws2025-std-gui` **9100** and `tpl-ws2025-std-gui-gold` **9110** on `br-pmox-03` (ansible-platform `roles/windows_template` → `playbooks/windows-golden.yml`); `tpl-win11-iot-ltsc` **9101** (kiosk/utility edition; the workstation template is Win11 Pro, pending its ISO). Terraform clones the golden one.
 
 - `debian-12-cloud` template: **VM 9000** on `srv-proxmox-poc-01`
   - Disk: `poc-data:vm-9000-disk-0` (ZFS)
