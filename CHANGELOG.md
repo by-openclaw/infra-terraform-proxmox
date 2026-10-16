@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.6.0...v1.7.0) (2026-10-16)
+
+
+### Features
+
+* **windows:** dev guests clone from the golden template ([e6b04be](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e6b04bea0f6f78c4c3c2b51d68ea810242820565))
+* **windows:** dev guests clone from the golden template ([bd1729a](https://github.com/by-openclaw/infra-terraform-proxmox/commit/bd1729a3703659f2f09e205cbb28f0083113e092))
+* **windows:** vm-windows module + dev environment (3× WS2025, NUMA-pinned) on br-pmox-03 ([3a6b905](https://github.com/by-openclaw/infra-terraform-proxmox/commit/3a6b905b8ef12ed8376287eedcb280b581707850))
+* **windows:** vm-windows module + dev environment on br-pmox-03 ([aa52c68](https://github.com/by-openclaw/infra-terraform-proxmox/commit/aa52c68bea51743b3333d55f2571e858fadeac7b))
+
+
+### Bug Fixes
+
+* **seed:** retire the rune-vm first-boot key; seed key lists never touch a running guest ([4f64bfd](https://github.com/by-openclaw/infra-terraform-proxmox/commit/4f64bfd225b7f32779373edc46185e55a1fffa33))
+* **seed:** retire the rune-vm first-boot key; seed key lists never touch a running guest ([565ad14](https://github.com/by-openclaw/infra-terraform-proxmox/commit/565ad148349a174d188df8f1fb5473c627894ea5))
+* **windows:** affinity is root-only in PVE — module keeps the NUMA memory bind ([d3b63fd](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d3b63fd1282ca5a2b2069ba480143217eed43911))
+* **windows:** balloon device for guest memory stats, deflation impossible ([e63ac00](https://github.com/by-openclaw/infra-terraform-proxmox/commit/e63ac00f20d5f0ee0567a2b3f9e6089f47fa6a50))
+* **windows:** cpu affinity drift ignored — root-owned option blocked every in-place update ([4e82f08](https://github.com/by-openclaw/infra-terraform-proxmox/commit/4e82f083a3677a509a5a3e05bb668d25e3ce8616))
+* **windows:** drop root-only cpu affinity — NUMA memory bind stays, pinning moves to pve_host ([354ed8a](https://github.com/by-openclaw/infra-terraform-proxmox/commit/354ed8aa112a4b8da69e65d4b8ac62120504e6be))
+* **windows:** guest memory % in the UI — balloon device with min == max ([b22245d](https://github.com/by-openclaw/infra-terraform-proxmox/commit/b22245d01fccb53037cc5612ab5b301fe0531148))
+* **windows:** hostname set by user-data — Proxmox configdrive2 carries no hostname key ([90b7bf8](https://github.com/by-openclaw/infra-terraform-proxmox/commit/90b7bf880c0c3705c997fa2f3ac215b6b6bf8375))
+* **windows:** hostname via user-data — configdrive2 metadata has no hostname ([fc06e7a](https://github.com/by-openclaw/infra-terraform-proxmox/commit/fc06e7a4fb8432d4eb3ba9edb12ca02bc093dbba))
+* **windows:** ignore cpu affinity drift — root-owned, blocks every in-place update ([d92a622](https://github.com/by-openclaw/infra-terraform-proxmox/commit/d92a622ecb267521579b4226196b1f215b9f28b5))
+* **windows:** user-data creates ssh dir before the admin key (first-boot race) ([46d8d53](https://github.com/by-openclaw/infra-terraform-proxmox/commit/46d8d537fb22a00592c911a3ab9fb33fdd79b81d))
+* **windows:** user-data creates the ssh dir before writing the admin key ([09f1acc](https://github.com/by-openclaw/infra-terraform-proxmox/commit/09f1acce12322279d16a02f03fdaef9b4b22245f))
+
 ## [1.6.0](https://github.com/by-openclaw/infra-terraform-proxmox/compare/v1.5.0...v1.6.0) (2026-10-04)
 
 
