@@ -119,6 +119,10 @@ resource "proxmox_virtual_environment_container" "this" {
     # replacement). LXCs with no data mount have mount_point=[] → no effect.
     # `startup` (start order + delay) is owned by ansible-platform roles/pve_host (pve_host_boot_order):
     # the cold-start sequence follows the service dependencies of the catalog, not the guest definition.
-    ignore_changes = [mount_point, startup]
+    # initialization.user_account (keys) seeds the first boot only and FORCES REPLACEMENT of the
+    # container when it changes: the keys of a running guest are owned by ansible-platform
+    # roles/user-mgmt (exclusive lists). A change to the seed list must never rebuild a guest
+    # (the 2026-10-15 plan without this line: 33 containers to replace).
+    ignore_changes = [mount_point, startup, initialization[0].user_account]
   }
 }

@@ -175,6 +175,8 @@ resource "proxmox_virtual_environment_vm" "this" {
     # cpu[0].affinity is owned by pve_host_guest_affinity (root-only in PVE): without the
     # ignore, ANY in-place change tries to clear it and the whole update is refused
     # ("only root can set 'affinity' config", seen on the balloon rollout 2026-10-14).
-    ignore_changes = [clone, agent, startup, cpu[0].affinity]
+    # initialization.user_account + the user-data snippet seed the first boot only: the keys of a
+    # running guest are owned by ansible-platform roles/windows_guest (exclusive list).
+    ignore_changes = [clone, agent, startup, cpu[0].affinity, initialization[0].user_account, initialization[0].user_data_file_id]
   }
 }

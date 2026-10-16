@@ -182,6 +182,8 @@ resource "proxmox_virtual_environment_vm" "this" {
     # imported VM (vm-k3s-01, 2026-09-19) would otherwise plan "l26 → null".
     # `startup` (start order + delay) is owned by ansible-platform roles/pve_host (pve_host_boot_order):
     # the cold-start sequence follows the service dependencies of the catalog, not the guest definition.
-    ignore_changes = [clone, agent, operating_system, startup]
+    # initialization.user_account seeds the first boot only: the keys of a running guest are owned
+    # by ansible-platform roles/user-mgmt (exclusive lists), and a change here must not touch it.
+    ignore_changes = [clone, agent, operating_system, startup, initialization[0].user_account]
   }
 }

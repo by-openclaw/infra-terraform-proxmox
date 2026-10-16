@@ -16,9 +16,12 @@ locals {
   dns        = ["10.1.3.1"] # AdGuard, reachable once the guest carries the 10.1.0.0/16 route
   svc_domain = "dev.by-research.be"
 
+  # First-boot seed only: on a running guest the keys are owned by ansible-platform
+  # (roles/user-mgmt: root's list is exclusive; roles/windows_guest: Administrator's list is
+  # exclusive) — a change here never reaches an existing guest (lifecycle ignore in the modules).
+  # The early rune-vm key was retired on 2026-10-15 (ansible-platform files/keys/_retired).
   standard_ssh_keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFJ8rXlV8+/e20imHW/hTry2DbqQ9bIpwslC4MIINlJW by-systems@ws-win11-ref",
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJuUNkyvMaETbPeBGsBPEfzeYsL1SuVbvPUOMIb/2VU8 by-systems@rune-vm",
     # Rune automation key (no passphrase) — lets ansible/CI reach managed VMs non-interactively.
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAPtVxi41CKLEZuYr1PhIdPTJJEQ+bqbhnBuZgAVcT1U rune@by-systems-automation-nopass",
   ]
