@@ -58,3 +58,43 @@ output "vm_adguard_01" {
     id   = module.vm_adguard_01.vm_id
   }
 }
+
+################################################################################
+# Second resolver instance (ADR infra/0011 — two AdGuard Home instances behind one
+# VRRP address, accepted by the owner 2026-10-27). Same shape as vm-adguard-01, rendered
+# by the same ansible-platform roles from the same inventory. VMID 105 (101–104 taken),
+# host octet .105 mirrors the VMID like .101 does. Both instances sit on
+# srv-proxmox-poc-01 until br-pmox-03 is back (ADR §3); the virtual address the guests use
+# (10.1.3.100 / fd01:3::100) is owned by keepalived on whichever instance is alive and is
+# declared in ansible-platform (platform_resolver_vip4/6), not here.
+################################################################################
+module "vm_adguard_02" {
+  source          = "../../modules/vm-linux"
+  name            = "vm-adguard-02"
+  vmid            = 105
+  target_node     = "srv-proxmox-poc-01"
+  env             = "prod"
+  tags            = ["service", "vlan1030", "zone-svc", "role-adguard"]
+  clone           = "debian-12-cloud"
+  cores           = 1
+  memory          = 2048
+  disk_size       = "20G"
+  storage         = "poc-data"
+  network_bridge  = "vmbrAPPS"
+  vlan_id         = 1030
+  ip              = "10.1.3.105/24"
+  gateway         = "10.1.3.1"
+  ipv6_address    = "fd01:3::105/64"
+  ipv6_gateway    = "fd01:3::1"
+  domain          = "by-research.be"
+  dns_servers     = local.dns_direct # a resolver must not resolve through itself
+  ssh_keys        = local.standard_ssh_keys
+  use_vendor_data = false
+}
+output "vm_adguard_02" {
+  description = "PROD AdGuard Home VM #2 — second instance of the resolver tier (ADR infra/0011)"
+  value = {
+    name = module.vm_adguard_02.vm_name
+    id   = module.vm_adguard_02.vm_id
+  }
+}
