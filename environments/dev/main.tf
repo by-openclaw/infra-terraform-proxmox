@@ -22,7 +22,10 @@ locals {
   # The early rune-vm key was retired on 2026-10-15 (ansible-platform files/keys/_retired).
   standard_ssh_keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFJ8rXlV8+/e20imHW/hTry2DbqQ9bIpwslC4MIINlJW by-systems@ws-win11-ref",
-    # Rune automation key (no passphrase) — lets ansible/CI reach managed VMs non-interactively.
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAPtVxi41CKLEZuYr1PhIdPTJJEQ+bqbhnBuZgAVcT1U rune@by-systems-automation-nopass",
+    # The automation identity ansible-platform connects with (svc-ansible-<env>, passphrase held by
+    # the controller's agent): without it no new guest is reachable for its bootstrap. The former
+    # passphrase-less rune key was retired on 2026-10-22; found again 2026-10-28 when vm-adguard-02
+    # came up with no key the controller holds.
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBrN5jHI79pVfh9uQafujoahlV5pkNzu/zGCR+72JVeK svc-ansible-prod@controller",
   ]
 }
