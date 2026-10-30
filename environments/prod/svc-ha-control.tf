@@ -16,10 +16,10 @@
 
 locals {
   ha_control_lxc = {
-    "lxc-vault-02"     = { vmid = 507, host = 151, cores = 2, mem = 1024, disk = 8, tags = ["role-secrets", "vault", "docker"] }
-    "lxc-vault-03"     = { vmid = 516, host = 152, cores = 2, mem = 1024, disk = 8, tags = ["role-secrets", "vault", "docker"] }
-    "lxc-authentik-02" = { vmid = 531, host = 131, cores = 2, mem = 2048, disk = 10, tags = ["role-sso", "authentik", "docker"] }
-    "lxc-pkgcache-01"  = { vmid = 519, host = 198, cores = 2, mem = 1024, disk = 40, tags = ["role-registry", "pkgcache", "docker"] }
+    "lxc-vault-02"     = { vmid = 507, host = 151, cores = 2, mem = 1024, swap = 0, disk = 8, tags = ["role-secrets", "vault", "docker"] }
+    "lxc-vault-03"     = { vmid = 516, host = 152, cores = 2, mem = 1024, swap = 0, disk = 8, tags = ["role-secrets", "vault", "docker"] }
+    "lxc-authentik-02" = { vmid = 531, host = 131, cores = 2, mem = 2048, swap = 512, disk = 10, tags = ["role-sso", "authentik", "docker"] }
+    "lxc-pkgcache-01"  = { vmid = 519, host = 198, cores = 2, mem = 1024, swap = 512, disk = 40, tags = ["role-registry", "pkgcache", "docker"] }
   }
 }
 
@@ -37,6 +37,7 @@ module "ha_control" {
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores              = each.value.cores
   memory             = each.value.mem
+  swap               = each.value.swap # Vault: \"disabling swap\" (production hardening) → 0; the others: pct(1) default
   disk_gb            = each.value.disk
   storage            = "poc-data"
 

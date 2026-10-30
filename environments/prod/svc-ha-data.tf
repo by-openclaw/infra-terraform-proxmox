@@ -22,10 +22,10 @@
 
 locals {
   ha_data_lxc = {
-    "lxc-pgsql-02"  = { vmid = 513, host = 111, cores = 2, mem = 4096, disk = 30, tags = ["role-db", "postgres", "patroni"] }
-    "lxc-pgsql-03"  = { vmid = 514, host = 112, cores = 2, mem = 4096, disk = 30, tags = ["role-db", "postgres", "patroni"] }
-    "lxc-pgpool-01" = { vmid = 515, host = 113, cores = 1, mem = 1024, disk = 8, tags = ["role-db", "role-cache", "endpoint", "sentinel"] }
-    "lxc-redis-02"  = { vmid = 518, host = 118, cores = 1, mem = 1024, disk = 8, tags = ["role-cache", "redis", "sentinel"] }
+    "lxc-pgsql-02"  = { vmid = 513, host = 111, cores = 2, mem = 4096, swap = 4096, disk = 30, tags = ["role-db", "postgres", "patroni"] }
+    "lxc-pgsql-03"  = { vmid = 514, host = 112, cores = 2, mem = 4096, swap = 4096, disk = 30, tags = ["role-db", "postgres", "patroni"] }
+    "lxc-pgpool-01" = { vmid = 515, host = 113, cores = 1, mem = 1024, swap = 512, disk = 8, tags = ["role-db", "role-cache", "endpoint", "sentinel"] }
+    "lxc-redis-02"  = { vmid = 518, host = 118, cores = 1, mem = 1024, swap = 1024, disk = 8, tags = ["role-cache", "redis", "sentinel"] }
   }
 }
 
@@ -43,6 +43,7 @@ module "ha_data" {
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores              = each.value.cores
   memory             = each.value.mem
+  swap               = each.value.swap # PostgreSQL members: swap = memory (RHEL table; PostgreSQL docs: swap keeps the OOM killer away); Redis: = memory (Redis docs); pgpool: pct(1) default
   disk_gb            = each.value.disk
   storage            = "poc-data"
 

@@ -24,6 +24,7 @@ module "svc_vault" {
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores              = 2 # every deploy play reads its secrets through this guest (one core saturated, 2026-10-04)
   memory             = 1024
+  swap               = 0 # Vault production hardening: "disabling swap … even more critical with Integrated Storage"
   disk_gb            = 8
   storage            = "poc-data"
 

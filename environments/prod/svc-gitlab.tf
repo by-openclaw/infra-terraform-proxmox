@@ -42,6 +42,7 @@ module "svc_gitlab" {
   # to ~500 users; 4 GB swaps). Scale here, not in the role.
   cores   = 4
   memory  = 8192
+  swap    = 0  # GitLab requirements: "Disable swap where possible"
   disk_gb = 20 # Omnibus package + /var/log + config ONLY — git repos are the ZFS bind-mount, assets are S3
   storage = "poc-data"
 

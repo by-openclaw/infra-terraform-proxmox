@@ -44,6 +44,12 @@ variable "memory" {
   default     = 512
 }
 
+variable "swap" {
+  description = "Swap allowance in MB (cgroup memory.swap.max, taken from the node's swap). Proxmox's own default for a container is 512 (pct(1): --swap default = 512); products whose documentation says otherwise set their own value (Redis: equal to memory; PostgreSQL members: equal to memory per the RHEL swap table; GitLab and Vault: 0)."
+  type        = number
+  default     = 512
+}
+
 variable "disk_gb" {
   description = "Root filesystem size in GB"
   type        = number
