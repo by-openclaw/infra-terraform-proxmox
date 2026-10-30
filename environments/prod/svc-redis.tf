@@ -25,6 +25,7 @@ module "svc_redis" {
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores              = 1
   memory             = 1024
+  swap               = 1024 # Redis docs: "swap is enabled and … equal to amount of memory"
   disk_gb            = 8
   storage            = "poc-data"
 

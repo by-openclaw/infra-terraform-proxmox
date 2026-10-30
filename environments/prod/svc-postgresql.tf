@@ -26,6 +26,7 @@ module "svc_postgresql" {
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
   cores              = 2
   memory             = 4096 # 400 connections at about 5 MB each (2026-10-04: 189 of 200 with 2 GiB)
+  swap               = 4096 # equal to memory: RHEL swap table (2-8 GB → = RAM); PostgreSQL docs: more swap keeps the OOM killer away
   disk_gb            = 30
   storage            = "poc-data"
 

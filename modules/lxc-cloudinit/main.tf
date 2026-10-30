@@ -54,7 +54,7 @@ resource "proxmox_virtual_environment_container" "this" {
 
   memory {
     dedicated = var.memory
-    swap      = 0
+    swap      = var.swap # vendor default 512; applied live by Proxmox (no restart — measured 2026-10-30)
   }
 
   disk {
