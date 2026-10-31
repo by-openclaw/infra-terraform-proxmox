@@ -38,7 +38,10 @@ DEFAULTS = {
     "agent_enabled": True,
     "cores": 2,
     "memory": 3072,
-    "cpu": "host",
+    # x86-64-v2-AES (SSE4.2/POPCNT/AES-NI), never "host": the platform standard for every guest on
+    # these Xeons (the Terraform modules do the same) — stable across host CPU swaps and migration,
+    # and AES-NI reaches the FreeBSD crypto stack (IPsec/OpenVPN/TLS). Decided 2026-10-31.
+    "cpu": "x86-64-v2-AES",
     "machine": "q35",
     "bios": "seabios",
     "scsihw": "virtio-scsi-single",
