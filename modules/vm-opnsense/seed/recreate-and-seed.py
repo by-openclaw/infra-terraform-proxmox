@@ -5,8 +5,8 @@
 # Destroy + recreate an OPNsense FW VM from the verified nano image and drive the
 # importer over Proxmox termproxy (seed-driven: seeds/<name>.json "vm"), with
 # --check just diff the live hardware against that profile, or with --apply-hw
-# push the in-place hardware keys (memory/cores/onboot/tags) to the live VM and
-# cold-restart it when memory/cores changed — no recreate, no disk/NIC change.
+# push the in-place hardware keys (memory/cores/cpu/onboot/tags) to the live VM and
+# cold-restart it when memory/cores/cpu changed — no recreate, no disk/NIC change.
 # Idempotent. Prod: --check always; --apply-hw needs --confirm-prod-restart.
 from __future__ import annotations
 
@@ -456,15 +456,15 @@ def check_only() -> int:
 
 
 # Hardware keys the seed may change on a LIVE VM without a recreate (no disk, no NIC).
-HW_APPLY_KEYS = ("memory", "cores", "onboot", "tags")
+HW_APPLY_KEYS = ("memory", "cores", "cpu", "onboot", "tags")
 # ... of which these only take effect after a full stop/start (not hot-pluggable here).
-COLD_RESTART_KEYS = ("memory", "cores")
+COLD_RESTART_KEYS = ("memory", "cores", "cpu")
 
 
 def apply_hardware() -> int:
     """--apply-hw: converge the in-place hardware keys of the live VM to the seed profile.
 
-    Pushes memory/cores/onboot/tags through the PVE API (`PUT .../config`), then, when a
+    Pushes memory/cores/cpu/onboot/tags through the PVE API (`PUT .../config`), then, when a
     cold-restart key changed and the VM is running, does a guest shutdown (ACPI/agent) and
     a start so the new memory/cores are live. Refuses when the drift includes anything
     outside HW_APPLY_KEYS (that is a recreate). Prod needs --confirm-prod-restart because
@@ -496,7 +496,7 @@ def apply_hardware() -> int:
     if needs_restart:
         status = api("GET", f"/nodes/{NODE}/qemu/{VMID}/status/current")["data"].get("status")
         if status == "running":
-            print("[apply-hw] cold restart (guest shutdown → start) so memory/cores take effect …")
+            print("[apply-hw] cold restart (guest shutdown → start) so memory/cores/cpu take effect …")
             upid = api("POST", f"/nodes/{NODE}/qemu/{VMID}/status/shutdown", {"timeout": 180})["data"]
             print(f"[apply-hw] shutdown: {wait_task(upid, 240)}")
             upid = api("POST", f"/nodes/{NODE}/qemu/{VMID}/status/start")["data"]
