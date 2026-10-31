@@ -30,9 +30,10 @@ module "vm_adguard_01" {
   # 2 GiB: AdGuard moves into a container (ansible-platform) — the Docker engine plus the
   # cadvisor + portainer agents every Docker host runs need ~200 MB; at 1 GiB the VM had
   # 270 MB available and no swap (measured 2026-10-01).
-  memory    = 2048
-  disk_size = "20G"
-  storage   = "poc-data"
+  memory             = 2048
+  disk_size          = "20G"
+  data_disk_size_gib = 8 # Docker data root (roles/docker_data): 1.7 GB measured 2026-10-31
+  storage            = "poc-data"
 
   network_bridge = "vmbrAPPS"
   vlan_id        = 1030
@@ -69,27 +70,28 @@ output "vm_adguard_01" {
 # declared in ansible-platform (platform_resolver_vip4/6), not here.
 ################################################################################
 module "vm_adguard_02" {
-  source          = "../../modules/vm-linux"
-  name            = "vm-adguard-02"
-  vmid            = 105
-  target_node     = "srv-proxmox-poc-01"
-  env             = "prod"
-  tags            = ["service", "vlan1030", "zone-svc", "role-adguard"]
-  clone           = "debian-12-cloud"
-  cores           = 1
-  memory          = 2048
-  disk_size       = "20G"
-  storage         = "poc-data"
-  network_bridge  = "vmbrAPPS"
-  vlan_id         = 1030
-  ip              = "10.1.3.105/24"
-  gateway         = "10.1.3.1"
-  ipv6_address    = "fd01:3::105/64"
-  ipv6_gateway    = "fd01:3::1"
-  domain          = "by-research.be"
-  dns_servers     = local.dns_direct # a resolver must not resolve through itself
-  ssh_keys        = local.standard_ssh_keys
-  use_vendor_data = false
+  source             = "../../modules/vm-linux"
+  name               = "vm-adguard-02"
+  vmid               = 105
+  target_node        = "srv-proxmox-poc-01"
+  env                = "prod"
+  tags               = ["service", "vlan1030", "zone-svc", "role-adguard"]
+  clone              = "debian-12-cloud"
+  cores              = 1
+  memory             = 2048
+  disk_size          = "20G"
+  data_disk_size_gib = 8 # Docker data root (roles/docker_data): 1.7 GB measured 2026-10-31
+  storage            = "poc-data"
+  network_bridge     = "vmbrAPPS"
+  vlan_id            = 1030
+  ip                 = "10.1.3.105/24"
+  gateway            = "10.1.3.1"
+  ipv6_address       = "fd01:3::105/64"
+  ipv6_gateway       = "fd01:3::1"
+  domain             = "by-research.be"
+  dns_servers        = local.dns_direct # a resolver must not resolve through itself
+  ssh_keys           = local.standard_ssh_keys
+  use_vendor_data    = false
 }
 output "vm_adguard_02" {
   description = "PROD AdGuard Home VM #2 — second instance of the resolver tier (ADR infra/0011)"
