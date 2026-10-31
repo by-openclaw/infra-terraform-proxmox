@@ -45,6 +45,7 @@ module "my_vm" {
 | `cores` | CPU cores | number | `2` | no |
 | `memory` | Memory in MB | number | `2048` | no |
 | `disk_size` | Primary disk size | string | `"20G"` | no |
+| `data_disk_size_gib` | Second disk (scsi1) for the service data — the Docker data root (roles/docker_data, CIS Docker 1.1.1); 0 = none; hot-added, Ansible formats and mounts it | number | `0` | no |
 | `storage` | Storage pool name | string | — | yes |
 | `network_bridge` | Proxmox bridge name | string | `"vmbrOOB"` | no |
 | `ip` | Static IP in CIDR | string | — | yes |

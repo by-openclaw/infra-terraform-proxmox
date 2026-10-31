@@ -28,12 +28,13 @@ module "vm_mailcow_01" {
   env         = "prod"
   tags        = ["service", "vlan1020", "zone-dmz", "role-mailcow"]
 
-  clone     = "debian-12-cloud" # template VMID 9000
-  cores     = 4
-  cpu_type  = "x86-64-v2-AES" # NOT "host": host-passthrough on this Sandy Bridge Xeon E5-2640 v0 panics the multi-core Debian-12 guest ("Attempted to kill init"). v2-AES is fully supported here (SSE4.2/POPCNT/AES-NI) and migration-safe; v3 is N/A (no AVX2).
-  memory    = 8192            # mailcow needs >=6 GB; 8 GB for rspamd/clamav headroom
-  disk_size = "60G"
-  storage   = "poc-data"
+  clone              = "debian-12-cloud" # template VMID 9000
+  cores              = 4
+  cpu_type           = "x86-64-v2-AES" # NOT "host": host-passthrough on this Sandy Bridge Xeon E5-2640 v0 panics the multi-core Debian-12 guest ("Attempted to kill init"). v2-AES is fully supported here (SSE4.2/POPCNT/AES-NI) and migration-safe; v3 is N/A (no AVX2).
+  memory             = 8192            # mailcow needs >=6 GB; 8 GB for rspamd/clamav headroom
+  disk_size          = "60G"
+  data_disk_size_gib = 48 # Docker data root (roles/docker_data): 7.2 GB measured 2026-10-31; the mail store (vmail) is a Docker volume
+  storage            = "poc-data"
 
   network_bridge = "vmbrAPPS"
   vlan_id        = 1020

@@ -157,3 +157,9 @@ variable "use_vendor_data" {
   type        = bool
   default     = true
 }
+
+variable "data_disk_size_gib" {
+  description = "Second disk (scsi1) for the service's data — the Docker data root (ansible-platform roles/docker_data, CIS Docker Benchmark 1.1.1). 0 = no data disk. The provider hot-adds it to a running VM (PVE hotplug default network,disk,usb): no restart. Formatted and mounted by Ansible, never here."
+  type        = number
+  default     = 0
+}

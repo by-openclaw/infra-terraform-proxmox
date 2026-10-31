@@ -122,6 +122,20 @@ resource "proxmox_virtual_environment_vm" "this" {
     file_format  = "raw" # poc-data is ZFS — only raw is supported (qcow2 caused drift vs live; #27)
   }
 
+  # Data disk (scsi1) — only when asked for; raw on ZFS like the OS disk; part of the
+  # backup (PVE default backup=1). Ansible (roles/docker_data) formats and mounts it.
+  dynamic "disk" {
+    for_each = var.data_disk_size_gib > 0 ? [var.data_disk_size_gib] : []
+    content {
+      datastore_id = var.storage
+      interface    = "scsi1"
+      size         = disk.value
+      discard      = "on"
+      iothread     = true
+      file_format  = "raw"
+    }
+  }
+
   network_device {
     model   = "virtio"
     bridge  = var.network_bridge

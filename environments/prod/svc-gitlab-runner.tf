@@ -21,12 +21,13 @@ module "vm_gitlab_runner_01" {
   env         = "prod"
   tags        = ["service", "vlan1030", "zone-svc", "role-ci-runner", "gitlab-runner"]
 
-  clone     = "debian-12-cloud" # template VMID 9000 (same as mailcow)
-  cores     = 4
-  cpu_type  = "x86-64-v2-AES" # host-passthrough panics multi-core Debian on this Sandy Bridge Xeon (see mailcow)
-  memory    = 8192            # CI builds + Docker layer cache
-  disk_size = "40G"           # Docker images + build cache; jobs are ephemeral
-  storage   = "poc-data"
+  clone              = "debian-12-cloud" # template VMID 9000 (same as mailcow)
+  cores              = 4
+  cpu_type           = "x86-64-v2-AES" # host-passthrough panics multi-core Debian on this Sandy Bridge Xeon (see mailcow)
+  memory             = 8192            # CI builds + Docker layer cache
+  disk_size          = "40G"           # Docker images + build cache; jobs are ephemeral
+  data_disk_size_gib = 16              # Docker data root (roles/docker_data): 5.0 GB measured 2026-10-31 (layer cache)
+  storage            = "poc-data"
 
   network_bridge = "vmbrAPPS"
   vlan_id        = 1030
