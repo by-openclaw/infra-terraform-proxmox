@@ -23,7 +23,7 @@ module "svc_redis" {
   tags        = ["service", "vlan1030", "zone-svc", "role-cache", "redis"]
 
   ostemplate_file_id = proxmox_virtual_environment_download_file.tmpl_debian_13.id
-  cores              = 1
+  cores              = 2 # the week's peak was 100 % of 1 core, 2026-11-02
   memory             = 1024
   swap               = 1024 # Redis docs: "swap is enabled and … equal to amount of memory"
   disk_gb            = 8

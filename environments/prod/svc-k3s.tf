@@ -15,6 +15,7 @@ module "vm_k3s_01" {
 
   clone     = "debian-12-cloud" # template VMID 9000
   cores     = 4
+  cpu_type  = "x86-64-v2-AES" # migration-safe, the cluster nodes are another CPU family
   memory    = 8192
   disk_size = "60G"
   storage   = "poc-data"

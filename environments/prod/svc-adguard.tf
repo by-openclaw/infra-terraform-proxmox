@@ -25,8 +25,9 @@ module "vm_adguard_01" {
   env         = "prod"
   tags        = ["service", "vlan1030", "zone-svc", "role-adguard"]
 
-  clone = "debian-12-cloud" # template VMID 9000 (per repo CLAUDE.md)
-  cores = 1
+  clone    = "debian-12-cloud" # template VMID 9000 (per repo CLAUDE.md)
+  cores    = 2                 # the week's peak was 99 % of 1 core, 2026-11-02
+  cpu_type = "x86-64-v2-AES"   # migration-safe, the cluster nodes are another CPU family
   # 2 GiB: AdGuard moves into a container (ansible-platform) — the Docker engine plus the
   # cadvisor + portainer agents every Docker host runs need ~200 MB; at 1 GiB the VM had
   # 270 MB available and no swap (measured 2026-10-01).
@@ -77,7 +78,8 @@ module "vm_adguard_02" {
   env                = "prod"
   tags               = ["service", "vlan1030", "zone-svc", "role-adguard"]
   clone              = "debian-12-cloud"
-  cores              = 1
+  cores              = 2 # same as vm-adguard-01
+  cpu_type           = "x86-64-v2-AES"
   memory             = 2048
   disk_size          = "20G"
   data_disk_size_gib = 8 # Docker data root (roles/docker_data): 1.7 GB measured 2026-10-31
