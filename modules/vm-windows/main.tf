@@ -122,6 +122,21 @@ resource "proxmox_virtual_environment_vm" "this" {
     file_format  = "raw"
   }
 
+  # Second disk (scsi1) for the guest's data (D:), as modules/vm-linux: 0 = none. The provider hot-adds it
+  # to a running VM (PVE hotplug default network,disk,usb): no restart. ansible-platform
+  # roles/windows_data_disk brings it online, partitions and formats it — never here.
+  dynamic "disk" {
+    for_each = var.data_disk_size_gib > 0 ? [var.data_disk_size_gib] : []
+    content {
+      datastore_id = var.storage
+      interface    = "scsi1"
+      size         = disk.value
+      discard      = "on"
+      iothread     = true
+      file_format  = "raw"
+    }
+  }
+
   network_device {
     model   = "virtio"
     bridge  = var.network_bridge

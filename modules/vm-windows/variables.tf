@@ -118,3 +118,9 @@ variable "agent_timeout" {
   type        = string
   default     = "20m"
 }
+
+variable "data_disk_size_gib" {
+  description = "Second disk (scsi1) for the guest's data, D: (ansible-platform roles/windows_data_disk). 0 = no data disk. Hot-added to a running VM: no restart."
+  type        = number
+  default     = 0
+}

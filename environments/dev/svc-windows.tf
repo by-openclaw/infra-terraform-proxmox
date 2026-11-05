@@ -21,9 +21,10 @@ module "vm_winapp_01" {
   numa_hostnode = "0"
   memory        = 32768
 
-  storage        = local.storage
-  disk_size      = "120G"
-  network_bridge = local.bridge
+  storage            = local.storage
+  disk_size          = "120G"
+  data_disk_size_gib = 60 # D: Cerebrum backups, archives, dumps, projects (owner 2026-11-05: dev, no increase of C:)
+  network_bridge     = local.bridge
 
   ip          = "10.6.239.201/20"
   gateway     = local.gateway
@@ -46,9 +47,10 @@ module "vm_winapp_02" {
   numa_hostnode = "1"
   memory        = 32768
 
-  storage        = local.storage
-  disk_size      = "120G"
-  network_bridge = local.bridge
+  storage            = local.storage
+  disk_size          = "120G"
+  data_disk_size_gib = 60 # D: Cerebrum backups, archives, dumps, projects (owner 2026-11-05: dev, no increase of C:)
+  network_bridge     = local.bridge
 
   ip          = "10.6.239.202/20"
   gateway     = local.gateway
@@ -71,9 +73,10 @@ module "vm_winsql_01" {
   numa_hostnode = "2"
   memory        = 32768
 
-  storage        = local.storage
-  disk_size      = "150G" # SQL Express data under C: for now; its 10 GB/db cap keeps this honest
-  network_bridge = local.bridge
+  storage            = local.storage
+  disk_size          = "150G" # SQL Express data under C: for now; its 10 GB/db cap keeps this honest
+  data_disk_size_gib = 40     # D: the SQL backups (roles/cerebrum_db)
+  network_bridge     = local.bridge
 
   ip          = "10.6.239.203/20"
   gateway     = local.gateway
